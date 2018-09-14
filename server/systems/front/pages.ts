@@ -27,7 +27,7 @@ export namespace PageRouter {
         if (request.user) {
             local = request.user.local;
         }
-        response.render("applications/front/index", {
+        response.render("systems/front/index", {
             local:local,
             role: auth.role(request.user),
             message: message,

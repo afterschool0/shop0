@@ -244,7 +244,18 @@ namespace App {
                 }
             };
 
-            load_root_module("./server", config.root_modules);
+            let root_modules = [
+                {
+                    "type": "required",
+                    "path": "/systems/",
+                    "name": "front",
+                    "description": {
+                        "display": "Front"
+                    }
+                }
+            ];
+
+            load_root_module("./server", root_modules);
 
             // passport
 

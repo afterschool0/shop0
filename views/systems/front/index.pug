@@ -75,7 +75,7 @@ html
                                             span &nbsp; #{message.logout}
 
                         .main-pane(style="padding:1rem;background-color:#f4f4f4;")
-                            include ./partial/logged
+                            include partial/logged
                         .right-pane
                             div Right
 
@@ -83,7 +83,7 @@ html
 
             else
                 div(ng-controller="LoginController")
-                    include ./partial/no_logged
+                    include partial/no_logged
 
     script(type="text/javascript", src="/socket.io/socket.io.js")
     script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/cryptico/0.0.1343522940/cryptico.min.js")
@@ -107,5 +107,5 @@ html
     script(type="text/javascript", src="/systems/publickey/publickey_services.js")
     script(type="text/javascript", src="/systems/auth/auth_services.js")
     script(type="text/javascript", src="/systems/auth/auth_controllers.js")
-    script(type="text/javascript", src="/applications/front/front_application.js")
-    script(type="text/javascript", src="/applications/front/front_controllers.js")
+    script(type="text/javascript", src="/systems/front/front_application.js")
+    script(type="text/javascript", src="/systems/front/front_controllers.js")
