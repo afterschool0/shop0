@@ -1,0 +1,12 @@
+div
+    .modal-header
+        span.h5.modal-title
+    .modal-body
+        .row
+            .col-12
+                .text-center {{message}}
+    .modal-footer
+        .row
+            .col-12
+                .text-center(style="margin:2rem;")
+                    button.btn.btn-warning(type="button", ng-click='cancel();', aria-label="") #{message.ok}

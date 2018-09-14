@@ -1,0 +1,300 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content=""/>
+    <meta name="keywords" content=""/>
+    <meta name="author" content=""/>
+    <!-- Facebook and Twitter integration -->
+    <meta property="og:title" content=""/>
+    <meta property="og:image" content=""/>
+    <meta property="og:url" content=""/>
+    <meta property="og:site_name" content=""/>
+    <meta property="og:description" content=""/>
+    <meta name="twitter:title" content=""/>
+    <meta name="twitter:image" content=""/>
+    <meta name="twitter:url" content=""/>
+    <meta name="twitter:card" content=""/>
+
+
+    <!--<link href="https://fonts.googleapis.com/css?family=Raleway:100,300,400,700" rel="stylesheet">-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="/css/icomoon.css">
+
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="/css/progress.css">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Modernizr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="https://d.line-scdn.net/r/web/social-plugin/js/thirdparty/loader.min.js" async="async" defer="defer"></script>
+
+</head>
+<body ng-app="Application">
+<div id="page">
+    <nav class="fh5co-nav" role="navigation">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-xs-2">
+                    <div id="fh5co-logo"><a href="index.html">Cocoro.</a></div>
+                </div>
+                <div class="col-md-6 col-xs-6 text-center menu-1">
+                    <ul>
+                        <li class="has-dropdown">
+                            <a href="product.html">Cocoro</a>
+                            <ul class="dropdown">
+                                <li><a href="single.html">Single Shop</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="about.html">About</a></li>
+                        <li class="has-dropdown">
+                            <a href="services.html">Services</a>
+                            <ul class="dropdown">
+                                <li><a href="#">Web Design</a></li>
+                                <li><a href="#">eCommerce</a></li>
+                                <li><a href="#">Branding</a></li>
+                                <li><a href="#">API</a></li>
+                            </ul>
+                        </li>
+                        <li class="active"><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 col-xs-4 text-right hidden-xs menu-2">
+                    <ul>
+                        <li class="search">
+                            <div class="input-group">
+                                <input type="text" placeholder="Search..">
+                                <span class="input-group-btn">
+						        <button class="btn btn-primary" type="button"><i class="icon-search"></i></button>
+						      </span>
+                            </div>
+                        </li>
+                        <li class="shopping-cart"><a href="#" class="cart"><span><small>0</small><i class="icon-shopping-cart"></i></span></a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </nav>
+    <header id="fh5co-header" class="fh5co-cover fh5co-cover-sm" role="banner" style="background-image:url(images/img_bg_2.jpg);">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2 text-center">
+                    <div class="display-t">
+                        <div class="display-tc animate-box" data-animate-effect="fadeIn">
+                            <h1>Contact Us</h1>
+                            <h2></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="fh5co-contact">
+        <div class="container">
+
+            <div ng-controller="ContactController">
+
+                <div ng-show="progress" style="z-index:20000;position:fixed;width:100px;height:100px;top:50%;left:50%;margin-top:-70px;margin-left:-75px;">
+                    <div id="progress">
+                        <div id="rond">
+                            <div id="test"></div>
+                        </div>
+                        <div id="load"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-10 col-sm-offset-1">
+                        <div class="panel">
+                            <div class="panel-body field-pane" style="border-radius: 4px;">
+                                <div id="input">
+                                    <form name="inq">
+                                        <div class="form-group row">
+                                            <div class="col-xs-12 col-md-4" style="margin-bottom: 10px;">
+                                                <div class="input-label">
+                                                    <span ng-if="!inq.username.$dirty">
+                                                        <span class="validation-error error-background">required</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-4">
+                                                <span ng-messages="inq.username.$error" ng-if="inq.username.$dirty">
+                                                    <span ng-message="maxlength" class="validation-error error-background-tooltip">&nbsp;100文字以内で入力してください。&nbsp;</span>
+                                                </span>
+                                                <input autocomplete="hoge" ng-class="{'valid-field':inq.username.$valid,'invalid-field':!inq.username.$valid }" type="text" class="form-control input-element field-background" id="username" ng-model="form.username" ng-maxlength="100" required="" name="username"  placeholder="Your name">
+                                            </div>
+                                        </div>
+
+                                        <div class="row under-line"></div>
+
+                                        <div class="form-group row">
+                                            <div class="col-xs-12 col-md-4" style="margin-bottom: 10px;">
+                                                <div class="input-label"></div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-6">
+                                                <span ng-messages="inq.street.$error" ng-if="inq.street.$dirty">
+                                                    <span ng-message="maxlength" class="validation-error error-background-tooltip">&nbsp;100文字以内で入力してください。&nbsp;</span>
+                                                </span>
+                                                <input autocomplete="hoge" type="text" placeholder="Your Address" class="form-control input-element field-background" id="street" ng-model="form.street" ng-maxlength="100" name="street">
+                                            </div>
+                                        </div>
+
+                                        <div class="row under-line"></div>
+
+                                        <div class="form-group row">
+                                            <div class="col-xs-12 col-md-4" style="margin-bottom: 10px;">
+                                                <div class="input-label">
+                                                    <span ng-if="!inq.contacttel.$dirty">
+                                                        <span class="validation-error error-background">required</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-6">
+                                                <span ng-messages="inq.contacttel.$error" ng-if="inq.contacttel.$dirty">
+                                                    <span ng-message="includeTelNumber" class="validation-error error-background-tooltip">&nbsp;数字で入力してください。&nbsp;</span>
+                                                    <span ng-message="maxlength" class="validation-error error-background-tooltip">&nbsp;15文字以内で入力してください。&nbsp;</span>
+                                                </span>
+                                                <input autocomplete="hoge" type="text" placeholder="Your Tel" ng-class="{'valid-field':inq.contacttel.$valid,'invalid-field':!inq.contacttel.$valid }" class="form-control input-element field-background" id="contacttel" ng-model="form.contacttel" include-tel-number="" ng-maxlength="30" required="" name="contacttel">
+                                            </div>
+                                        </div>
+
+                                        <div class="row under-line"></div>
+
+                                        <div class="form-group row">
+                                            <div class="col-xs-12 col-md-4" style="margin-bottom: 10px;">
+                                                <div class="input-label">
+                                                    <span ng-if="!inq.contactmail.$valid">
+                                                        <span class="validation-error error-background">required</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-6">
+                                                <span ng-messages="inq.contactmail.$error" ng-if="inq.contactmail.$dirty">
+                                                    <span ng-message="maxlength" class="validation-error error-background-tooltip">&nbsp;210&nbsp;</span>
+                                                    <span ng-message="email" class="validation-error error-background-tooltip">&nbsp;メールアドレスの形式で入力してください。&nbsp;</span>
+                                                </span>
+                                                <input autocomplete="hoge" type="email" placeholder="Your email addreess" ng-class="{'valid-field':inq.contactmail.$valid,'invalid-field':!inq.contactmail.$valid }" class="form-control input-element field-background" id="contactmail" ng-model="form.thanks" ng-maxlength="210" required="" name="contactmail">
+                                            </div>
+                                        </div>
+
+                                        <div class="row under-line"></div>
+
+                                        <div class="form-group row">
+                                            <div class="col-xs-12 col-md-4" style="margin-bottom: 10px;">
+                                                <div class="input-label">
+                                                    <span ng-if="!inq.products.$valid">
+                                                        <span class="validation-error error-background">required</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-6">
+                                                <label class="checkbox-inline"><input type="checkbox" id="products1" ng-model="form.products1" ng-change="inq.products.$valid = form.products1 || form.products2 " value="cocoro">cocoro</label>
+                                                <label class="checkbox-inline"><input type="checkbox" id="products2" ng-model="form.products2" ng-change="inq.products.$valid = form.products1 || form.products2 " value="cocoro2">cocoro 2</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="row under-line"></div>
+
+                                        <div class="form-group row">
+                                            <div class="col-xs-12 col-md-4" style="margin-bottom: 10px;">
+                                                <div class="input-label">
+                                                    <span ng-if="!inq.contactmail.$valid">
+                                                        <span class="validation-error error-background">required</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-6">
+                                                <span ng-messages="inq.introducer.$error" ng-if="inq.introducer.$dirty">
+                                                    <span ng-message="maxlength" class="validation-error error-background-tooltip">&nbsp;210&nbsp;</span>
+                                                </span>
+                                                <input autocomplete="hoge" type="text" placeholder="introducer" ng-class="{'valid-field':inq.introducer.$valid,'invalid-field':!inq.introducer.$valid }" class="form-control input-element field-background" id="introducer" ng-model="form.introducer" ng-maxlength="210" required="" name="introducer">
+                                            </div>
+                                        </div>
+
+                                        <div class="row under-line"></div>
+
+                                        <div class="form-group row">
+                                            <div class="col-xs-12 col-md-4" style="margin-bottom: 10px;">
+                                                <div class="input-label">
+                                                    <span ng-messages="inq.request.$error" ng-if="inq.request.$dirty">
+                                                        <span ng-message="maxlength" class="validation-error error-background">&nbsp;100文字以内で入力してください。&nbsp;</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-6">
+                                                <textarea rows="5" class="form-control field-background" id="request" ng-model="form.request" ng-maxlength="100" name="request"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="row under-line"></div>
+
+                                        <div class="form-group text-center row">
+                                            <div class="col-xs-12" style="margin-bottom: 10px;">
+                                            <button ng-show="!inq.$valid" class="btn" style="width:70%;font-size:2rem;background-color:#d1c286;color:#ffffff;" ng-disabled="true">送信する</button>
+                                            <button ng-show="inq.$valid" class="btn" style="width:70%;font-size:2rem;background-color:#f39d1f;color:#ffffff;" ng-disabled="progress" ng-click="Send();">送信する</button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-resource.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-animate.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5//angular-sanitize.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5//angular-messages.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5//angular-aria.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-scroll/1.0.2/angular-scroll.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+<script type="text/javascript" src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap.min.js'></script>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js'></script>
+
+<script type="text/javascript" src="/js/contact_application.js"></script>
+<script type="text/javascript" src="/js/contact_controllers.js"></script>
+<script type="text/javascript" src="/js/contact_services.js"></script>
+
+<!-- <script src="/js/main.js"></script> -->
+
+<!-- Carousel -->
+<script src="/js/owl.carousel.min.js"></script>
+<!-- Flexslider -->
+<script src="/js/jquery.flexslider-min.js"></script>
+<!-- Main -->
+<script src="/js/main.js"></script>
+
+</body>
+</html>

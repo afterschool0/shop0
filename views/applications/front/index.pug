@@ -1,0 +1,111 @@
+doctype html
+html
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        title
+        link(rel='shortcut icon', href='favicon.ico')
+        link(rel="stylesheet", type="text/css", href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css")
+        link(rel='stylesheet', type='text/css', href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css')
+        link(rel='stylesheet', type='text/css', href='https://use.fontawesome.com/releases/v5.0.10/css/all.css', integrity='sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg', crossorigin='anonymous')
+
+        link(rel='stylesheet', type="text/css", href='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap-csp.css')
+        link(rel='stylesheet', type="text/css", href='/systems/stylesheets/progress.css')
+        link(rel='stylesheet', type='text/css', href='/systems/stylesheets/holygrail.css')
+        link(rel="stylesheet", type="text/css", href="/systems/stylesheets/styles.css")
+        script(type="text/javascript", src='https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js')
+
+    body(ng-app="FrontApplication", style="background:#ECEFF1;")
+        div(ng-show="progress", style="z-index:20000;position:fixed;top:50%;left:50%;margin-top:-70px;margin-left:-75px;")
+            #progress
+                #rond
+                    #test
+                #load
+        .page-column
+            .header(ng-controller="LoginController" style="position: fixed;width: 100%;")
+                div(style="padding:1rem;")
+                    img.img-fluid(src="")
+                if !role
+                    span(style="float:right")
+                        button.btn.btn-info(type="button", href='#', ng-click="showLoginDialog()", aria-label="", style="margin:12px;")
+                            i.fas.fa-sign-in-alt
+                            span &nbsp;#{message.login}
+                if role
+                    .menu
+                        input#menu-input.menu-unshown(type='checkbox' style="height:100vh;")
+                        label#menu-open.menu-trigger(for='menu-input')
+                            span
+                            span
+                            span
+                        label#menu-close.menu-unshown(for='menu-input' style="height:100vh;")
+                        #menu-content
+                            #hidden(style='height:100vh;')
+                                nav(class=role.user ? 'sidebar-color-invert' : 'sidebar-color',style="height:100vh")
+                                    div(style="color:#ffffff; background-color:#263238;padding:1rem;margin-bottom:1rem;")
+                                        div #{local.mails[0]}
+                                        div #{local.nickname}
+
+                                    ul.sidebar-menu(style="font-weight: 500")
+                                        li
+                                            a(href='#', ng-click="showPasswordDialog()", style="color:#ffffff;")
+                                                i.fas.fa-key.fa-fw.text-danger
+                                                span &nbsp; #{message.password}
+                                        li
+                                            a(href='#', ng-click="Logout()", style="color:#ffffff;")
+                                                i.fas.fa-sign-out-alt
+                                                span &nbsp; #{message.logout}
+
+            if role
+                .content-row
+                    .main-row(style="height: 100%;margin-top:80px;")
+                        .left-pane
+                            aside.main-sidebar(class=role.user ? 'sidebar-color-invert' : 'sidebar-color', style="height:100vh" ng-controller="LoginController")
+                                div(style="color:#ffffff; background-color:#263238;padding:1rem;margin-bottom:1rem;")
+                                        div #{local.mails[0]}
+                                        div #{local.nickname}
+
+                                ul.sidebar-menu(style="font-weight: 500")
+                                    li
+                                        a(href='#', ng-click="showPasswordDialog()", style="color:#ffffff;")
+                                            i.fas.fa-key.fa-fw.text-danger
+                                            span &nbsp; #{message.password}
+                                    li
+                                        a(href='#', ng-click="Logout()", style="color:#ffffff;")
+                                            i.fas.fa-sign-out-alt
+                                            span &nbsp; #{message.logout}
+
+                        .main-pane(style="padding:1rem;background-color:#f4f4f4;")
+                            include ./partial/logged
+                        .right-pane
+                            div Right
+
+                .footer-pane
+
+            else
+                div(ng-controller="LoginController")
+                    include ./partial/no_logged
+
+    script(type="text/javascript", src="/socket.io/socket.io.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/cryptico/0.0.1343522940/cryptico.min.js")
+
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js")
+    script(type="text/javascript", src="https://code.jquery.com/jquery-3.3.1.min.js", integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=", crossorigin="anonymous")
+
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-resource.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-animate.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-sanitize.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-messages.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-aria.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/i18n/angular-locale_ja-jp.js")
+    script(type="text/javascript", src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js")
+
+    script(type="text/javascript", src='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap.js')
+    script(type="text/javascript", src='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap-tpls.js')
+
+    script(type="text/javascript", src="/systems/common/services.js")
+    script(type="text/javascript", src="/systems/publickey/publickey_services.js")
+    script(type="text/javascript", src="/systems/auth/auth_services.js")
+    script(type="text/javascript", src="/systems/auth/auth_controllers.js")
+    script(type="text/javascript", src="/applications/front/front_application.js")
+    script(type="text/javascript", src="/applications/front/front_controllers.js")

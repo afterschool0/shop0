@@ -1,0 +1,59 @@
+div
+    .modal-header
+        span.h5.modal-title #{message.registdialogtitle}
+        span.pull-right
+            button.btn.btn-box-tool(tabindex="7" type='button', ng-click='cancel()')
+                i.fas.fa-times
+    .modal-body
+        ng-form(name="validate", ng-submit="answer(items)")
+            .row
+                .col-10.offset-1
+                    .form-group
+                        label.control-label(for="nickname") #{message.nickname_field}
+                        span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.displayName.$error")
+                            span.error-message(ng-message="required") #{message.required}
+                            span.error-message(ng-message="maxlength") #{message.long}
+                        input.form-control.no-zoom#nickname(tabindex="1" ng-model='items.displayName', type='text', name='displayName', placeholder='xxxxxxx', required, ng-maxlength="30")
+
+                .col-10.offset-1
+                    .form-group
+                        label.control-label(for="mailaddress") #{message.mail_field}
+                        span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.username.$error")
+                            span.error-message(ng-message="required") #{message.required}
+                            span.error-message(ng-message="pattern") #{message.invalid_mail_format}
+                            span.error-message(ng-message="maxlength") #{message.long}
+                        input.form-control.no-zoom#mailaddress(tabindex="2" ng-model='items.username', type='email', name='username', placeholder='xxxxxxx@domain.net', required, ng-maxlength="255", ng-pattern="/^[a-z0-9-._.+]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i")
+
+                .col-10.offset-1
+                    .form-group
+                        label.control-label(for="password") #{message.password_field}
+                        span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.password.$error")
+                            span.error-message(ng-message="required") #{message.required}
+                            span.error-message(ng-message="minlength") #{message.short}
+                            span.error-message(ng-message="maxlength") #{message.long}
+                        input.form-control.no-zoom#password(tabindex="3" ng-model="items.password", type="password", name="password", placeholder=message.over4under30, required, ng-minlength="4", ng-maxlength="255")
+
+                .col-10.offset-1
+                    .form-group
+                        label.control-label(for="retypepassword") #{message.retypepassword}
+                        span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.retypepassword.$error")
+                            span.error-message(ng-message="required") #{message.required}
+                            span.error-message(ng-message="compareTo") #{message.password_missmatch}
+                            span.error-message(ng-message="minlength") #{message.short}
+                            span.error-message(ng-message="maxlength") #{message.long}
+                        input.form-control.no-zoom#retypepassword(tabindex="4" ng-model="items.retypepassword", compare-to="items.password", type="password", name="retypepassword", placeholder=message.retypepassword, required, ng-minlength="4", ng-maxlength="255")
+
+            .row
+                .col-12
+                    .progress(ng-show="progress")
+                        .progress-bar.progress-bar-striped.active(role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%")
+            .row
+                .col-12
+                    include ../../../systems/common/error_message
+    .modal-footer
+        .row
+            .col-12
+                .text-center(style="margin:2rem;")
+                    button.btn.btn-warning(tabindex="5" type="button", ng-click='cancel()', aria-label="") #{message.cancel}
+                    button.btn.btn-primary(tabindex="6" type="button", ng-click='answer(items);validate.$dirty = false;', ng-disabled="progress || validate.$invalid", aria-label="") #{message.ok}
+

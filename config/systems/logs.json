@@ -1,0 +1,4 @@
+{
+  "appenders":{"request":{"type": "dateFile", "filename": "logs/request.log", "pattern": "-dd"}},
+  "categories": { "default": { "appenders": ["request"], "level": "error" }}
+}

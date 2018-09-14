@@ -1,0 +1,126 @@
+
+.brand-font {
+  font-size:30px;
+  font-family:'Source Code Pro', monospace;
+}
+
+.brand-font-local {
+  font-family: 'Monoton', cursive;
+  font-size:2.2rem;
+  font-weight:100;
+  color: #f96800;
+}
+
+@wrapper-color : #ECEFF1;
+@sidebar-color : #455a64;
+@navbar-color : #7986CB;
+
+.wrapper-color {
+  background: @wrapper-color;
+}
+
+.sidebar-color {
+  background: @sidebar-color;
+}
+
+.navbar-color {
+  background: @navbar-color;
+}
+
+
+/* navbar-button */
+
+.navbar-button {
+  box-shadow: 2px 2px 2px #fffb00;
+}
+
+.wrapper-color-invert {
+  background: darken(@wrapper-color, 20%);
+}
+
+.sidebar-color-invert {
+  background:darken(@sidebar-color, 20%);
+}
+
+.navbar-color-invert {
+  background: darken(@navbar-color, 20%);
+
+}
+
+.pallete-background {
+  background: #c7c7c7;
+}
+
+//a {
+//  color:#ffffff;
+//}
+
+body {
+  animation: fadeIn 1s ease 0s 1 normal;
+  -webkit-animation: fadeIn 1s ease 0s 1 normal;
+}
+
+@keyframes fadeIn {
+  0% {opacity: 0}
+  100% {opacity: 1}
+}
+
+@-webkit-keyframes fadeIn {
+  0% {opacity: 0}
+  100% {opacity: 1}
+}
+
+.resizeable-box {
+  margin: 40px;
+  box-shadow: 5px 5px 10px #535353;
+  border: 1px silver;
+  border-radius: 4px;
+  position: relative;
+  width: 500px;
+  height: 400px;
+  overflow: hidden;
+  min-height: 100px;
+  min-width: 200px;
+  max-width: 999px;
+  max-height: 800px;
+}
+
+.resizeable-box-header {
+  background: #535353;
+  color: white;
+  padding: 5px;
+}
+
+.resizeable-box-body {
+  font-size: 24pt;
+  padding: 20px;
+}
+
+.win-size-grip {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  padding: 4px;
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+  background: url(../img/wingrip.png) no-repeat;
+}
+
+
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  .panel {
+    height: 97%;
+    margin-bottom: 3%;
+  }
+}
+
+.modal-dialog {
+  top:50px;
+}
+
+.fc-agendaDay-view .fc-today { background: white !important; }

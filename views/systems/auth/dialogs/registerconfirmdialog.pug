@@ -1,0 +1,15 @@
+div
+    .modal-header
+        span.h5.modal-title #{message.registconfirmdialogtitle}
+    .modal-body
+        .row
+            .col-12
+                div #{message.registconfirmtext}
+        .row
+            .col-12
+                include ../../../systems/common/error_message
+    .modal-footer
+        .row
+            .col-12
+                .text-center(style="margin:2rem;")
+                    button.btn.btn-primary(type="button", ng-click='answer()', aria-label="") #{message.ok}

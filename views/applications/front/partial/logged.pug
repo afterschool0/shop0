@@ -1,0 +1,27 @@
+div(style='display:flex;flex-direction:column;')
+    div(style="width:auto;padding:0;")
+        .card
+            .card-body
+                div(style="margin:2rem;")
+                    h2 is not Logined
+                    div(style="margin:1rem;")
+                        div role = null;
+                div(style="margin:2rem;")
+                    h2 is Logined
+                    div(style="margin:1rem;")
+                        div role.guest = true;
+                        | role.temp = true;
+                        br
+                        | role.member = true;
+                        br
+                        | role.user = true;
+                        br
+                        | role.system = true;
+                div(style="margin:2rem;")
+                    h2 is Local
+                    div(style="margin:1rem;")
+                        div role.categoly = 0;
+                div(style="margin:2rem;")
+                    h2 is OAuth
+                    div(style="margin:1rem;")
+                        div role.categoly = 1;
