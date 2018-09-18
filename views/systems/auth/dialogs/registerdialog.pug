@@ -13,7 +13,7 @@ div
                         span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.displayName.$error")
                             span.error-message(ng-message="required") #{message.required}
                             span.error-message(ng-message="maxlength") #{message.long}
-                        input.form-control.no-zoom#nickname(tabindex="1" ng-model='items.displayName', type='text', name='displayName', placeholder='xxxxxxx', required, ng-maxlength="30")
+                        input.form-control.no-zoom#nickname(tabindex="1" ng-model='items.displayName',ng-change="change()", type='text', name='displayName', placeholder='xxxxxxx', required, ng-maxlength="30")
 
                 .col-10.offset-1
                     .form-group
@@ -22,7 +22,7 @@ div
                             span.error-message(ng-message="required") #{message.required}
                             span.error-message(ng-message="pattern") #{message.invalid_mail_format}
                             span.error-message(ng-message="maxlength") #{message.long}
-                        input.form-control.no-zoom#mailaddress(tabindex="2" ng-model='items.username', type='email', name='username', placeholder='xxxxxxx@domain.net', required, ng-maxlength="255", ng-pattern="/^[a-z0-9-._.+]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i")
+                        input.form-control.no-zoom#mailaddress(tabindex="2" ng-model='items.username',ng-change="change()", type='email', name='username', placeholder='xxxxxxx@domain.net', required, ng-maxlength="255", ng-pattern="/^[a-z0-9-._.+]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i")
 
                 .col-10.offset-1
                     .form-group
@@ -31,7 +31,7 @@ div
                             span.error-message(ng-message="required") #{message.required}
                             span.error-message(ng-message="minlength") #{message.short}
                             span.error-message(ng-message="maxlength") #{message.long}
-                        input.form-control.no-zoom#password(tabindex="3" ng-model="items.password", type="password", name="password", placeholder=message.over4under30, required, ng-minlength="4", ng-maxlength="255")
+                        input.form-control.no-zoom#password(tabindex="3" ng-model="items.password",ng-change="change()", type="password", name="password", placeholder=message.over4under30, required, ng-minlength="4", ng-maxlength="255")
 
                 .col-10.offset-1
                     .form-group
@@ -41,7 +41,7 @@ div
                             span.error-message(ng-message="compareTo") #{message.password_missmatch}
                             span.error-message(ng-message="minlength") #{message.short}
                             span.error-message(ng-message="maxlength") #{message.long}
-                        input.form-control.no-zoom#retypepassword(tabindex="4" ng-model="items.retypepassword", compare-to="items.password", type="password", name="retypepassword", placeholder=message.retypepassword, required, ng-minlength="4", ng-maxlength="255")
+                        input.form-control.no-zoom#retypepassword(tabindex="4" ng-model="items.retypepassword",ng-change="change()", compare-to="items.password", type="password", name="retypepassword", placeholder=message.retypepassword, required, ng-minlength="4", ng-maxlength="255")
 
             .row
                 .col-12

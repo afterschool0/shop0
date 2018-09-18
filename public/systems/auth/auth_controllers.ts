@@ -31,7 +31,7 @@ namespace AuthControllersModule {
             let alert = (message): void => {
                 let modalInstance: any = $uibModal.open({
                     controller: 'AlertDialogController',
-                    templateUrl: '/common/dialogs/alert_dialog',
+                    templateUrl: '/common/alert_dialog',
                     resolve: {
                         items: (): any => {
                             return message;
@@ -135,6 +135,7 @@ namespace AuthControllersModule {
             $scope.Logout = (): void => {
                 AuthService.Logout((account) => {
                     $rootScope.$broadcast('Logout');
+                },(): void => {
                 });
             };
 
@@ -183,8 +184,11 @@ namespace AuthControllersModule {
                 $window.location.href = ref;
             };
 
-            $scope.answer = (items: any): void => {
+            $scope.change = () => {
                 $scope.message = "";
+            };
+
+            $scope.answer = (items: any): void => {
                 progress(true);
                 AuthService.Login($scope.items.username, $scope.items.password, (account: any): void => {
                     $uibModalInstance.close(account);
@@ -192,6 +196,7 @@ namespace AuthControllersModule {
                 }, (error: any, message: string): void => {
                     $scope.message = message;
                     progress(false);
+                    $scope.$apply();
                 });
             };
         }]);
@@ -220,6 +225,10 @@ namespace AuthControllersModule {
                 $uibModalInstance.dismiss();
             };
 
+            $scope.change = () => {
+                $scope.message = "";
+            };
+
             $scope.answer = (scope: any): void => {
                 $scope.message = "";
                 progress(true);
@@ -229,6 +238,7 @@ namespace AuthControllersModule {
                 }, (error: any, message: string): void => {
                     $scope.message = message;
                     progress(false);
+                    $scope.$apply();
                 });
             };
         }]);
@@ -270,6 +280,10 @@ namespace AuthControllersModule {
                 $uibModalInstance.dismiss();
             };
 
+            $scope.change = () => {
+                $scope.message = "";
+            };
+
             $scope.answer = (answer: any): void => {
                 AuthService.Password($scope.items.username, $scope.items.password, (account: any): void => {
                     $uibModalInstance.close(account);
@@ -277,6 +291,7 @@ namespace AuthControllersModule {
                 }, (error: any, message: string): void => {
                     $scope.message = message;
                     progress(false);
+                    $scope.$apply();
                 });
             };
 

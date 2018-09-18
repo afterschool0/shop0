@@ -10,85 +10,113 @@ namespace PublicKeyServicesModule {
 
     let PublicKeyServices: angular.IModule = angular.module('PublicKeyServices', []);
 
-    PublicKeyServices.factory('FixedPublicKey', ['$resource',
-        ($resource: any): any => {
-            return $resource('/publickey/fixed', {}, {
-                get: {method: 'GET'}
-            });
-        }]);
-
-    PublicKeyServices.factory('DynamicPublicKey', ['$resource',
-        ($resource: any): any => {
-            return $resource('/publickey/dynamic', {}, {
-                get: {method: 'GET'}
-            });
-        }]);
-
-    PublicKeyServices.factory('Token', ['$resource',
-        ($resource: any): any => {
-            return $resource('/publickey/token', {}, {
-                get: {method: 'GET'}
-            });
-        }]);
-
-    PublicKeyServices.service('PublicKeyService', ["FixedPublicKey", "DynamicPublicKey", "Token",
-        function (FixedPublicKey: any, DynamicPublicKey: any, Token: any): void {
+    PublicKeyServices.service('PublicKeyService', [
+        function (): void {
 
             this.Fixed = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                FixedPublicKey.get({}, (result: any): void => {
-                    if (result) {
-                        switch (result.code) {
-                            case 0:
-                                callback(result.value);
-                                break;
-                            case 1:
-                                callback(null);
-                                break;
-                            default:
-                                error(result.code, result.message);
-                        }
-                    } else {
-                        error(10000, "network error");
+
+                let options: any = {
+                    method: "GET",
+                    cache: "no-cache",
+                    headers: {
+                        'Accept': 'application/json; charset=utf-8',
+                        'Content-Type': 'application/json; charset=utf-8',
+                        "x-requested-with": "XMLHttpRequest"
                     }
+                };
+
+                fetch("/publickey/fixed", options).then((res) => res.json()).then(
+                    (account) => {
+                        if (account) {
+                            switch (account.code) {
+                                case 0:
+                                    callback(account.value);
+                                    break;
+                                case 1:
+                                    callback(null);
+                                    break;
+                                default:
+                                    error(account.code, account.message);
+                            }
+                        } else {
+                            error(10000, "network error");
+                        }
+                    }
+                ).catch(() => {
+                    error(10000, "network error")
                 });
+
             };
 
             this.Dynamic = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                DynamicPublicKey.get({}, (result: any): void => {
-                    if (result) {
-                        switch (result.code) {
-                            case 0:
-                                callback(result.value);
-                                break;
-                            case 1:
-                                callback(null);
-                                break;
-                            default:
-                                error(result.code, result.message);
-                        }
-                    } else {
-                        error(10000, "network error");
+
+                let options: any = {
+                    method: "GET",
+                    cache: "no-cache",
+                    headers: {
+                        'Accept': 'application/json; charset=utf-8',
+                        'Content-Type': 'application/json; charset=utf-8',
+                        "x-requested-with": "XMLHttpRequest"
                     }
+                };
+
+                fetch("/publickey/dynamic", options).then((res) => res.json()).then(
+                    (account) => {
+                        if (account) {
+                            switch (account.code) {
+                                case 0:
+                                    callback(account.value);
+                                    break;
+                                case 1:
+                                    callback(null);
+                                    break;
+                                default:
+                                    error(account.code, account.message);
+                            }
+                        } else {
+                            error(10000, "network error");
+                        }
+                    }
+                ).catch(() => {
+                    error(10000, "network error")
                 });
+
             };
 
             this.Token = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                Token.get({}, (result: any): void => {
-                    if (result) {
-                        switch (result.code) {
-                            case 0:
-                                callback(result.value);
-                                break;
-                            case 1:
-                                callback(null);
-                                break;
-                            default:
-                                error(result.code, result.message);
-                        }
-                    } else {
-                        error(10000, "network error");
+
+
+                let options: any = {
+                    method: "GET",
+                    cache: "no-cache",
+                    headers: {
+                        'Accept': 'application/json; charset=utf-8',
+                        'Content-Type': 'application/json; charset=utf-8',
+                        "x-requested-with": "XMLHttpRequest"
                     }
+                };
+
+                fetch("/publickey/token", options).then((res) => res.json()).then(
+                    (account) => {
+                        if (account) {
+                            switch (account.code) {
+                                case 0:
+                                    callback(account.value);
+                                    break;
+                                case 1:
+                                    callback(null);
+                                    break;
+                                default:
+                                    error(account.code, account.message);
+                            }
+                        } else {
+                            error(10000, "network error");
+                        }
+                    }
+                ).catch(() => {
+                    error(10000, "network error")
                 });
+
             };
 
         }]);

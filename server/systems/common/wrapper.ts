@@ -41,7 +41,7 @@ export namespace Promised {
                 res = this.BasicHeader(res, "");
                 callback(req, res);
             } else {
-                this.SendError(res, 1, "", {code: 1, message: ""});
+                this.SendError(res, 1, "", {code: 1, message: "CSRF?"});
             }
         }
 

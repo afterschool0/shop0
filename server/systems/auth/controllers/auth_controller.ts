@@ -979,9 +979,9 @@ export namespace AuthModule {
                                     });
                                 });
                             } else {
-                                Wrapper.SendError(response, number + 2, message.wrongusername, {
+                                Wrapper.SendError(response, number + 2, message.usernamenotfound, {
                                     code: number + 2,
-                                    message: message.wrongusername
+                                    message: message.usernamenotfound
                                 });
                             }
                         } else {
