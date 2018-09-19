@@ -8,9 +8,7 @@ namespace FrontApplicationModule {
 
     let FrontApplication: any = angular.module('FrontApplication', [
         'ngMessages',
-        "ngResource",
-        'ngAnimate',
-        'ngSanitize',
+
         'ui.bootstrap',
         "Services",
         "AuthServices",

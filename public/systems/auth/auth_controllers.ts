@@ -8,7 +8,7 @@
 
 namespace AuthControllersModule {
 
-    let AuthControllers: angular.IModule = angular.module('AuthControllers', ["ngResource", 'ngMessages', 'ngAnimate']);
+    let AuthControllers: angular.IModule = angular.module('AuthControllers', ['ngMessages']);
 
     AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService',
         ($scope: any, $rootScope: any, $window: any, $uibModal: any, $log: any, AuthService: any, ProfileService: any): void => {

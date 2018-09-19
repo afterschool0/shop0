@@ -26,7 +26,7 @@ export module PublicKeyModule {
                 let systempassphrase: string = request.session.id;
                 Wrapper.SendSuccess(response, Cipher.PublicKey(systempassphrase));
             } else {
-                Wrapper.SendError(response, 1, "", null);
+                Wrapper.SendError(response, 1, "get_fixed_public_key", null);
             }
         }
 
@@ -34,7 +34,7 @@ export module PublicKeyModule {
             if (Config.use_publickey) {
                 Wrapper.SendSuccess(response, Cipher.PublicKey(request.user.passphrase));
             } else {
-                Wrapper.SendError(response, 1, "", null);
+                Wrapper.SendError(response, 1, "get_public_key", null);
             }
         }
 
@@ -42,7 +42,7 @@ export module PublicKeyModule {
             if (Config.use_publickey) {
                 Wrapper.SendSuccess(response, Cipher.FixedCrypt(request.session.id, request.user.passphrase));
             } else {
-                Wrapper.SendError(response, 1, "", null);
+                Wrapper.SendError(response, 1, "get_access_token", null);
             }
         }
 

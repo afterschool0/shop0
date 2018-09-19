@@ -46,7 +46,7 @@ export namespace ProfileModule {
                         });
 
                 } else {
-                    Wrapper.SendWarn(response, 2, "not found", {code: 2, message: "not found"});
+                    Wrapper.SendWarn(response, 2, "profile not found", {code: 2, message: "profile not found"});
                 }
             });
         }
@@ -70,7 +70,7 @@ export namespace ProfileModule {
                         local: self.local
                     });
                 } else {
-                    Wrapper.SendWarn(response, 2, "not found", {code: 2, message: "not found"});
+                    Wrapper.SendWarn(response, 2, "profile not found", {code: 2, message: "profile not found"});
                 }
             });
         }

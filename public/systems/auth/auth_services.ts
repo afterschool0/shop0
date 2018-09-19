@@ -56,7 +56,7 @@ namespace AuthServicesModule {
                     regist.displayName = displayName;
                     regist.metadata = metadata;
                     const body = JSON.stringify(regist);
-                    access("/auth/local/register", {POST, default_header, body}, callback, error);
+                    access("/auth/local/register", {method:POST, headers:default_header,body: body}, callback, error);
                 });
             };
 
@@ -66,7 +66,7 @@ namespace AuthServicesModule {
                     regist.displayName = displayName;
                     regist.metadata = metadata;
                     const body = JSON.stringify(regist);
-                    access("/auth/local/register", {POST, default_header, body}, callback, error);
+                    access("/auth/local/register", {method:POST, headers:default_header,body: body}, callback, error);
                 });
             };
 
@@ -74,21 +74,19 @@ namespace AuthServicesModule {
                 PublicKeyService.Fixed((key) => {
                     let login: { username: string, password: string } = public_key(key, username, password);
                     const body = JSON.stringify(login);
-                    access("/auth/local/login", {POST, default_header, body}, callback, error);
+                    access("/auth/local/login", {method:POST, headers:default_header,body: body}, callback, error);
                 });
             };
 
             this.Logout = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                let logout: any = {};
-                const body = JSON.stringify(logout);
-                access("/auth/logout", {POST, default_header, body}, callback, error);
+                access("/auth/logout", {method: "GET", cache: "no-cache", headers: default_header}, callback, error);
             };
 
             this.Password = (username: string, password: string, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
                 PublicKeyService.Fixed((key) => {
                     let pass: { username: string, password: string } = public_key(key, username, password);
                     const body = JSON.stringify(pass);
-                    access("/auth/local/password", {POST, default_header, body}, callback, error);
+                    access("/auth/local/password", {method:POST, headers:default_header,body: body}, callback, error);
                 });
             };
 

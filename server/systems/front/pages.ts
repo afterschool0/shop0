@@ -26,7 +26,13 @@ export namespace PageRouter {
     const config: any = _config.get("systems");
     const message: any = config.message;
 
-    router.get("/", [ (request: any, response: any): void => {
+    let mount_path = "";
+
+    if (config.mount_path) {
+        mount_path = config.mount_path;
+    }
+
+    router.get("/" + mount_path, [ (request: any, response: any): void => {
         let local = {mails:[""],nickname:""};
         if (request.user) {
             local = request.user.local;

@@ -76,12 +76,14 @@ export namespace AuthModule {
 
     let definition: any = {account_content: {mails: [], nickname: "", tokens: {}}};
 
-    fs.open(path.join(process.cwd(), "models/systems/accounts/definition.json"), 'ax+', 384, (error, fd) => {
+    fs.open(path.join(process.cwd(), "models/systems/accounts/definition.json"), 'r', 384, (error, fd) => {
         if (!error) {
             fs.close(fd, () => {
                 let addition: any = JSON.parse(fs.readFileSync(path.join(process.cwd(), "models/systems/accounts/definition.json"), 'utf-8'));
                 definition = _.merge(definition, addition.account_content);
             });
+        } else {
+            console.log(error.message);
         }
     });
 
@@ -440,7 +442,7 @@ export namespace AuthModule {
          * @returns none
          */
         public post_local_register(request: any, response: Express.Response): void {
-            const number: number = 15000;
+
             let username: string = request.body.username;
             let password: string = request.body.password;
             let systempassphrase: string = request.session.id;
@@ -481,6 +483,8 @@ export namespace AuthModule {
                                             Wrapper.SendError(response, error.code, error.message, error);
                                         }
                                     });
+                                } else {
+                                    console.log(err.message);
                                 }
                             });
 
@@ -488,8 +492,8 @@ export namespace AuthModule {
                             Wrapper.SendFatal(response, e.code, e.message, e);
                         }
                     } else {
-                        Wrapper.SendWarn(response, number + 1, message.usernamealreadyregist, {
-                            code: number + 1,
+                        Wrapper.SendWarn(response,   1, message.usernamealreadyregist, {
+                            code:   1,
                             message: message.usernamealreadyregist
                         });
                     }
@@ -553,27 +557,27 @@ export namespace AuthModule {
                                                             } else {
                                                                 response.status(500).render('error', {
                                                                     status: 500,
-                                                                    message: ""
+                                                                    message: error.message
                                                                 });
                                                             }
                                                         });
                                                     } else {
                                                         response.status(500).render('error', {
                                                             status: 500,
-                                                            message: ""
+                                                            message: "authenticate"
                                                         });
                                                     }
                                                 } else {
                                                     response.status(500).render('error', {
                                                         status: 500,
-                                                        message: ""
+                                                        message: error.message
                                                     });
                                                 }
                                             })(request, response);
                                         } else {
                                             response.status(500).render('error', {
                                                 status: 500,
-                                                message: "unknown error."
+                                                message: error.message
                                             });
                                         }
                                     });
@@ -581,11 +585,11 @@ export namespace AuthModule {
                                 response.redirect("/");
                             }
                         } else {
-                            response.status(500).render('error', {status: 500, message: "unknown error"});
+                            response.status(500).render('error', {status: 500,   message: error.message});
                         }
                     });
                 } else {
-                    response.status(500).render('error', {status: 500, message: "timeout"});
+                    response.status(200).render('error', {status: 200, message: "timeout"});
                 }
             });
         }
@@ -598,7 +602,6 @@ export namespace AuthModule {
          */
         public post_member_register(request: any, response: Express.Response): void {
 
-            const number: number = 15000;
             let username: string = request.body.username;
             let password: string = request.body.password;
             let systempassphrase: string = request.session.id;
@@ -642,15 +645,14 @@ export namespace AuthModule {
                                             Wrapper.SendError(response, error.code, error.message, error);
                                         }
                                     });
-
                                 }
                             });
                         } catch (e) {
                             Wrapper.SendFatal(response, e.code, e.message, e);
                         }
                     } else {
-                        Wrapper.SendWarn(response, number + 1, message.usernamealreadyregist, {
-                            code: number + 1,
+                        Wrapper.SendWarn(response,   1, message.usernamealreadyregist, {
+                            code:   1,
                             message: message.usernamealreadyregist
                         });
                     }
@@ -714,27 +716,27 @@ export namespace AuthModule {
                                                             } else {
                                                                 response.status(500).render('error', {
                                                                     status: 500,
-                                                                    message: ""
+                                                                    message: error.message
                                                                 });
                                                             }
                                                         });
                                                     } else {
                                                         response.status(500).render('error', {
                                                             status: 500,
-                                                            message: ""
+                                                            message: "authenticate"
                                                         });
                                                     }
                                                 } else {
                                                     response.status(500).render('error', {
                                                         status: 500,
-                                                        message: ""
+                                                        message: error.message
                                                     });
                                                 }
                                             })(request, response);
                                         } else {
                                             response.status(500).render('error', {
                                                 status: 500,
-                                                message: "unknown error."
+                                                message: error.message
                                             });
                                         }
                                     });
@@ -742,11 +744,11 @@ export namespace AuthModule {
                                 response.redirect("/");
                             }
                         } else {
-                            response.status(500).render('error', {status: 500, message: "unknown error"});
+                            response.status(500).render('error', {status: 500, message: error.message});
                         }
                     });
                 } else {
-                    response.status(500).render('error', {status: 500, message: "timeout"});
+                    response.status(200).render('error', {status: 200, message: "timeout"});
                 }
             });
         }
@@ -758,7 +760,7 @@ export namespace AuthModule {
          * @returns none
          */
         public post_local_username(request: any, response: Express.Response): void {
-            const number: number = 19000;
+
             let username: string = request.body.username;
             let password: string = request.body.password;
             let newusername: string = request.body.newusername;
@@ -769,9 +771,9 @@ export namespace AuthModule {
                 password = Cipher.PublicKeyDecrypt(systempassphrase, password).plaintext;
             }
 
-            Wrapper.FindOne(response, number, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
+            Wrapper.FindOne(response, 1, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
                 if (account) {
-                    Wrapper.FindOne(response, number, LocalAccount, {$and: [{provider: "local"}, {username: newusername}]}, (response: any, account: any): void => {
+                    Wrapper.FindOne(response, 2, LocalAccount, {$and: [{provider: "local"}, {username: newusername}]}, (response: any, account: any): void => {
                         if (!account) {
                             try {
 
@@ -796,22 +798,23 @@ export namespace AuthModule {
                                                 Wrapper.SendError(response, error.code, error.message, error);
                                             }
                                         });
+                                    } else {
+                                        console.log(err.message);
                                     }
                                 });
-
                             } catch (e) {
                                 Wrapper.SendFatal(response, e.code, e.message, e);
                             }
                         } else {
-                            Wrapper.SendWarn(response, number + 2, message.usernamealreadyregist, {
-                                code: number + 2,
+                            Wrapper.SendWarn(response,  2, message.usernamealreadyregist, {
+                                code:   2,
                                 message: message.usernamealreadyregist
                             });
                         }
                     });
                 } else {
-                    Wrapper.SendWarn(response, number + 3, message.usernamenotfound, {
-                        code: number + 3,
+                    Wrapper.SendWarn(response,   3, message.usernamenotfound, {
+                        code:   3,
                         message: message.usernamenotfound
                     });
                 }
@@ -833,24 +836,23 @@ export namespace AuthModule {
                     LocalAccount.findOne({username: token.username}, (error: any, account: any): void => {
                         if (!error) {
                             if (account) {
-                                let number: number = 83000;
                                 account.username = token.newusername;
                                 if (!error) {
-                                    Wrapper.Save(response, number, account, (): void => {
+                                    Wrapper.Save(response, 1, account, (): void => {
                                         response.redirect("/");
                                     });
                                 } else {
-                                    response.status(400).render("error", {message: "unknown error", status: 400}); // already
+                                    response.status(500).render("error", {message: error.message, status: 500}); // already
                                 }
                             } else {
-                                response.status(400).render("error", {message: "already", status: 400}); // already
+                                response.status(200).render("error", {message: "already", status: 200}); // already
                             }
                         } else {
-                            response.status(500).render("error", {message: "unknown error", status: 500}); // timeout
+                            response.status(500).render("error", {message: error.message, status: 500}); // timeout
                         }
                     });
                 } else {
-                    response.status(400).render("error", {message: "timeout", status: 400}); // timeout
+                    response.status(200).render("error", {message: "timeout", status: 200}); // timeout
                 }
             });
         }
@@ -862,7 +864,6 @@ export namespace AuthModule {
          * @returns none
          */
         public post_local_password(request: any, response: Express.Response): void {
-            const number: number = 21000;
             let username: string = request.body.username;
             let password: string = request.body.password;
             let systempassphrase: string = request.session.id;
@@ -872,7 +873,7 @@ export namespace AuthModule {
                 password = Cipher.PublicKeyDecrypt(systempassphrase, password).plaintext;
             }
 
-            Wrapper.FindOne(response, number, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
+            Wrapper.FindOne(response, 1, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
                 if (account) {
                     try {
 
@@ -902,8 +903,8 @@ export namespace AuthModule {
                         Wrapper.SendFatal(response, e.code, e.message, e);
                     }
                 } else {
-                    Wrapper.SendWarn(response, number + 1, message.usernamenotfound, {
-                        code: number + 1,
+                    Wrapper.SendWarn(response, 2, message.usernamenotfound, {
+                        code:   2,
                         message: message.usernamenotfound
                     });
                 }
@@ -917,7 +918,6 @@ export namespace AuthModule {
          * @returns none
          */
         public get_password_token(request: any, response: Express.Response): void {
-            const number: number = 22000;
             Wrapper.Exception(request, response, (request: any, response: any): void => {
                 let token: any = Wrapper.Parse(Cipher.FixedDecrypt(request.params.token, config.tokensecret));
                 let tokenDateTime: any = token.timestamp;
@@ -928,22 +928,22 @@ export namespace AuthModule {
                             if (account) {
                                 account.setPassword(token.password, (error: any): void => {
                                     if (!error) {
-                                        Wrapper.Save(response, number, account, (): void => {
+                                        Wrapper.Save(response, 1, account, (): void => {
                                             response.redirect("/");
                                         });
                                     } else {
-                                        response.status(400).render("error", {message: "unknown", status: 400}); // already
+                                        response.status(500).render("error", {message: error.message, status: 500}); // already
                                     }
                                 });
                             } else {
-                                response.status(400).render("error", {message: "already", status: 400}); // already
+                                response.status(200).render("error", {message: "already", status: 200}); // already
                             }
                         } else {
-                            response.status(500).render("error", {message: "unknown error", status: 500}); // timeout
+                            response.status(500).render("error", {message: error.message, status: 500}); // timeout
                         }
                     });
                 } else {
-                    response.status(400).render("error", {message: "timeout", status: 400}); // timeout
+                    response.status(200).render("error", {message: "timeout", status: 200}); // timeout
                 }
             });
         }
@@ -955,7 +955,6 @@ export namespace AuthModule {
          * @returns none
          */
         public post_local_login(request: any, response: Express.Response): void {
-            const number: number = 23000;
             let systempassphrase: string = request.session.id;
             if (request.body.username) {
                 if (request.body.password) {
@@ -979,8 +978,8 @@ export namespace AuthModule {
                                     });
                                 });
                             } else {
-                                Wrapper.SendError(response, number + 2, message.usernamenotfound, {
-                                    code: number + 2,
+                                Wrapper.SendError(response,  2, message.usernamenotfound, {
+                                    code:  2,
                                     message: message.usernamenotfound
                                 });
                             }
@@ -989,10 +988,10 @@ export namespace AuthModule {
                         }
                     })(request, response);
                 } else {
-                    Wrapper.SendError(response, number + 4, "", {code: number + 4, message: ""});
+                    Wrapper.SendError(response,   4, "password", {code:  4, message: "password"});
                 }
             } else {
-                Wrapper.SendError(response, number + 5, "", {code: number + 5, message: ""});
+                Wrapper.SendError(response,  5, "username", {code:  5, message: "username"});
             }
         }
 

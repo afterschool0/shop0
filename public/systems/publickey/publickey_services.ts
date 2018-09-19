@@ -85,7 +85,6 @@ namespace PublicKeyServicesModule {
 
             this.Token = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
 
-
                 let options: any = {
                     method: "GET",
                     cache: "no-cache",

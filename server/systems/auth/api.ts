@@ -36,7 +36,7 @@ export namespace AuthApiRouter {
     router.get("/password/:token", [auth.get_password_token]);
 
     router.post("/local/login", [exception.exception, exception.guard, auth.post_local_login]);
-    router.post("/logout", [exception.exception, exception.guard, exception.authenticate, auth.logout]);
+    router.get("/logout", [exception.exception, exception.guard, exception.authenticate, auth.logout]);
 
     // facebook
     router.get("/facebook", passport.authenticate("facebook", {scope: ["email"], session: true}));
