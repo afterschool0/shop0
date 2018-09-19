@@ -2,10 +2,10 @@ div
     .modal-header
         span.h5.modal-title #{message.logindialogtitle}
         span.pull-right
-            button.btn.btn-box-tool(type='button', ng-click='cancel()')
+            button.btn.btn-box-tool(tabindex="9", type='button', ng-click='cancel()')
                 i.fas.fa-times
     .modal-body
-        ng-form(name="validate", ng-submit="answer(items)")
+        ng-form(name="validate")
             .row
                 .col-10.offset-1
                     .form-group

@@ -53,7 +53,7 @@ export namespace Promised {
                     this.SendError(res, 1, "", {code: 1, message: ""});
                 }
             } else {
-                this.SendError(res, 1, "", {code: 1, message: ""});
+          //      this.SendError(res, 1, "", {code: 1, message: ""});
             }
         }
 

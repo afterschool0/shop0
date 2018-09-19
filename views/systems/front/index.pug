@@ -40,10 +40,21 @@ html
                         label#menu-close.menu-unshown(for='menu-input' style="height:100vh;")
                         #menu-content
                             #hidden(style='height:100vh;')
-                                nav(class=role.user ? 'sidebar-color-invert' : 'sidebar-color',style="height:100vh")
+                                nav(class=role.user ? 'sidebar-color-invert':'sidebar-color', style="height:100vh")
                                     div(style="color:#ffffff; background-color:#263238;padding:1rem;margin-bottom:1rem;")
                                         div #{local.mails[0]}
                                         div #{local.nickname}
+                                        div
+                                            if role.system
+                                                i.fas.fa-circle(style="color:#E91E63;")
+                                            if role.user
+                                                i.fas.fa-circle(style="color:#673AB7;")
+                                            if role.member
+                                                i.fas.fa-circle(style="color:#2196F3;")
+                                            if role.temp
+                                                i.fas.fa-circle(style="color:#009688;")
+                                            if role.guest
+                                                i.fas.fa-circle(style="color:#FFC107;")
 
                                     ul.sidebar-menu(style="font-weight: 500")
                                         li
@@ -54,15 +65,25 @@ html
                                             a(href='#', ng-click="Logout()", style="color:#ffffff;")
                                                 i.fas.fa-sign-out-alt
                                                 span &nbsp; #{message.logout}
-
             if role
                 .content-row
                     .main-row(style="height: 100%;margin-top:80px;")
                         .left-pane
-                            aside.main-sidebar(class=role.user ? 'sidebar-color-invert' : 'sidebar-color', style="height:100vh" ng-controller="LoginController")
+                            aside.main-sidebar(class=role.user ? 'sidebar-color-invert':'sidebar-color', style="height:100vh" ng-controller="LoginController")
                                 div(style="color:#ffffff; background-color:#263238;padding:1rem;margin-bottom:1rem;")
                                         div #{local.mails[0]}
                                         div #{local.nickname}
+                                        div
+                                            if role.system
+                                                i.fas.fa-circle(style="color:#E91E63;")
+                                            if role.user
+                                                i.fas.fa-circle(style="color:#673AB7;")
+                                            if role.member
+                                                i.fas.fa-circle(style="color:#2196F3;")
+                                            if role.temp
+                                                i.fas.fa-circle(style="color:#009688;")
+                                            if role.guest
+                                                i.fas.fa-circle(style="color:#FFC107;")
 
                                 ul.sidebar-menu(style="font-weight: 500")
                                     li

@@ -557,7 +557,7 @@ export namespace AuthModule {
                                                             } else {
                                                                 response.status(500).render('error', {
                                                                     status: 500,
-                                                                    message: error.message
+                                                                    message: "get_register_token " + error.message
                                                                 });
                                                             }
                                                         });
@@ -570,14 +570,14 @@ export namespace AuthModule {
                                                 } else {
                                                     response.status(500).render('error', {
                                                         status: 500,
-                                                        message: error.message
+                                                        message: "get_register_token " + error.message
                                                     });
                                                 }
                                             })(request, response);
                                         } else {
                                             response.status(500).render('error', {
                                                 status: 500,
-                                                message: error.message
+                                                message: "get_register_token " + error.message
                                             });
                                         }
                                     });
@@ -585,7 +585,7 @@ export namespace AuthModule {
                                 response.redirect("/");
                             }
                         } else {
-                            response.status(500).render('error', {status: 500,   message: error.message});
+                            response.status(500).render('error', {status: 500, message: "get_register_token " + error.message});
                         }
                     });
                 } else {
@@ -651,7 +651,7 @@ export namespace AuthModule {
                             Wrapper.SendFatal(response, e.code, e.message, e);
                         }
                     } else {
-                        Wrapper.SendWarn(response,   1, message.usernamealreadyregist, {
+                        Wrapper.SendWarn(response,1, message.usernamealreadyregist, {
                             code:   1,
                             message: message.usernamealreadyregist
                         });
@@ -716,7 +716,7 @@ export namespace AuthModule {
                                                             } else {
                                                                 response.status(500).render('error', {
                                                                     status: 500,
-                                                                    message: error.message
+                                                                    message: "get_member_token " + error.message
                                                                 });
                                                             }
                                                         });
@@ -729,14 +729,14 @@ export namespace AuthModule {
                                                 } else {
                                                     response.status(500).render('error', {
                                                         status: 500,
-                                                        message: error.message
+                                                        message: "get_member_token " + error.message
                                                     });
                                                 }
                                             })(request, response);
                                         } else {
                                             response.status(500).render('error', {
                                                 status: 500,
-                                                message: error.message
+                                                message: "get_member_token " + error.message
                                             });
                                         }
                                     });
@@ -744,7 +744,7 @@ export namespace AuthModule {
                                 response.redirect("/");
                             }
                         } else {
-                            response.status(500).render('error', {status: 500, message: error.message});
+                            response.status(500).render('error', {status: 500, message: "get_register_token " + error.message});
                         }
                     });
                 } else {
@@ -842,13 +842,13 @@ export namespace AuthModule {
                                         response.redirect("/");
                                     });
                                 } else {
-                                    response.status(500).render("error", {message: error.message, status: 500}); // already
+                                    response.status(500).render("error", {message: "get_username_token " + error.message, status: 500}); // already
                                 }
                             } else {
                                 response.status(200).render("error", {message: "already", status: 200}); // already
                             }
                         } else {
-                            response.status(500).render("error", {message: error.message, status: 500}); // timeout
+                            response.status(500).render("error", {message: "get_username_token " + error.message, status: 500}); // timeout
                         }
                     });
                 } else {
@@ -932,14 +932,14 @@ export namespace AuthModule {
                                             response.redirect("/");
                                         });
                                     } else {
-                                        response.status(500).render("error", {message: error.message, status: 500}); // already
+                                        response.status(500).render("error", {message: "get_password_token " + error.message, status: 500}); // already
                                     }
                                 });
                             } else {
                                 response.status(200).render("error", {message: "already", status: 200}); // already
                             }
                         } else {
-                            response.status(500).render("error", {message: error.message, status: 500}); // timeout
+                            response.status(500).render("error", {message: "get_password_token " + error.message, status: 500}); // timeout
                         }
                     });
                 } else {
@@ -988,10 +988,10 @@ export namespace AuthModule {
                         }
                     })(request, response);
                 } else {
-                    Wrapper.SendError(response,   4, "password", {code:  4, message: "password"});
+                    Wrapper.SendError(response,   4, "post_local_login password", {code:  4, message: "password"});
                 }
             } else {
-                Wrapper.SendError(response,  5, "username", {code:  5, message: "username"});
+                Wrapper.SendError(response,  5, "post_local_login username", {code:  5, message: "username"});
             }
         }
 

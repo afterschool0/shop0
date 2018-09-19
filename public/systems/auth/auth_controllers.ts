@@ -13,11 +13,11 @@ namespace AuthControllersModule {
     AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService',
         ($scope: any, $rootScope: any, $window: any, $uibModal: any, $log: any, AuthService: any, ProfileService: any): void => {
 
-            let progress = (value:boolean):void => {
+            let progress = (value: boolean): void => {
                 $scope.$emit('progress', value);
             };
 
-            $scope.$on('progress', (event:any, value:any):void => {
+            $scope.$on('progress', (event: any, value: any): void => {
                 $scope.progress = value;
             });
 
@@ -135,7 +135,7 @@ namespace AuthControllersModule {
             $scope.Logout = (): void => {
                 AuthService.Logout((account) => {
                     $rootScope.$broadcast('Logout');
-                },(): void => {
+                }, (): void => {
                 });
             };
 
