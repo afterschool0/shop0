@@ -45,11 +45,11 @@ namespace AuthControllersModule {
 
             $scope.about = true;
 
-            ProfileService.Get((self) => {
-                if (self) {
-                    $scope.userid = self.userid;
-                }
-            }, error_handler);
+     //       ProfileService.Get((self) => {
+     //           if (self) {
+     //               $scope.userid = self.userid;
+     //           }
+     //       }, error_handler);
 
             let confirmAccount = () => {
                 let modalRegistConfirm = $uibModal.open({
@@ -144,7 +144,7 @@ namespace AuthControllersModule {
             };
 
             $scope.$on('Login', (): void => {
-                $window.location.href = "//" + $window.location.host + "/";
+                $window.location.href = "//" + $window.location.host + "/front";
             });
 
             $scope.$on('Logout', (): void => {

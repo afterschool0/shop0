@@ -10,6 +10,11 @@ namespace AuthServicesModule {
 
     let AuthServices: angular.IModule = angular.module('AuthServices', []);
 
+    interface Encoded {
+        status: string,
+        cipher: string
+    }
+
     AuthServices.service('AuthService', ["PublicKeyService",
         function (PublicKeyService): void {
 
@@ -20,14 +25,26 @@ namespace AuthServicesModule {
                 "x-requested-with": "XMLHttpRequest"
             };
 
+            let publickey_encrypt = (key:string, plain:string, error:(status:string)=> void) => {
+                let result :string = "";
+                let username_encrypted :Encoded = cryptico.encrypt(plain, key);
+                if (username_encrypted.status === "success") {
+                    result = username_encrypted.cipher;
+                } else {
+                    error(username_encrypted.status);
+                }
+                return result;
+            };
+
             let public_key = (key:string, username:string, password:string):{username:string,password:string} => {
                 let result:{username:string,password:string} = {username:"",password:""};
+
+                result.username = username;
+                result.password = password;
+
                 if (key) {
-                    result.username = cryptico.encrypt(username, key).cipher;
-                    result.password = cryptico.encrypt(password, key).cipher;
-                } else {
-                    result.username = username;
-                    result.password = password;
+                    result.username = publickey_encrypt(key, username, (status) => {});
+                    result.password = publickey_encrypt(key, password, (status) => {});
                 }
                 return result;
             };

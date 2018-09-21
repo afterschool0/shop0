@@ -25,11 +25,17 @@ html
             .header(ng-controller="LoginController" style="position: fixed;width: 100%;")
                 div(style="padding:1rem;")
                     img.img-fluid(src="")
+                    div(style="font-size:1.8rem;") auth0
                 if !role
                     span(style="float:right")
+                        button.btn.btn-success(type="button", href='#', ng-click="showRegisterDialog()", aria-label="", style="margin:12px;")
+                            i.fas.fa-sign-in-alt
+                            span &nbsp;#{message.regist}
+
                         button.btn.btn-info(type="button", href='#', ng-click="showLoginDialog()", aria-label="", style="margin:12px;")
                             i.fas.fa-sign-in-alt
                             span &nbsp;#{message.login}
+
                 if role
                     .menu
                         input#menu-input.menu-unshown(type='checkbox' style="height:100vh;")
@@ -40,7 +46,7 @@ html
                         label#menu-close.menu-unshown(for='menu-input' style="height:100vh;")
                         #menu-content
                             #hidden(style='height:100vh;')
-                                nav(class=role.user ? 'sidebar-color-invert':'sidebar-color', style="height:100vh")
+                                nav(class=role.user ? 'sidebar-color-invert' : 'sidebar-color', style="height:100vh")
                                     div(style="color:#ffffff; background-color:#263238;padding:1rem;margin-bottom:1rem;")
                                         div #{local.mails[0]}
                                         div #{local.nickname}
@@ -68,32 +74,31 @@ html
             if role
                 .content-row
                     .main-row(style="height: 100%;margin-top:80px;")
-                        .left-pane
-                            aside.main-sidebar(class=role.user ? 'sidebar-color-invert':'sidebar-color', style="height:100vh" ng-controller="LoginController")
-                                div(style="color:#ffffff; background-color:#263238;padding:1rem;margin-bottom:1rem;")
-                                        div #{local.mails[0]}
-                                        div #{local.nickname}
-                                        div
-                                            if role.system
-                                                i.fas.fa-circle(style="color:#E91E63;")
-                                            if role.user
-                                                i.fas.fa-circle(style="color:#673AB7;")
-                                            if role.member
-                                                i.fas.fa-circle(style="color:#2196F3;")
-                                            if role.temp
-                                                i.fas.fa-circle(style="color:#009688;")
-                                            if role.guest
-                                                i.fas.fa-circle(style="color:#FFC107;")
+                        aside.left-pane.main-sidebar(class=role.user ? 'sidebar-color-invert' : 'sidebar-color', ng-controller="LoginController")
+                            div(style="color:#ffffff; background-color:#263238;padding:1rem;margin-bottom:1rem;")
+                                div #{local.mails[0]}
+                                div #{local.nickname}
+                                div
+                                    if role.system
+                                        i.fas.fa-circle(style="color:#E91E63;")
+                                    if role.user
+                                        i.fas.fa-circle(style="color:#673AB7;")
+                                    if role.member
+                                        i.fas.fa-circle(style="color:#2196F3;")
+                                    if role.temp
+                                        i.fas.fa-circle(style="color:#009688;")
+                                    if role.guest
+                                        i.fas.fa-circle(style="color:#FFC107;")
 
-                                ul.sidebar-menu(style="font-weight: 500")
-                                    li
-                                        a(href='#', ng-click="showPasswordDialog()", style="color:#ffffff;")
-                                            i.fas.fa-key.fa-fw.text-danger
-                                            span &nbsp; #{message.password}
-                                    li
-                                        a(href='#', ng-click="Logout()", style="color:#ffffff;")
-                                            i.fas.fa-sign-out-alt
-                                            span &nbsp; #{message.logout}
+                            ul.sidebar-menu(style="font-weight: 500")
+                                li
+                                    a(href='#', ng-click="showPasswordDialog()", style="color:#ffffff;")
+                                        i.fas.fa-key.fa-fw.text-danger
+                                        span &nbsp; #{message.password}
+                                li
+                                    a(href='#', ng-click="Logout()", style="color:#ffffff;")
+                                        i.fas.fa-sign-out-alt
+                                        span &nbsp; #{message.logout}
 
                         .main-pane(style="padding:1rem;background-color:#f4f4f4;")
                             include partial/logged
@@ -104,7 +109,7 @@ html
 
             else
                 div(ng-controller="LoginController")
-                    include partial/no_logged
+                    //include partial/no_logged
 
     script(type="text/javascript", src="/socket.io/socket.io.js")
     script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/cryptico/0.0.1343522940/cryptico.min.js")

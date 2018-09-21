@@ -15,7 +15,7 @@ export namespace SessionApiRouter {
 
     const path: any = require('path');
 
-    const ExceptionController: any = require(path.join(process.cwd() , "server/systems/common/controllers/exception_controller"));
+    const ExceptionController: any = require(path.join(process.cwd() , "server/systems/common/exception"));
     const exception: any = new ExceptionController.Exception();
 
     const SessionModule: any = require(path.join(process.cwd() , "server/systems/session/controllers/session_controller"));

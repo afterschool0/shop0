@@ -20,7 +20,7 @@ export namespace AuthApiRouter {
     const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
     const auth: any = new AuthController.Auth;
 
-    const ExceptionController: any = require(path.join(process.cwd(), "server/systems/common/controllers/exception_controller"));
+    const ExceptionController: any = require(path.join(process.cwd(), "server/systems/common/exception"));
     const exception: any = new ExceptionController.Exception();
 
     router.post("/local/register", [exception.exception, exception.guard, auth.is_enabled_regist_user, auth.post_local_register]);
@@ -53,6 +53,78 @@ export namespace AuthApiRouter {
     // line
     router.get('/line', passport.authenticate('line'));
     router.get('/line/callback', passport.authenticate('line', {failureRedirect: '/'}), auth.auth_line_callback);
+
+    const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));
+    const Cipher: any = CipherModule.Cipher;
+
+
+    interface Decoded {
+        status: string,
+        plaintext: string,
+        signeture: string
+    }
+
+    interface Encoded {
+        status: string,
+        cipher: string
+    }
+
+
+    router.get('/test', (request: any, response: any) => {
+
+        // let key =  Cipher.GetIP(request); //IP制限の場合
+        let key = "opensesame";         //secret文字列の場合
+
+        //  token by user
+        Cipher.Token("oda.mikio@gmail.com", key, (error: any, token_by_user: string) => {
+            if (!error) {
+                console.log(token_by_user);
+
+                //
+                //
+                //
+                //
+                //
+
+                // by_user token to by_user passphrase
+                Cipher.Account(token_by_user, key, (error: any, account: any) => {
+                    if (!error) {
+                        if (account) {
+                            // encode
+                            let publickey_by_user: string = Cipher.PublicKey(account.passphrase);
+                            let enc: Encoded = Cipher.PublicKeyEncrypt(publickey_by_user, "hoge");
+                            if (enc.status === "success") {
+                                let encoded_string = enc.cipher;
+
+                                //
+                                //
+                                //
+                                //
+                                //
+
+                                // decode
+                                let dec: Decoded = Cipher.PublicKeyDecrypt(account.passphrase, encoded_string);
+                                if (dec.status === "success") {
+                                    let decoded_string = dec.plaintext;
+
+                                    //
+                                    //
+                                    //
+                                    //
+                                    //
+
+                                    response.send(decoded_string);
+                                }
+
+
+                            }
+                        }
+                    }
+                });
+            }
+        })
+
+    });
 
 }
 

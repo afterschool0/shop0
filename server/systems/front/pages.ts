@@ -7,7 +7,6 @@
 "use strict";
 
 import {IRouter} from "express-serve-static-core";
-import {router} from "../auth/pages";
 
 export namespace PageRouter {
 
@@ -19,7 +18,7 @@ export namespace PageRouter {
     const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
     const auth: any = new AuthController.Auth();
 
-    const ExceptionController: any = require( path.join(process.cwd(), "server/systems/common/controllers/exception_controller"));
+    const ExceptionController: any = require( path.join(process.cwd(), "server/systems/common/exception"));
     const exception: any = new ExceptionController.Exception;
 
     const _config: any = require('config');

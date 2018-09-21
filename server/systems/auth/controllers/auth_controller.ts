@@ -74,6 +74,12 @@ export namespace AuthModule {
         timestamp: any;
     }
 
+    interface Decoded {
+        status: string,
+        plaintext: string,
+        signeture: string
+    }
+
     let definition: any = {account_content: {mails: [], nickname: "", tokens: {}}};
 
     fs.open(path.join(process.cwd(), "models/systems/accounts/definition.json"), 'r', 384, (error, fd) => {
@@ -435,6 +441,17 @@ export namespace AuthModule {
             }
         }
 
+        static publickey_decrypt(systempassphrase:string, encrypted:string, error:(status:string)=> void) {
+            let result :string = "";
+            let username_decrypted :Decoded = Cipher.PublicKeyDecrypt(systempassphrase, encrypted);
+            if (username_decrypted.status === "success") {
+                result = username_decrypted.plaintext;
+            } else {
+                error(username_decrypted.status);
+            }
+            return result;
+        }
+
         /**
          * アカウント作成
          * @param request
@@ -448,8 +465,12 @@ export namespace AuthModule {
             let systempassphrase: string = request.session.id;
 
             if (use_publickey) {
-                username = Cipher.PublicKeyDecrypt(systempassphrase, username).plaintext;
-                password = Cipher.PublicKeyDecrypt(systempassphrase, password).plaintext;
+                username = Auth.publickey_decrypt(systempassphrase, username,(status) => {
+                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                });
+                password = Auth.publickey_decrypt(systempassphrase, password,(status) => {
+                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                });
             }
 
             Wrapper.FindOne(response, 100, LocalAccount, {$and: [{provider: "local"}, {username: username}]},
@@ -473,7 +494,7 @@ export namespace AuthModule {
                             let token: string = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
                             let link: string = config.protocol + "://" + config.domain + "/auth/register/" + token;
 
-                            fs.readFile(path.join(process.cwd(), "server/systems/auth/mail/regist_mail.pug"), "utf8", (err, data) => {
+                            fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_mail.pug"), "utf8", (err, data) => {
                                 if (!err) {
                                     var doc = pug.render(data, {"link": link});
                                     _mailer.send(username, bcc, message.registconfirmtext, doc, (error: any) => {
@@ -607,8 +628,12 @@ export namespace AuthModule {
             let systempassphrase: string = request.session.id;
 
             if (use_publickey) {
-                username = Cipher.PublicKeyDecrypt(systempassphrase, username).plaintext;
-                password = Cipher.PublicKeyDecrypt(systempassphrase, password).plaintext;
+                username = Auth.publickey_decrypt(systempassphrase, username,(status) => {
+                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                });
+                password = Auth.publickey_decrypt(systempassphrase, password,(status) => {
+                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                });
             }
 
             Wrapper.FindOne(response, 100, LocalAccount, {$and: [{provider: "local"}, {username: username}]},
@@ -635,7 +660,7 @@ export namespace AuthModule {
                             let token: string = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
                             let link: string = config.protocol + "://" + config.domain + "/auth/member/" + token;
 
-                            fs.readFile(path.join(process.cwd(), "server/systems/auth/mail/regist_member_mail.pug"), "utf8", (err, data) => {
+                            fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_member_mail.pug"), "utf8", (err, data) => {
                                 if (!err) {
                                     var doc = pug.render(data, {"link": link});
                                     _mailer.send(username, bcc, message.memberconfirmtext, doc, (error: any) => {
@@ -767,8 +792,12 @@ export namespace AuthModule {
             let systempassphrase: string = request.session.id;
 
             if (use_publickey) {
-                username = Cipher.PublicKeyDecrypt(systempassphrase, username).plaintext;
-                password = Cipher.PublicKeyDecrypt(systempassphrase, password).plaintext;
+                username = Auth.publickey_decrypt(systempassphrase, username,(status) => {
+                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                });
+                password = Auth.publickey_decrypt(systempassphrase, password,(status) => {
+                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                });
             }
 
             Wrapper.FindOne(response, 1, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
@@ -788,7 +817,7 @@ export namespace AuthModule {
                                 let link: string = config.protocol + "://" + config.domain + "/auth/username/" + token;
                                 //let beacon: string = config.protocol + "://" + config.domain + "/beacon/api/" + token;
 
-                                fs.readFile(path.join(process.cwd(), "server/systems/auth/mail/username_mail.pug"), "utf8", (err, data) => {
+                                fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/username_mail.pug"), "utf8", (err, data) => {
                                     if (!err) {
                                         var doc = pug.render(data, {"link": link});
                                         _mailer.send(username, bcc, message.usernameconfirmtext, doc, (error: any) => {
@@ -869,8 +898,12 @@ export namespace AuthModule {
             let systempassphrase: string = request.session.id;
 
             if (use_publickey) {
-                username = Cipher.PublicKeyDecrypt(systempassphrase, username).plaintext;
-                password = Cipher.PublicKeyDecrypt(systempassphrase, password).plaintext;
+                username = Auth.publickey_decrypt(systempassphrase, username,(status) => {
+                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                });
+                password = Auth.publickey_decrypt(systempassphrase, password,(status) => {
+                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                });
             }
 
             Wrapper.FindOne(response, 1, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
@@ -886,10 +919,10 @@ export namespace AuthModule {
                         let token: any = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
                         let link: string = config.protocol + "://" + config.domain + "/auth/password/" + token;
 
-                        fs.readFile(path.join(process.cwd(), "server/systems/auth/mail/password_mail.pug"), "utf8", (err, data) => {
+                        fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/password_mail.pug"), "utf8", (err, data) => {
                             if (!err) {
                                 var doc = pug.render(data, {"link": link});
-                                _mailer.send(username, bcc, message.usernameconfirmtext, doc, (error: any) => {
+                                _mailer.send(username, bcc, message.passwordconfirmtext, doc, (error: any) => {
                                     if (!error) {
                                         Wrapper.SendSuccess(response, {code: 0, message: ""});
                                     } else {
@@ -960,8 +993,12 @@ export namespace AuthModule {
                 if (request.body.password) {
 
                     if (use_publickey) {
-                        request.body.username = Cipher.PublicKeyDecrypt(systempassphrase, request.body.username).plaintext;
-                        request.body.password = Cipher.PublicKeyDecrypt(systempassphrase, request.body.password).plaintext;
+                        request.body.username = Auth.publickey_decrypt(systempassphrase, request.body.username,(status) => {
+                            Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                        });
+                        request.body.password = Auth.publickey_decrypt(systempassphrase, request.body.password,(status) => {
+                            Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
+                        });
                     }
 
                     passport.authenticate("local", (error: any, user: any): void => {

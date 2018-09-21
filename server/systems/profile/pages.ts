@@ -12,6 +12,7 @@ export namespace ProfilePageRouter {
 
     const express: any = require('express');
     export const router: IRouter = express.Router();
+
 }
 
 module.exports = ProfilePageRouter.router;

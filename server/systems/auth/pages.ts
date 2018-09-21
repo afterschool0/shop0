@@ -20,7 +20,7 @@ export namespace AuthPageRouter {
 
     const path: any = require('path');
 
-    const ExceptionController: any = require( path.join(process.cwd(), "server/systems/common/controllers/exception_controller"));
+    const ExceptionController: any = require( path.join(process.cwd(), "server/systems/common/exception"));
     const exception: any = new ExceptionController.Exception;
 
     router.get('/dialogs/registerdialog', [exception.page_catch, (request: any, response: any): void => {
@@ -49,6 +49,25 @@ export namespace AuthPageRouter {
 
     router.get("/dialogs/passwordconfirmdialog", [exception.page_catch, (request: any, response: any): void => {
         response.render("systems/auth/dialogs/passwordconfirmdialog", {config: config, message: message});
+    }]);
+
+    // mail test view.
+
+    router.get("/mail/regist_mail", [exception.page_catch, (request: any, response: any): void => {
+        response.render("systems/auth/mail/regist_mail", {config: config, link: ""});
+    }]);
+
+    router.get("/mail/password_mail", [exception.page_catch, (request: any, response: any): void => {
+        response.render("systems/auth/mail/password_mail", {config: config,link: ""});
+    }]);
+
+
+    router.get("/mail/regist_member_mail", [exception.page_catch, (request: any, response: any): void => {
+        response.render("systems/auth/mail/regist_member_mail", {config: config, link: ""});
+    }]);
+
+    router.get("/mail/username_mail", [exception.page_catch, (request: any, response: any): void => {
+        response.render("systems/auth/mail/username_mail", {config: config, link: ""});
     }]);
 
 }
