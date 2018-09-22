@@ -23,6 +23,7 @@ Application.filter('encode_entity', [() => {
             result = s.replace(/&amp;/g, "&");
         }
         return result;
+        //
     };
 }]);
 
