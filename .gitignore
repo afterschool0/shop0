@@ -4,10 +4,7 @@
 product
 typings
 public/bower_components
-public/css/*.css
-public/systems/stylesheets/*.css
-public/services/stylesheets/*.css
-public/applications/stylesheets/*.css
+
 public/favicons
 public/img
 public/applications/img
