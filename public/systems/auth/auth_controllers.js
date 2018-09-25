@@ -36,11 +36,6 @@ var AuthControllersModule;
                 });
             };
             $scope.about = true;
-            //       ProfileService.Get((self) => {
-            //           if (self) {
-            //               $scope.userid = self.userid;
-            //           }
-            //       }, error_handler);
             var confirmAccount = function () {
                 var modalRegistConfirm = $uibModal.open({
                     controller: 'RegisterConfirmDialogController',
@@ -79,6 +74,14 @@ var AuthControllersModule;
                 }, function () {
                 });
             };
+            var user = {};
+            ProfileService.Get(function (profile) {
+                if (profile) {
+                    user = profile;
+                    $scope.role = user.role;
+                    $scope.$apply();
+                }
+            }, error_handler);
             $scope.showLoginDialog = function () {
                 var modalInstance = $uibModal.open({
                     controller: 'LoginDialogController',
@@ -87,7 +90,12 @@ var AuthControllersModule;
                     targetEvent: null
                 });
                 modalInstance.result.then(function (member) {
-                    $rootScope.$broadcast('Login');
+                    ProfileService.Get(function (profile) {
+                        if (profile) {
+                            user = profile;
+                            $rootScope.$broadcast('Login');
+                        }
+                    }, error_handler);
                 }, function () {
                 });
             };
@@ -112,20 +120,29 @@ var AuthControllersModule;
                 });
             };
             $scope.Logout = function () {
-                AuthService.Logout(function (account) {
-                    $rootScope.$broadcast('Logout');
-                }, function () {
-                });
+                ProfileService.Get(function (profile) {
+                    if (profile) {
+                        user = profile;
+                        AuthService.Logout(function (account) {
+                            $rootScope.$broadcast('Logout');
+                        }, function () {
+                        });
+                    }
+                }, error_handler);
             };
+            $scope.$on('Login', function () {
+                $scope.userid = user.userid;
+                $scope.role = user.role;
+                $window.location.href = "//" + $window.location.host + "/" + user.entry;
+            });
+            $scope.$on('Logout', function () {
+                $scope.userid = "";
+                $scope.role = { guest: false, category: 0 };
+                $window.location.href = "//" + $window.location.host + "/" + user.exit;
+            });
             $scope.go = function (ref) {
                 $window.location.href = ref;
             };
-            $scope.$on('Login', function () {
-                $window.location.href = "//" + $window.location.host + "/front";
-            });
-            $scope.$on('Logout', function () {
-                $window.location.href = "//" + $window.location.host + "/";
-            });
         }]);
     //! dialogs
     /**

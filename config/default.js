@@ -30,7 +30,8 @@ module.exports = {
             "groupid": "000000000000000000000001",
             "userid": "000000000000000000000000"
         },
-        "mount_path":"front",
+        "entry_point":"",
+        "exit_point":"front",
         "root_modules": [
             {
                 "type": "required",

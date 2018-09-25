@@ -42,20 +42,7 @@ namespace App {
         console.log(process.env.LC_CTYPE);
         console.log("Hundred.");
 
-        //shop
-        var indexRouter = require('./routes/index');
-        //shop
-
-
-
         const app: any = express();
-
-
-
-        //shop
-        app.use('/', indexRouter);
-        //shop
-
 
         // helmet
         const helmet: any = require("helmet");
@@ -123,14 +110,14 @@ namespace App {
         //       fs.open(share.Models('systems/accounts/definition.json'), 'ax+', 384, (error, fd) => {
         //          if (!error) {
         //              fs.close(fd, (error) => {
-        definition = JSON.parse(fs.readFileSync(path.join(__dirname,'models/systems/accounts/definition.json'), 'utf-8'));
+        definition = JSON.parse(fs.readFileSync(path.join(__dirname, 'models/systems/accounts/definition.json'), 'utf-8'));
         //            });
         //      }
         //});
 
         const MongoStore = require('connect-mongo')(session);
 
-        const options = {keepAlive: 1, connectTimeoutMS: 1000000, reconnectTries: 30, reconnectInterval: 2000,useNewUrlParser: true};
+        const options = {keepAlive: 1, connectTimeoutMS: 1000000, reconnectTries: 30, reconnectInterval: 2000, useNewUrlParser: true};
 
         // const options = {keepAlive: 300000, connectTimeoutMS: 1000000};
 
@@ -244,7 +231,7 @@ namespace App {
                 }
             };
 
-            let root_modules = [
+         /*   let root_modules = [
                 {
                     "type": "required",
                     "path": "/systems/",
@@ -253,9 +240,9 @@ namespace App {
                         "display": "Front"
                     }
                 }
-            ];
+            ];*/
 
-            load_root_module("./server", root_modules);
+            load_root_module("./server", config.root_modules);
 
             // passport
 
@@ -336,9 +323,9 @@ namespace App {
             }
             // passport
 
-           // const auth: any = core.auth;
+            // const auth: any = core.auth;
 
-            const AuthController: any = require(path.join(process.cwd(),"server/systems/auth/controllers/auth_controller"));
+            const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
             const auth: any = new AuthController.Auth();
 
 

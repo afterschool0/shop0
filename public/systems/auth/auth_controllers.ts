@@ -45,12 +45,6 @@ namespace AuthControllersModule {
 
             $scope.about = true;
 
-     //       ProfileService.Get((self) => {
-     //           if (self) {
-     //               $scope.userid = self.userid;
-     //           }
-     //       }, error_handler);
-
             let confirmAccount = () => {
                 let modalRegistConfirm = $uibModal.open({
                     controller: 'RegisterConfirmDialogController',
@@ -94,6 +88,16 @@ namespace AuthControllersModule {
                 });
             };
 
+            let user: any = {};
+
+            ProfileService.Get((profile) => {
+                if (profile) {
+                    user = profile;
+                    $scope.role = user.role;
+                    $scope.$apply();
+                }
+            }, error_handler);
+
             $scope.showLoginDialog = (): void => {
                 let modalInstance = $uibModal.open({
                     controller: 'LoginDialogController',
@@ -103,7 +107,12 @@ namespace AuthControllersModule {
                 });
 
                 modalInstance.result.then((member): void => { // Answer
-                    $rootScope.$broadcast('Login');
+                    ProfileService.Get((profile) => {
+                        if (profile) {
+                            user = profile;
+                            $rootScope.$broadcast('Login');
+                        }
+                    }, error_handler);
                 }, (): void => { // Error
                 });
             };
@@ -133,24 +142,32 @@ namespace AuthControllersModule {
             };
 
             $scope.Logout = (): void => {
-                AuthService.Logout((account) => {
-                    $rootScope.$broadcast('Logout');
-                }, (): void => {
-                });
+                ProfileService.Get((profile) => {
+                    if (profile) {
+                        user = profile;
+                        AuthService.Logout((account) => {
+                            $rootScope.$broadcast('Logout');
+                        }, (): void => {
+                        });
+                    }
+                }, error_handler);
             };
+
+            $scope.$on('Login', (): void => {
+                $scope.userid = user.userid;
+                $scope.role = user.role;
+                $window.location.href = "//" + $window.location.host + "/" + user.entry;
+            });
+
+            $scope.$on('Logout', (): void => {
+                $scope.userid = "";
+                $scope.role = {guest: false, category: 0};
+                $window.location.href = "//" + $window.location.host + "/" + user.exit;
+            });
 
             $scope.go = (ref: string): void => {
                 $window.location.href = ref;
             };
-
-            $scope.$on('Login', (): void => {
-                $window.location.href = "//" + $window.location.host + "/front";
-            });
-
-            $scope.$on('Logout', (): void => {
-                $window.location.href = "//" + $window.location.host + "/";
-            });
-
         }]);
 
 //! dialogs

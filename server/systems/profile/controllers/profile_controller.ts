@@ -14,6 +14,9 @@ export namespace ProfileModule {
     const mongoose: any = require('mongoose');
     mongoose.Promise = global.Promise;
 
+    const _config: any = require('config');
+    const config: any = _config.get("systems");
+
     const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     const Wrapper: any = new PromisedModule.Wrapper();
 
@@ -56,14 +59,28 @@ export namespace ProfileModule {
         public get_profile(request: any, response: any): void {
             Wrapper.FindOne(response, 1, LocalAccount, {username: request.user.username}, (response: any, self: any): void => {
                 if (self) {
+
+                    let entry_point = "";
+                    if (config.entry_point) {
+                        entry_point = config.entry_point;
+                    }
+
+                    let exit_point = "";
+                    if (config.exit_point) {
+                        exit_point = config.exit_point;
+                    }
+
                     Wrapper.SendSuccess(response, {
                         provider: self.provider,
-                        type: self.type,
+                  //      type: self.type,
                         auth: self.auth,
                         username: self.username,
                         groupid: self.groupid,
                         userid: self.userid,
-                        local: self.local
+                        local: self.local,
+                        role: self.Role(),
+                        entry:entry_point,
+                        exit:exit_point
                     });
                 } else {
                     Wrapper.SendWarn(response, 2, "profile not found", {code: 2, message: "profile not found"});

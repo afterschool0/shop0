@@ -133,58 +133,6 @@ var AuthModule;
             }
         };
         ;
-        Auth._role = function (user) {
-            var result = { guest: true, categoly: 0 };
-            if (user) {
-                if (user.auth < 100) {
-                    result.system = true;
-                }
-                if (user.auth < 500) {
-                    result.user = true;
-                }
-                if (user.auth < 1000) {
-                    result.member = true;
-                }
-                if (user.auth < 10000) {
-                    result.temp = true;
-                }
-                result.guest = true;
-                switch (user.provider) {
-                    case "local":
-                        result.categoly = 0;
-                        break;
-                    default:
-                        result.categoly = 1;
-                }
-            }
-            return result;
-        };
-        Auth.prototype.role = function (user) {
-            var result = null;
-            if (user) {
-                result = { guest: true, categoly: 0 };
-                if (user.auth < 100) {
-                    result.system = true;
-                }
-                if (user.auth < 500) {
-                    result.user = true;
-                }
-                if (user.auth < 1000) {
-                    result.member = true;
-                }
-                if (user.auth < 10000) {
-                    result.temp = true;
-                }
-                switch (user.provider) {
-                    case "local":
-                        result.categoly = 0;
-                        break;
-                    default:
-                        result.categoly = 1;
-                }
-            }
-            return result;
-        };
         /**
          *
          * @param request
@@ -216,7 +164,7 @@ var AuthModule;
         Auth.prototype.page_is_system = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (Auth._role(user).system) {
+                if (user.Role().system) {
                     next();
                 }
                 else {
@@ -237,7 +185,7 @@ var AuthModule;
         Auth.prototype.is_system = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (Auth._role(user).system) {
+                if (user.Role().system) {
                     next();
                 }
                 else {
@@ -258,7 +206,7 @@ var AuthModule;
         Auth.prototype.page_is_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (Auth._role(user).user) {
+                if (user.Role().user) {
                     next();
                 }
                 else {
@@ -279,7 +227,7 @@ var AuthModule;
         Auth.prototype.is_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (Auth._role(user).user) {
+                if (user.Role().user) {
                     next();
                 }
                 else {
@@ -300,7 +248,7 @@ var AuthModule;
         Auth.prototype.is_member = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (Auth._role(user).member) {
+                if (user.Role().member) {
                     next();
                 }
                 else {
@@ -321,7 +269,7 @@ var AuthModule;
         Auth.prototype.is_temp = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (Auth._role(user).temp) {
+                if (user.Role().temp) {
                     next();
                 }
                 else {
@@ -342,7 +290,7 @@ var AuthModule;
         Auth.prototype.is_guest = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (Auth._role(user).guest) {
+                if (user.Role().guest) {
                     next();
                 }
                 else {
@@ -363,7 +311,7 @@ var AuthModule;
         Auth.prototype.is_enabled_regist_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (Auth._role(user).system) {
+                if (user.Role().system) {
                     next();
                 }
                 else {

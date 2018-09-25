@@ -177,68 +177,6 @@ export namespace AuthModule {
             }
         };
 
-        static _role(user: any): any {
-            let result: any = {guest: true, categoly: 0};
-            if (user) {
-
-                if (user.auth < 100) {
-                    result.system = true;
-                }
-                if (user.auth < 500) {
-                    result.user = true;
-                }
-
-                if (user.auth < 1000) {
-                    result.member = true;
-                }
-
-                if (user.auth < 10000) {
-                    result.temp = true;
-                }
-
-                result.guest = true;
-
-                switch (user.provider) {
-                    case "local":
-                        result.categoly = 0;
-                        break;
-                    default:
-                        result.categoly = 1;
-                }
-            }
-            return result;
-        }
-
-        public role(user: any): any {
-            let result: any = null;
-            if (user) {
-                result = {guest: true, categoly: 0};
-                if (user.auth < 100) {
-                    result.system = true;
-                }
-                if (user.auth < 500) {
-                    result.user = true;
-                }
-
-                if (user.auth < 1000) {
-                    result.member = true;
-                }
-
-                if (user.auth < 10000) {
-                    result.temp = true;
-                }
-
-                switch (user.provider) {
-                    case "local":
-                        result.categoly = 0;
-                        break;
-                    default:
-                        result.categoly = 1;
-                }
-            }
-            return result;
-        }
-
         /**
          *
          * @param request
@@ -269,7 +207,7 @@ export namespace AuthModule {
         public page_is_system(request: any, response: any, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (Auth._role(user).system) {
+                if (user.Role().system) {
                     next();
                 } else {
                     response.status(403).render('error', {status: 403, message: "Forbidden...", url: request.url});
@@ -289,7 +227,7 @@ export namespace AuthModule {
         public is_system(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (Auth._role(user).system) {
+                if (user.Role().system) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -309,7 +247,7 @@ export namespace AuthModule {
         public page_is_user(request: any, response: any, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (Auth._role(user).user) {
+                if (user.Role().user) {
                     next();
                 } else {
                     response.status(403).render('error', {status: 403, message: "Forbidden...", url: request.url});
@@ -329,7 +267,7 @@ export namespace AuthModule {
         public is_user(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (Auth._role(user).user) {
+                if (user.Role().user) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -349,7 +287,7 @@ export namespace AuthModule {
         public is_member(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (Auth._role(user).member) {
+                if (user.Role().member) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -369,7 +307,7 @@ export namespace AuthModule {
         public is_temp(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (Auth._role(user).temp) {
+                if (user.Role().temp) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -389,7 +327,7 @@ export namespace AuthModule {
         public is_guest(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (Auth._role(user).guest) {
+                if (user.Role().guest) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -409,7 +347,7 @@ export namespace AuthModule {
         public is_enabled_regist_user(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (Auth._role(user).system) {
+                if (user.Role().system) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});

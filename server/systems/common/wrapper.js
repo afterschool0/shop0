@@ -50,6 +50,7 @@ var Promised;
                 }
             }
             else { // normal case.
+                this.SendSuccess(res, {});
                 //      this.SendError(res, 1, "", {code: 1, message: ""});
             }
         };

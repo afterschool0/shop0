@@ -10,7 +10,8 @@ var FrontApplicationModule;
         "Services",
         "AuthServices",
         "AuthControllers",
-        "PublicKeyServices"
+        "PublicKeyServices",
+        "FrontControllers"
     ]);
     FrontApplication.run(['$rootScope',
         function ($rootScope) {

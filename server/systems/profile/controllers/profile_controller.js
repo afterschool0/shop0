@@ -11,6 +11,8 @@ var ProfileModule;
     var path = require('path');
     var mongoose = require('mongoose');
     mongoose.Promise = global.Promise;
+    var _config = require('config');
+    var config = _config.get("systems");
     var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     var Wrapper = new PromisedModule.Wrapper();
     var LocalAccount = require(path.join(process.cwd(), "models/systems/accounts/account"));
@@ -51,14 +53,25 @@ var ProfileModule;
         Profile.prototype.get_profile = function (request, response) {
             Wrapper.FindOne(response, 1, LocalAccount, { username: request.user.username }, function (response, self) {
                 if (self) {
+                    var entry_point = "";
+                    if (config.entry_point) {
+                        entry_point = config.entry_point;
+                    }
+                    var exit_point = "";
+                    if (config.exit_point) {
+                        exit_point = config.exit_point;
+                    }
                     Wrapper.SendSuccess(response, {
                         provider: self.provider,
-                        type: self.type,
+                        //      type: self.type,
                         auth: self.auth,
                         username: self.username,
                         groupid: self.groupid,
                         userid: self.userid,
-                        local: self.local
+                        local: self.local,
+                        role: self.Role(),
+                        entry: entry_point,
+                        exit: exit_point
                     });
                 }
                 else {

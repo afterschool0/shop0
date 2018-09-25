@@ -31,13 +31,7 @@ var App;
         // passport
         console.log(process.env.LC_CTYPE);
         console.log("Hundred.");
-        //shop
-        var indexRouter = require('./routes/index');
-        //shop
         var app = express();
-        //shop
-        app.use('/', indexRouter);
-        //shop
         // helmet
         var helmet = require("helmet");
         app.use(helmet());
@@ -193,17 +187,17 @@ var App;
                     });
                 }
             };
-            var root_modules = [
-                {
-                    "type": "required",
-                    "path": "/systems/",
-                    "name": "front",
-                    "description": {
-                        "display": "Front"
-                    }
-                }
-            ];
-            load_root_module("./server", root_modules);
+            /*   let root_modules = [
+                   {
+                       "type": "required",
+                       "path": "/systems/",
+                       "name": "front",
+                       "description": {
+                           "display": "Front"
+                       }
+                   }
+               ];*/
+            load_root_module("./server", config.root_modules);
             // passport
             var Account = require(path.join(process.cwd(), "models/systems/accounts/account"));
             passport.use(new LocalStrategy(Account.authenticate()));

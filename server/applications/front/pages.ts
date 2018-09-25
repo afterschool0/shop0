@@ -15,8 +15,10 @@ export namespace PageRouter {
     const path: any = require('path');
     const _ = require('lodash');
 
-    const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
-    const auth: any = new AuthController.Auth();
+   //const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
+  //  const auth: any = new AuthController.Auth();
+
+    const LocalAccount: any = require(path.join(process.cwd(), "models/systems/accounts/account"));
 
     const ExceptionController: any = require( path.join(process.cwd(), "server/systems/common/exception"));
     const exception: any = new ExceptionController.Exception;
@@ -25,20 +27,19 @@ export namespace PageRouter {
     const config: any = _config.get("systems");
     const message: any = config.message;
 
-    let mount_path = "";
-
-    if (config.mount_path) {
-        mount_path = config.mount_path;
+    let exit_point = "";
+    if (config.exit_point) {
+        exit_point = config.exit_point;
     }
 
-    router.get("/" + mount_path, [ (request: any, response: any): void => {
+    router.get("/" + exit_point, [ (request: any, response: any): void => {
         let local = {mails:[""],nickname:""};
         if (request.user) {
             local = request.user.local;
         }
-        response.render("systems/front/index", {
+        response.render("applications/front/index", {
             local:local,
-            role: auth.role(request.user),
+            role: LocalAccount.Role(request.user),
             message: message,
             status: 200
         });

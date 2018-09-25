@@ -11,25 +11,26 @@ var PageRouter;
     PageRouter.router = express.Router();
     var path = require('path');
     var _ = require('lodash');
-    var AuthController = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
-    var auth = new AuthController.Auth();
+    //const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
+    //  const auth: any = new AuthController.Auth();
+    var LocalAccount = require(path.join(process.cwd(), "models/systems/accounts/account"));
     var ExceptionController = require(path.join(process.cwd(), "server/systems/common/exception"));
     var exception = new ExceptionController.Exception;
     var _config = require('config');
     var config = _config.get("systems");
     var message = config.message;
-    var mount_path = "";
-    if (config.mount_path) {
-        mount_path = config.mount_path;
+    var exit_point = "";
+    if (config.exit_point) {
+        exit_point = config.exit_point;
     }
-    PageRouter.router.get("/" + mount_path, [function (request, response) {
+    PageRouter.router.get("/" + exit_point, [function (request, response) {
             var local = { mails: [""], nickname: "" };
             if (request.user) {
                 local = request.user.local;
             }
-            response.render("systems/front/index", {
+            response.render("applications/front/index", {
                 local: local,
-                role: auth.role(request.user),
+                role: LocalAccount.Role(request.user),
                 message: message,
                 status: 200
             });
