@@ -9,6 +9,7 @@
         // Browser globals
         factory(jQuery);
     }
+
 }(function ($) {
   var CountTo = function (element, options) {
     this.$element = $(element);
