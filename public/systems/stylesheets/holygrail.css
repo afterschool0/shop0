@@ -1,0 +1,235 @@
+:root {
+  --button-scale: 0.8;
+  --header-brand-font: 100 0.6rem 'Wire One', sans-serif;
+  --hero-height: 20rem;
+  --hero-display: block;
+  --hero-title-top: 2rem;
+  --hero-title-left: 1rem;
+  --hero-title-font: 100 5rem 'Wire One', sans-serif;
+  --hero-subtitle-top: 1rem;
+  --hero-subtitle-left: 3rem;
+  --hero-subtitle-font: 100 0.7rem 'Wire One', sans-serif;
+  --left-pane-width: 15rem;
+  --left-pane-display: inline;
+  --right-pane-width: 0rem;
+  --right-pane-display: none;
+}
+html {
+  height: 100%;
+}
+body {
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  height: 100%;
+}
+.page-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.hero-row {
+  display: var(--hero-display);
+  height: var(--hero-height);
+  color: #646464;
+  background: #c8c8c8;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+}
+.hero-title {
+  position: absolute;
+  top: var(--hero-title-top);
+  left: var(--hero-title-left);
+  font: var(--hero-title-font);
+}
+.hero-subtitle {
+  position: absolute;
+  top: var(--hero-subtitle-top);
+  left: var(--hero-subtitle-left);
+  font: var(--hero-subtitle-font);
+}
+.content-row {
+  /*	overflow:scroll;  /* 全体スクロール */
+  height: 100%;
+  /* 全体スクロール */
+}
+.main-row {
+  display: flex;
+  flex-direction: row;
+  /*	height:calc(100vh - var(--header-height) - var(--footer-height) - var(--hero-height));  /* 部分スクロール */
+}
+.header {
+  z-index: 10;
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 5rem;
+  color: #f4f8ff;
+  background: #d32f2f;
+  filter: drop-shadow(0 2px 2px rgba(102, 145, 153, 0.5));
+}
+.brand {
+  font: var(--header-brand-font);
+  margin-left: 2rem;
+}
+.footer-pane {
+  display: inline;
+  height: 0rem;
+  width: 100%;
+  color: #f9f6f7;
+  background: #4b4b4b;
+  z-index: 1000;
+  position: fixed;
+  bottom: 0;
+}
+.left-pane {
+  display: var(--left-pane-display);
+  width: var(--left-pane-width);
+  color: #6464c8;
+  background: #000000;
+}
+.main-pane {
+  /*	overflow:scroll;       /* 部分スクロール */
+  display: var(--main-pane-display);
+  width: calc(100vw - var(--left-pane-width) - var(--right-pane-width));
+  color: #6464c8;
+  background: #ffffff;
+}
+.right-pane {
+  display: var(--right-pane-display);
+  width: var(--right-pane-width);
+  color: #6464c8;
+  background: #eceff1;
+}
+@media screen and (max-width: 480px) {
+  .left-pane {
+    transition: .3s;
+    width: 0rem;
+    display: none;
+  }
+  .main-pane {
+    width: calc(100vw - var(--right-pane-width));
+  }
+  .footer-pane {
+    transition: .3s;
+    height: 2rem;
+  }
+}
+@media screen and (min-width: 480px) {
+  .left-pane {
+    transition: .3s;
+    width: var(--left-pane-width);
+  }
+}
+/* menu drawer */
+.menu {
+  position: relative;
+}
+@media screen and (min-width: 480px) {
+  .menu {
+    display: none;
+  }
+}
+/*チェックボックス等は非表示に*/
+.menu-unshown {
+  display: none;
+}
+/*アイコンのスペース*/
+#menu-open {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0.4rem;
+}
+.menu-trigger,
+.menu-trigger span {
+  display: inline-block;
+  transition: all .4s;
+  box-sizing: border-box;
+}
+.menu-trigger {
+  position: relative;
+  width: calc(50px * var(--button-scale));
+  height: calc(44px * var(--button-scale));
+}
+.menu-trigger span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #000000;
+  border-radius: 4px;
+}
+.menu-trigger span:nth-of-type(1) {
+  top: 0;
+}
+.menu-trigger span:nth-of-type(2) {
+  top: calc(20px * var(--button-scale));
+}
+.menu-trigger span:nth-of-type(3) {
+  bottom: 0;
+}
+.menu-trigger.active span:nth-of-type(1) {
+  -webkit-transform: translateY(calc(20px * var(--button-scale))) rotate(-315deg);
+  transform: translateY(calc(20px * var(--button-scale))) rotate(-315deg);
+}
+.menu-trigger.active span:nth-of-type(2) {
+  opacity: 0;
+}
+.menu-trigger.active span:nth-of-type(3) {
+  -webkit-transform: translateY(calc(-20px * var(--button-scale))) rotate(315deg);
+  transform: translateY(calc(-20px * var(--button-scale))) rotate(315deg);
+}
+/*ハンバーガーアイコンをCSSだけで表現*/
+#menu-open span:before {
+  bottom: -8px;
+}
+#menu-open span:after {
+  bottom: -16px;
+}
+/*閉じる用の薄黒カバー*/
+#menu-close {
+  display: none;
+  /*はじめは隠しておく*/
+  position: fixed;
+  z-index: 99;
+  top: 0;
+  /*全体に広がるように*/
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0;
+  transition: 0.3s ease-in-out;
+}
+/*中身*/
+#menu-content {
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 90%;
+  /*右側に隙間を作る（閉じるカバーを表示）*/
+  height: 100vh;
+  max-width: 330px;
+  /*最大幅（調整してください）*/
+  background: #fff;
+  /*背景色*/
+  transition: 0.3s ease-in-out;
+  /*滑らかに表示*/
+  -webkit-transform: translateX(-105%);
+  transform: translateX(-105%);
+  /*左に隠しておく*/
+}
+#menu-input:checked ~ #menu-close {
+  display: block;
+  opacity: .5;
+}
+#menu-input:checked ~ #menu-content {
+  -webkit-transform: translateX(0%);
+  transform: translateX(0%);
+  box-shadow: 6px 0 25px rgba(0, 0, 0, 0.15);
+}
+/*# sourceMappingURL=holygrail.css.map */
