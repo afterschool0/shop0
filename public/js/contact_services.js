@@ -1,30 +1,28 @@
 "use strict";
-
 var Services = angular.module('Services', []);
-
-Services.factory('MailSend', ['$resource', ($resource) => {
-    return $resource('/api/contact', {}, {send: {method: 'POST'}});
-}]);
-
+Services.factory('MailSend', ['$resource', function ($resource) {
+        return $resource('/api/contact', {}, { send: { method: 'POST' } });
+    }]);
 Services.service('MailerService', ["MailSend",
     function (MailSend) {
         this.Send = function (content, callback, error) {
-            let mail = new MailSend();
+            var mail = new MailSend();
             mail.content = content;
             mail.$save({}, function (result) {
                 if (result) {
                     if (result.code === 0) {
                         callback(result.value);
-                    } else {
+                    }
+                    else {
                         error(result.code, result.message);
                     }
-                } else {
+                }
+                else {
                     error(10000, "network error");
                 }
             });
         };
     }]);
-
 Services.service('ZipService', ["$http",
     function ($http) {
         this.Zip = function (zip_code, callback) {
@@ -35,13 +33,13 @@ Services.service('ZipService', ["$http",
             });
         };
     }]);
-
 Services.filter('decode_entity', [function () {
-    return function (s) {
-        var result = s;
-        if (s) {
-            result = s.replace(/&amp;/g, "&");
-        }
-        return result;
-    };
-}]);
+        return function (s) {
+            var result = s;
+            if (s) {
+                result = s.replace(/&amp;/g, "&");
+            }
+            return result;
+        };
+    }]);
+//# sourceMappingURL=contact_services.js.map

@@ -8,12 +8,12 @@ namespace FrontApplicationModule {
 
     let FrontApplication: any = angular.module('FrontApplication', [
         'ngMessages',
-
         'ui.bootstrap',
         "Services",
         "AuthServices",
         "AuthControllers",
-        "PublicKeyServices"
+        "PublicKeyServices",
+        "FrontControllers"
     ]);
 
     FrontApplication.run(['$rootScope',
@@ -44,6 +44,6 @@ namespace FrontApplicationModule {
                 $uibModalInstance.dismiss();
             };
 
-        }]);
+    }]);
 
 }
