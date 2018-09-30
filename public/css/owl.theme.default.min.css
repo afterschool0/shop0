@@ -21,7 +21,7 @@
   text-decoration: none;
 }
 .owl-theme .owl-controls .owl-nav .disabled {
-  opacity: 0.5;
+  opacity: .5;
   cursor: default;
 }
 .owl-theme .owl-dots .owl-dot {
