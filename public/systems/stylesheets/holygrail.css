@@ -1,14 +1,14 @@
 :root {
   --button-scale: 0.8;
-  --header-brand-font: 100 0.6rem 'Wire One', sans-serif;
+  --header-brand-font: 100 1.2rem/2  'Wire One', sans-serif;
   --hero-height: 20rem;
   --hero-display: block;
   --hero-title-top: 2rem;
   --hero-title-left: 1rem;
-  --hero-title-font: 100 5rem 'Wire One', sans-serif;
+  --hero-title-font: 100 10rem/2 'Wire One', sans-serif;
   --hero-subtitle-top: 1rem;
   --hero-subtitle-left: 3rem;
-  --hero-subtitle-font: 100 0.7rem 'Wire One', sans-serif;
+  --hero-subtitle-font: 100 1.4rem/2 'Wire One', sans-serif;
   --left-pane-width: 15rem;
   --left-pane-display: inline;
   --right-pane-width: 0rem;
@@ -68,7 +68,7 @@ body {
   height: 5rem;
   color: #f4f8ff;
   background: #d32f2f;
-  filter: drop-shadow(0 2px 2px rgba(102, 145, 153, 0.5));
+  filter: drop-shadow(0 2px 2px hsla(190, 20%, 50%, 0.5));
 }
 .brand {
   font: var(--header-brand-font);
@@ -105,7 +105,7 @@ body {
 }
 @media screen and (max-width: 480px) {
   .left-pane {
-    transition: .3s;
+    transition: 0.3s;
     width: 0rem;
     display: none;
   }
@@ -113,13 +113,13 @@ body {
     width: calc(100vw - var(--right-pane-width));
   }
   .footer-pane {
-    transition: .3s;
+    transition: 0.3s;
     height: 2rem;
   }
 }
 @media screen and (min-width: 480px) {
   .left-pane {
-    transition: .3s;
+    transition: 0.3s;
     width: var(--left-pane-width);
   }
 }
@@ -145,7 +145,7 @@ body {
 .menu-trigger,
 .menu-trigger span {
   display: inline-block;
-  transition: all .4s;
+  transition: all 0.4s;
   box-sizing: border-box;
 }
 .menu-trigger {
@@ -225,7 +225,7 @@ body {
 }
 #menu-input:checked ~ #menu-close {
   display: block;
-  opacity: .5;
+  opacity: 0.5;
 }
 #menu-input:checked ~ #menu-content {
   -webkit-transform: translateX(0%);
