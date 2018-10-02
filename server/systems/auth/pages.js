@@ -43,12 +43,6 @@ var AuthPageRouter;
     AuthPageRouter.router.get("/mail/password_mail", [exception.page_catch, function (request, response) {
             response.render("systems/auth/mail/password_mail", { config: config, link: "" });
         }]);
-    AuthPageRouter.router.get("/mail/regist_member_mail", [exception.page_catch, function (request, response) {
-            response.render("systems/auth/mail/regist_member_mail", { config: config, link: "" });
-        }]);
-    AuthPageRouter.router.get("/mail/username_mail", [exception.page_catch, function (request, response) {
-            response.render("systems/auth/mail/username_mail", { config: config, link: "" });
-        }]);
 })(AuthPageRouter = exports.AuthPageRouter || (exports.AuthPageRouter = {}));
 module.exports = AuthPageRouter.router;
 //# sourceMappingURL=pages.js.map

@@ -277,7 +277,7 @@ html
             @media only screen and (min-device-width: 320px) and (max-device-width: 568px) {
             }
 
-    body(bgcolor='#E1E1E1', leftmargin='0', marginwidth='0', topmargin='0', marginheight='0', offset='0')
+    body(style="font-family:Helvetica,Arial,sans-serif;" bgcolor='#E1E1E1', leftmargin='0', marginwidth='0', topmargin='0', marginheight='0', offset='0')
         center(style='background-color:#E1E1E1;')
             table#bodyTable(border='0', cellpadding='0', cellspacing='0', height='100%', width='100%', style='table-layout: fixed;max-width:100% !important;width: 100% !important;min-width: 100% !important;')
                 tr
@@ -297,7 +297,7 @@ html
                                                                         table(border='0', cellpadding='0', cellspacing='0', width='100%', style='max-width:100%;')
                                                                             tr
                                                                                 td.textContent(align='left')
-                                                                                    div(style='font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;')
+                                                                                    div(style='font-size:13px;color:#828282;text-align:center;line-height:120%;')
                         table#emailBody(bgcolor='#FFFFFF', border='0', cellpadding='0', cellspacing='0', width='500')
                             tr
                                 td(align='center', valign='top')
@@ -310,12 +310,10 @@ html
                                                             table(border='0', cellpadding='30', cellspacing='0', width='100%')
                                                                 tr
                                                                     td.textContent(align='center', valign='top')
-                                                                        h1(style='color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;')
+                                                                        h2(style='text-align:center;font-weight:normal;font-size:23px;margin-bottom:10px;color:#f6a564;line-height:135%;')
+                                                                            | Auth0
+                                                                        h1(style='color:#FFFFFF;line-height:100%;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;')
                                                                             | Regist
-                                                                        h2(style='text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;')
-                                                                            | Top Subheader
-                                                                        div(style='text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#FFFFFF;line-height:135%;')
-                                                                            | Top Message
                             tr(mc:hideable='')
                                 td(align='center', valign='top')
                                     table(border='0', cellpadding='0', cellspacing='0', width='100%')
@@ -330,10 +328,10 @@ html
                                                                         table(border='0', cellpadding='0', cellspacing='0', width='100%', style='max-width: 100%;')
                                                                             tr
                                                                                 td.textContent(align='left')
-                                                                                    h3(style='color:#5F5F5F;line-height:125%;font-family:Helvetica,Arial,sans-serif;font-size:20px;font-weight:normal;margin-top:0;margin-bottom:3px;text-align:left;')
-                                                                                        | Main Title
-                                                                                    div(style='text-align:left;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;')
-                                                                                        | Main Message
+                                                                                    h3(style='color:#5F5F5F;line-height:125%;font-size:20px;font-weight:normal;margin-top:0;margin-bottom:3px;text-align:left;')
+                                                                                        | Welcome!
+                                                                                    div(style='text-align:left;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;')
+                                                                                        | Click on the Confirmation button within 30 minutes to complete user registration.
                             tr
                                 td(align='center', valign='top')
                                     table(border='0', cellpadding='0', cellspacing='0', width='100%')
@@ -345,8 +343,8 @@ html
                                                             table.emailButton(border='0', cellpadding='0', cellspacing='0', width='50%', style='background-color: #64B5F6;')
                                                                 tr
                                                                     td.buttonContent(align='center', valign='middle', style='padding-top:15px;padding-bottom:15px;padding-right:15px;padding-left:15px;')
-                                                                        a(style='color:#FFFFFF;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:20px;line-height:135%;', href=link, target='_blank') Confirmation
-                            tr
+                                                                        a(style='color:#FFFFFF;text-decoration:none;font-size:20px;line-height:135%;', href=link, target='_blank') Confirmation
+                            //tr
                                 td(align='center', valign='top')
                                     table(border='0', cellpadding='0', cellspacing='0', width='100%', bgcolor='#F8F8F8')
                                         tr
@@ -360,9 +358,9 @@ html
                                                                         table(border='0', cellpadding='0', cellspacing='0', width='100%')
                                                                             tr
                                                                                 td.textContent(valign='top')
-                                                                                    h3(mc:edit='header', style='color:#5F5F5F;line-height:125%;font-family:Helvetica,Arial,sans-serif;font-size:20px;font-weight:normal;margin-top:0;margin-bottom:3px;text-align:left;')
+                                                                                    h3(mc:edit='header', style='color:#5F5F5F;line-height:125%;font-size:20px;font-weight:normal;margin-top:0;margin-bottom:3px;text-align:left;')
                                                                                         | Bottom Title
-                                                                                    div(mc:edit='body', style='text-align:left;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;')
+                                                                                    div(mc:edit='body', style='text-align:left;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;')
                                                                                         | Bottom Message
                         table#emailFooter(bgcolor='#E1E1E1', border='0', cellpadding='0', cellspacing='0', width='500')
                             tr
@@ -376,10 +374,9 @@ html
                                                             table(border='0', cellpadding='30', cellspacing='0', width='100%')
                                                                 tr
                                                                     td(valign='top', bgcolor='#E1E1E1')
-                                                                        div(style='font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;')
+                                                                        div(style='font-size:13px;color:#828282;text-align:center;line-height:120%;')
                                                                             div
                                                                                 | Copyright © 2017
                                                                                 a(href='', target='_blank', style='text-decoration:none;color:#828282;')
                                                                                     span(style='color:#828282;')
-                                                                                | .
-                                                                                |                                                                         All rights reserved.
+                                                                                | . All rights reserved.

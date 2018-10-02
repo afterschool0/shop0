@@ -7,18 +7,16 @@
 var SessionServicesModule;
 (function (SessionServicesModule) {
     var SessionServices = angular.module('SessionServices', []);
-    SessionServices.service("SessionService", [function () {
+    SessionServices.factory('Session', ['$resource',
+        function ($resource) {
+            return $resource('/session/api', {}, {
+                get: { method: 'GET' },
+                put: { method: 'PUT' },
+            });
+        }]);
+    SessionServices.service("SessionService", ['Session', function (Session) {
             this.Get = function (callback, error) {
-                var options = {
-                    method: "GET",
-                    cache: "no-cache",
-                    headers: {
-                        'Accept': 'application/json; charset=utf-8',
-                        'Content-Type': 'application/json; charset=utf-8',
-                        "x-requested-with": "XMLHttpRequest"
-                    }
-                };
-                fetch("/session/api", options).then(function (res) { return res.json(); }).then(function (result) {
+                Session.get({}, function (result) {
                     if (result) {
                         if (result.code === 0) {
                             callback(result.value);
@@ -30,21 +28,12 @@ var SessionServicesModule;
                     else {
                         error(10000, "network error");
                     }
-                }).catch(function () {
-                    error(10000, "network error");
                 });
             };
             this.Put = function (content, callback, error) {
-                var self = {};
-                self.local = content;
-                var method = "PUT";
-                var body = JSON.stringify(self);
-                var headers = {
-                    'Accept': 'application/json; charset=utf-8',
-                    'Content-Type': 'application/json; charset=utf-8',
-                    "x-requested-with": "XMLHttpRequest"
-                };
-                fetch("/session/api", { method: method, headers: headers, body: body }).then(function (res) { return res.json(); }).then(function (result) {
+                var self = new Session();
+                self.data = content;
+                self.$put({}, function (result) {
                     if (result) {
                         if (result.code === 0) {
                             callback(result.value);
@@ -56,8 +45,6 @@ var SessionServicesModule;
                     else {
                         error(10000, "network error");
                     }
-                }).catch(function () {
-                    error(10000, "network error");
                 });
             };
         }]);

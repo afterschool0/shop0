@@ -6,7 +6,7 @@
                     .h3.box-title Register...
                 .card-body(style="font-weight: 500;")
                     .col-10.offset-1
-                        ng-form(name="validate", ng-submit="Regist({})" style="height:100%;")
+                        ng-form(name="validate", ng-submit="Regist()" style="height:100%;")
                             .row(style="text-align:left;")
                                 .col-12.form-group
                                     label.control-label #{message.nickname}
@@ -44,6 +44,6 @@
                                     .error-message(style="text-align:center;font-weight:bold;", ng-bind="message")
                             .row
                                 .col-6.offset-3
-                                    button.btn.btn-success.col-12(type="button", ng-click="Regist({});validate.$dirty = false;", ng-disabled="progress || validate.$invalid || !validate.$dirty", aria-label="")
+                                    button.btn.btn-success.col-12(type="button", ng-click="Regist();validate.$dirty = false;", ng-disabled="progress || validate.$invalid || !validate.$dirty", aria-label="")
                                         i.fas.fa-check
                                         span #{message.regist}

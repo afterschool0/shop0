@@ -10,174 +10,195 @@ namespace AuthServicesModule {
 
     let AuthServices: angular.IModule = angular.module('AuthServices', []);
 
-    interface Encoded {
-        status: string,
-        cipher: string
-    }
+    AuthServices.factory('Profile', ['$resource',
+        ($resource: any): any => {
+            return $resource('/profile/api', {}, {
+                get: {method: 'GET'},
+                put: {method: 'PUT'},
+            });
+        }]);
 
-    AuthServices.service('AuthService', ["PublicKeyService",
-        function (PublicKeyService): void {
+    AuthServices.factory('Register', ['$resource',
+        ($resource: any): any => {
+            return $resource('/auth/local/register', {}, {
+                regist: {method: 'POST'}
+            });
+        }]);
 
-            const POST = "POST";
-            const default_header = {
-                'Accept': 'application/json; charset=utf-8',
-                'Content-Type': 'application/json; charset=utf-8',
-                "x-requested-with": "XMLHttpRequest"
-            };
+    AuthServices.factory('Login', ['$resource',
+        ($resource: any): any => {
+            return $resource('/auth/local/login', {}, {
+                login: {method: 'POST'}
+            });
+        }]);
 
-            let publickey_encrypt = (key:string, plain:string, error:(status:string)=> void) => {
-                let result :string = "";
-                let username_encrypted :Encoded = cryptico.encrypt(plain, key);
+    AuthServices.factory('Password', ['$resource',
+        ($resource: any): any => {
+            return $resource('/auth/local/password', {}, {
+                change: {method: 'POST'}
+            });
+        }]);
+
+    AuthServices.factory('Logout', ['$resource',
+        ($resource: any): any => {
+            return $resource('/auth/logout', {}, {
+                logout: {method: 'GET'}
+            });
+        }]);
+
+    AuthServices.service('AuthService', ["Register", "Login", "Logout", "Password", "PublicKeyService",
+        function (Register: any, Login: any, Logout: any, Password: any, PublicKeyService): void {
+
+            let publickey_encrypt = (key: string, plain: string, callback: (error: any, result: string) => void) => {
+                let username_encrypted = cryptico.encrypt(plain, key);
                 if (username_encrypted.status === "success") {
-                    result = username_encrypted.cipher;
+                    callback(null, username_encrypted.cipher);
                 } else {
-                    error(username_encrypted.status);
+                    callback({code: 1, message: username_encrypted.status}, "");
                 }
-                return result;
             };
 
-            let public_key = (key:string, username:string, password:string):{username:string,password:string} => {
-                let result:{username:string,password:string} = {username:"",password:""};
-
-                result.username = username;
-                result.password = password;
-
-                if (key) {
-                    result.username = publickey_encrypt(key, username, (status) => {});
-                    result.password = publickey_encrypt(key, password, (status) => {});
-                }
-                return result;
-            };
-
-            let access = (url: string, option: any, callback, error): void => {
-                fetch(url, option).then((res) => res.json()).then(
-                    (account) => {
-                        if (account) {
-                            if (account.code === 0) {
-                                callback(account.value);
-                            } else {
-                                error(account.code, account.message);
-                            }
+            let username_and_password_encrypt = (systempassphrase: string, username: string, password: string, callback: (error: any, username: string, password: string) => void) => {
+                if (systempassphrase) {
+                    publickey_encrypt(systempassphrase, username, (error, encrypted_username): void => {
+                        if (!error) {
+                            publickey_encrypt(systempassphrase, password, (error, encrypted_password): void => {
+                                if (!error) {
+                                    callback(null, encrypted_username, encrypted_password);
+                                } else {
+                                    callback(error, "", "");
+                                }
+                            });
                         } else {
-                            error(10000, "network error");
+                            callback(error, "", "");
+                        }
+                    });
+                } else {
+                    callback(null, username, password);
+                }
+            };
+
+            this.Regist = (username: string, password: string, displayName: string, metadata: any, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
+                PublicKeyService.Fixed((key) => {
+                    let regist: any = new Register();
+                    username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
+                        if (!error) {
+                            regist.username = username;
+                            regist.password = password;
+                            regist.displayName = displayName;
+                            regist.metadata = metadata;
+                            regist.$regist((account: any): void => {
+                                if (account) {
+                                    if (account.code === 0) {
+                                        callback(account.value);
+                                    } else {
+                                        error_callback(account.code, account.message);
+                                    }
+                                } else {
+                                    error_callback(10000, "network error");
+                                }
+                            });
+                        }
+                    });
+                });
+            };
+
+            this.Login = (username: string, password: string, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
+                PublicKeyService.Fixed((key) => {
+                    let login = new Login();
+                    username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
+                        if (!error) {
+                            login.username = username;
+                            login.password = password;
+                            login.$login((account: any): void => {  //ログイン
+                                if (account) {
+                                    if (account.code === 0) {
+                                        callback(account.value);
+                                    } else {
+                                        error_callback(account.code, account.message);
+                                    }
+                                } else {
+                                    error_callback(10000, "network error");
+                                }
+                            });
+                        }
+                    });
+                });
+            };
+
+            this.Password = (username: string, password: string, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
+                PublicKeyService.Fixed((key) => {
+                    let pass: any = new Password();
+                    username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
+                        if (!error) {
+                            pass.username = username;
+                            pass.password = password;
+                            pass.$change((account: any): void => {
+                                if (account) {
+                                    if (account.code === 0) {
+                                        callback(account.value);
+                                    } else {
+                                        error_callback(account.code, account.message);
+                                    }
+                                } else {
+                                    error_callback(10000, "network error");
+                                }
+                            });
+                        }
+                    });
+                });
+            };
+
+            this.Logout = (callback: (result: any) => void): void => {
+                let logout: any = new Logout();
+                logout.$logout((account: any): void => {
+                    if (account) {
+                        if (account.code === 0) {
+                            callback(account.value);
                         }
                     }
-                ).catch(() => {
-                    error(10000, "network error")
-                });
-            };
-
-            this.Regist = (username: string, password: string, displayName: string, metadata: any, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
-                    let regist:any = public_key(key, username, password);
-                    regist.displayName = displayName;
-                    regist.metadata = metadata;
-                    const body = JSON.stringify(regist);
-                    access("/auth/local/register", {method:POST, headers:default_header,body: body}, callback, error);
-                });
-            };
-
-            this.Member = (username: string, password: string, displayName: string, metadata: any, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
-                    let regist:any = public_key(key, username, password);
-                    regist.displayName = displayName;
-                    regist.metadata = metadata;
-                    const body = JSON.stringify(regist);
-                    access("/auth/local/register", {method:POST, headers:default_header,body: body}, callback, error);
-                });
-            };
-
-            this.Login = (username: string, password: string, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
-                    let login: { username: string, password: string } = public_key(key, username, password);
-                    const body = JSON.stringify(login);
-                    access("/auth/local/login", {method:POST, headers:default_header,body: body}, callback, error);
-                });
-            };
-
-            this.Logout = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                access("/auth/logout", {method: "GET", cache: "no-cache", headers: default_header}, callback, error);
-            };
-
-            this.Password = (username: string, password: string, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
-                    let pass: { username: string, password: string } = public_key(key, username, password);
-                    const body = JSON.stringify(pass);
-                    access("/auth/local/password", {method:POST, headers:default_header,body: body}, callback, error);
                 });
             };
 
         }]);
 
-    AuthServices.service('ProfileService', [
-        function (): void {
+    AuthServices.service('ProfileService', ["Profile",
+        function (Self: any): void {
 
-            this.Get = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                let self: any = {};
-
-                let options: any = {
-                    method: "GET",
-                    cache: "no-cache",
-                    headers: {
-                        'Accept': 'application/json; charset=utf-8',
-                        'Content-Type': 'application/json; charset=utf-8',
-                        "x-requested-with": "XMLHttpRequest"
-                    }
-                };
-
-                fetch("/profile/api", options).then((res) => res.json()).then(
-                    (account) => {
-                        if (account) {
-                            switch (account.code) {
-                                case 0:
-                                    callback(account.value);
-                                    break;
-                                case 1:
-                                    callback(null);
-                                    break;
-                                default:
-                                    error(account.code, account.message);
-                            }
-                        } else {
-                            error(10000, "network error");
+            this.Get = (callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
+                Self.get({}, (result: any): void => {
+                    if (result) {
+                        switch (result.code) {
+                            case 0:
+                                callback(result.value);
+                                break;
+                            case 1:
+                                callback(null);
+                                break;
+                            default:
+                                error_callback(result.code, result.message);
                         }
+                    } else {
+                        error_callback(10000, "network error");
                     }
-                ).catch(() => {
-                    error(10000, "network error")
                 });
             };
 
-            this.Put = (content: any, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-
-                let self: any = {};
+            this.Put = (content: any, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
+                let self = new Self();
                 self.local = content;
-
-                const method = "PUT";
-                const body = JSON.stringify(self);
-                const headers = {
-                    'Accept': 'application/json; charset=utf-8',
-                    'Content-Type': 'application/json; charset=utf-8',
-                    "x-requested-with": "XMLHttpRequest"
-                };
-
-                fetch("/profile/api", {method, headers, body}).then((res) => res.json()).then(
-                    (account) => {
-                        if (account) {
-                            if (account.code === 0) {
-                                callback(account.value);
-                            } else {
-                                error(account.code, account.message);
-                            }
+                self.$put({}, (result: any): void => {
+                    if (result) {
+                        if (result.code === 0) {
+                            callback(result.value);
                         } else {
-                            error(10000, "network error");
+                            error_callback(result.code, result.message);
                         }
+                    } else {
+                        error_callback(10000, "network error");
                     }
-                ).catch(() => {
-                    error(10000, "network error")
                 });
-
             };
 
         }]);
-
 }

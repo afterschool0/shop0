@@ -17,6 +17,9 @@ var AuthModule;
     var pug = require('pug');
     var _config = require('config');
     var config = _config.get("systems");
+    var log4js = require('log4js');
+    log4js.configure("./config/systems/logs.json");
+    var logger = log4js.getLogger('request');
     var message = config.message;
     var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     var Wrapper = new PromisedModule.Wrapper();
@@ -63,6 +66,7 @@ var AuthModule;
         function Auth() {
         }
         Auth.error_handler = function (e) {
+            logger.fatal(e.message);
         };
         Auth.prototype.create_init_user = function (initusers) {
             if (initusers) {
@@ -345,16 +349,36 @@ var AuthModule;
                 }
             }
         };
-        Auth.publickey_decrypt = function (systempassphrase, encrypted, error) {
-            var result = "";
+        Auth.publickey_decrypt = function (systempassphrase, encrypted, callback) {
             var username_decrypted = Cipher.PublicKeyDecrypt(systempassphrase, encrypted);
             if (username_decrypted.status === "success") {
-                result = username_decrypted.plaintext;
+                callback(null, username_decrypted.plaintext);
             }
             else {
-                error(username_decrypted.status);
+                callback({ code: 1, message: username_decrypted.status }, "");
             }
-            return result;
+        };
+        Auth.username_and_password_decrypt = function (use_publickey, systempassphrase, username, password, callback) {
+            if (use_publickey) {
+                Auth.publickey_decrypt(systempassphrase, username, function (error, decrypted_username) {
+                    if (!error) {
+                        Auth.publickey_decrypt(systempassphrase, password, function (error, decrypted_password) {
+                            if (!error) {
+                                callback(null, decrypted_username, decrypted_password);
+                            }
+                            else {
+                                callback(error, "", "");
+                            }
+                        });
+                    }
+                    else {
+                        callback(error, "", "");
+                    }
+                });
+            }
+            else {
+                callback(null, username, password);
+            }
         };
         /**
          * アカウント作成
@@ -366,56 +390,65 @@ var AuthModule;
             var username = request.body.username;
             var password = request.body.password;
             var systempassphrase = request.session.id;
-            if (use_publickey) {
-                username = Auth.publickey_decrypt(systempassphrase, username, function (status) {
-                    Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                });
-                password = Auth.publickey_decrypt(systempassphrase, password, function (status) {
-                    Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                });
-            }
-            Wrapper.FindOne(response, 100, LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (response, account) {
-                if (!account) {
-                    try {
-                        var metadata = {};
-                        if (request.body.metadata) {
-                            metadata = request.body.metadata;
-                        }
-                        var tokenValue = {
-                            username: username,
-                            password: password,
-                            displayName: request.body.displayName,
-                            metadata: metadata,
-                            timestamp: Date.now()
-                        };
-                        var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                        var link_1 = config.protocol + "://" + config.domain + "/auth/register/" + token;
-                        fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_mail.pug"), "utf8", function (err, data) {
-                            if (!err) {
-                                var doc = pug.render(data, { "link": link_1 });
-                                _mailer.send(username, bcc, message.registconfirmtext, doc, function (error) {
-                                    if (!error) {
-                                        Wrapper.SendSuccess(response, { code: 0, message: "" });
+            /*
+
+            auth < 100 system
+            auth < 500 user
+            auth < 1000 member
+            auth < 10000 temp
+            auth > 10001 guest
+
+            */
+            Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, function (error, username, password) {
+                if (!error) {
+                    Wrapper.FindOne(response, 100, LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (response, account) {
+                        if (!account) {
+                            try {
+                                var metadata = {};
+                                if (request.body.metadata) {
+                                    metadata = request.body.metadata;
+                                }
+                                var tokenValue = {
+                                    auth: 1000,
+                                    username: username,
+                                    password: password,
+                                    displayName: request.body.displayName,
+                                    metadata: metadata,
+                                    timestamp: Date.now()
+                                };
+                                var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
+                                var link_1 = config.protocol + "://" + config.domain + "/auth/register/" + token;
+                                fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_mail.pug"), "utf8", function (err, data) {
+                                    if (!err) {
+                                        var doc = pug.render(data, { "link": link_1 });
+                                        _mailer.send(username, bcc, message.registconfirmtext, doc, function (error) {
+                                            if (!error) {
+                                                Wrapper.SendSuccess(response, { code: 0, message: "" });
+                                            }
+                                            else {
+                                                Wrapper.SendError(response, error.code, error.message, error);
+                                            }
+                                        });
                                     }
                                     else {
-                                        Wrapper.SendError(response, error.code, error.message, error);
+                                        console.log(err.message);
                                     }
                                 });
                             }
-                            else {
-                                console.log(err.message);
+                            catch (e) {
+                                Wrapper.SendFatal(response, e.code, e.message, e);
                             }
-                        });
-                    }
-                    catch (e) {
-                        Wrapper.SendFatal(response, e.code, e.message, e);
-                    }
+                        }
+                        else {
+                            Wrapper.SendWarn(response, 1, message.usernamealreadyregist, {
+                                code: 1,
+                                message: message.usernamealreadyregist
+                            });
+                        }
+                    });
                 }
                 else {
-                    Wrapper.SendWarn(response, 1, message.usernamealreadyregist, {
-                        code: 1,
-                        message: message.usernamealreadyregist
-                    });
+                    Wrapper.SendError(response, error.code, error.message, error);
                 }
             });
         };
@@ -513,273 +546,6 @@ var AuthModule;
             });
         };
         /**
-         * アカウント作成
-         * @param request
-         * @param response
-         * @returns none
-         */
-        Auth.prototype.post_member_register = function (request, response) {
-            var username = request.body.username;
-            var password = request.body.password;
-            var systempassphrase = request.session.id;
-            if (use_publickey) {
-                username = Auth.publickey_decrypt(systempassphrase, username, function (status) {
-                    Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                });
-                password = Auth.publickey_decrypt(systempassphrase, password, function (status) {
-                    Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                });
-            }
-            Wrapper.FindOne(response, 100, LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (response, account) {
-                if (!account) {
-                    try {
-                        var metadata = { userid: request.user.userid };
-                        if (request.body.metadata) {
-                            metadata = request.body.metadata;
-                            metadata.groupid = request.user.groupid;
-                            metadata.userid = request.user.userid;
-                        }
-                        var tokenValue = {
-                            username: username,
-                            password: password,
-                            displayName: request.body.displayName,
-                            metadata: metadata,
-                            auth: 101,
-                            timestamp: Date.now()
-                        };
-                        var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                        var link_2 = config.protocol + "://" + config.domain + "/auth/member/" + token;
-                        fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_member_mail.pug"), "utf8", function (err, data) {
-                            if (!err) {
-                                var doc = pug.render(data, { "link": link_2 });
-                                _mailer.send(username, bcc, message.memberconfirmtext, doc, function (error) {
-                                    if (!error) {
-                                        Wrapper.SendSuccess(response, { code: 0, message: "" });
-                                    }
-                                    else {
-                                        Wrapper.SendError(response, error.code, error.message, error);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    catch (e) {
-                        Wrapper.SendFatal(response, e.code, e.message, e);
-                    }
-                }
-                else {
-                    Wrapper.SendWarn(response, 1, message.usernamealreadyregist, {
-                        code: 1,
-                        message: message.usernamealreadyregist
-                    });
-                }
-            });
-        };
-        /**
-         * レジスタートークンでユーザ登録
-         * @param request
-         * @param response
-         * @returns none
-         */
-        Auth.prototype.get_member_token = function (request, response) {
-            Wrapper.Exception(request, response, function (request, response) {
-                var token = Wrapper.Parse(Cipher.FixedDecrypt(request.params.token, config.tokensecret));
-                var tokenDateTime = token.timestamp;
-                var nowDate = Date.now();
-                if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    LocalAccount.findOne({ username: token.username }, function (error, account_data) {
-                        if (!error) {
-                            if (!account_data) {
-                                var content = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
-                                content.mails.push(token.username);
-                                content.nickname = token.displayName;
-                                var groupid = config.systems.groupid;
-                                var userid = "";
-                                if (token.metadata.userid) {
-                                    userid = token.metadata.userid;
-                                }
-                                else {
-                                    var shasum = crypto.createHash('sha1');
-                                    shasum.update(token.username);
-                                    userid = shasum.digest('hex');
-                                }
-                                var passphrase = Cipher.FixedCrypt(userid, config.key2);
-                                LocalAccount.register(new LocalAccount({
-                                    groupid: groupid,
-                                    userid: userid,
-                                    username: token.username,
-                                    passphrase: passphrase,
-                                    publickey: Cipher.PublicKey(passphrase),
-                                    auth: token.auth,
-                                    local: content
-                                }), token.password, function (error) {
-                                    if (!error) {
-                                        var user = request.body;
-                                        user.username = token.username;
-                                        user.password = token.password;
-                                        passport.authenticate('local', function (error, user) {
-                                            if (!error) {
-                                                if (user) {
-                                                    request.login(user, function (error) {
-                                                        if (!error) {
-                                                            Auth.auth_event("auth:member", request.params.token);
-                                                            response.redirect("/");
-                                                        }
-                                                        else {
-                                                            response.status(500).render('error', {
-                                                                status: 500,
-                                                                message: "get_member_token " + error.message
-                                                            });
-                                                        }
-                                                    });
-                                                }
-                                                else {
-                                                    response.status(500).render('error', {
-                                                        status: 500,
-                                                        message: "authenticate"
-                                                    });
-                                                }
-                                            }
-                                            else {
-                                                response.status(500).render('error', {
-                                                    status: 500,
-                                                    message: "get_member_token " + error.message
-                                                });
-                                            }
-                                        })(request, response);
-                                    }
-                                    else {
-                                        response.status(500).render('error', {
-                                            status: 500,
-                                            message: "get_member_token " + error.message
-                                        });
-                                    }
-                                });
-                            }
-                            else {
-                                response.redirect("/");
-                            }
-                        }
-                        else {
-                            response.status(500).render('error', { status: 500, message: "get_register_token " + error.message });
-                        }
-                    });
-                }
-                else {
-                    response.status(200).render('error', { status: 200, message: "timeout" });
-                }
-            });
-        };
-        /**
-         * レジスタートークン発行
-         * @param request
-         * @param response
-         * @returns none
-         */
-        Auth.prototype.post_local_username = function (request, response) {
-            var username = request.body.username;
-            var password = request.body.password;
-            var newusername = request.body.newusername;
-            var systempassphrase = request.session.id;
-            if (use_publickey) {
-                username = Auth.publickey_decrypt(systempassphrase, username, function (status) {
-                    Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                });
-                password = Auth.publickey_decrypt(systempassphrase, password, function (status) {
-                    Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                });
-            }
-            Wrapper.FindOne(response, 1, LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (response, account) {
-                if (account) {
-                    Wrapper.FindOne(response, 2, LocalAccount, { $and: [{ provider: "local" }, { username: newusername }] }, function (response, account) {
-                        if (!account) {
-                            try {
-                                var tokenValue = {
-                                    username: username,
-                                    password: password,
-                                    newusername: newusername,
-                                    timestamp: Date.now()
-                                };
-                                var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                                var link_3 = config.protocol + "://" + config.domain + "/auth/username/" + token;
-                                //let beacon: string = config.protocol + "://" + config.domain + "/beacon/api/" + token;
-                                fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/username_mail.pug"), "utf8", function (err, data) {
-                                    if (!err) {
-                                        var doc = pug.render(data, { "link": link_3 });
-                                        _mailer.send(username, bcc, message.usernameconfirmtext, doc, function (error) {
-                                            if (!error) {
-                                                Wrapper.SendSuccess(response, { code: 0, message: "" });
-                                            }
-                                            else {
-                                                Wrapper.SendError(response, error.code, error.message, error);
-                                            }
-                                        });
-                                    }
-                                    else {
-                                        console.log(err.message);
-                                    }
-                                });
-                            }
-                            catch (e) {
-                                Wrapper.SendFatal(response, e.code, e.message, e);
-                            }
-                        }
-                        else {
-                            Wrapper.SendWarn(response, 2, message.usernamealreadyregist, {
-                                code: 2,
-                                message: message.usernamealreadyregist
-                            });
-                        }
-                    });
-                }
-                else {
-                    Wrapper.SendWarn(response, 3, message.usernamenotfound, {
-                        code: 3,
-                        message: message.usernamenotfound
-                    });
-                }
-            });
-        };
-        /**
-         * ユーザ名トークンでユーザ名変更（多分使用しない)
-         * @param request
-         * @param response
-         * @returns none
-         */
-        Auth.prototype.get_username_token = function (request, response) {
-            Wrapper.Exception(request, response, function (request, response) {
-                var token = Wrapper.Parse(Cipher.FixedDecrypt(request.params.token, config.tokensecret));
-                var tokenDateTime = token.timestamp;
-                var nowDate = Date.now();
-                if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    LocalAccount.findOne({ username: token.username }, function (error, account) {
-                        if (!error) {
-                            if (account) {
-                                account.username = token.newusername;
-                                if (!error) {
-                                    Wrapper.Save(response, 1, account, function () {
-                                        response.redirect("/");
-                                    });
-                                }
-                                else {
-                                    response.status(500).render("error", { message: "get_username_token " + error.message, status: 500 }); // already
-                                }
-                            }
-                            else {
-                                response.status(200).render("error", { message: "already", status: 200 }); // already
-                            }
-                        }
-                        else {
-                            response.status(500).render("error", { message: "get_username_token " + error.message, status: 500 }); // timeout
-                        }
-                    });
-                }
-                else {
-                    response.status(200).render("error", { message: "timeout", status: 200 }); // timeout
-                }
-            });
-        };
-        /**
          * パスワードトークン発行
          * @param request
          * @param response
@@ -789,47 +555,46 @@ var AuthModule;
             var username = request.body.username;
             var password = request.body.password;
             var systempassphrase = request.session.id;
-            if (use_publickey) {
-                username = Auth.publickey_decrypt(systempassphrase, username, function (status) {
-                    Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                });
-                password = Auth.publickey_decrypt(systempassphrase, password, function (status) {
-                    Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                });
-            }
-            Wrapper.FindOne(response, 1, LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (response, account) {
-                if (account) {
-                    try {
-                        var tokenValue = {
-                            username: username,
-                            password: password,
-                            timestamp: Date.now()
-                        };
-                        var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                        var link_4 = config.protocol + "://" + config.domain + "/auth/password/" + token;
-                        fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/password_mail.pug"), "utf8", function (err, data) {
-                            if (!err) {
-                                var doc = pug.render(data, { "link": link_4 });
-                                _mailer.send(username, bcc, message.passwordconfirmtext, doc, function (error) {
-                                    if (!error) {
-                                        Wrapper.SendSuccess(response, { code: 0, message: "" });
-                                    }
-                                    else {
-                                        Wrapper.SendError(response, error.code, error.message, error);
+            Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, function (error, username, password) {
+                if (!error) {
+                    Wrapper.FindOne(response, 1, LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (response, account) {
+                        if (account) {
+                            try {
+                                var tokenValue = {
+                                    username: username,
+                                    password: password,
+                                    timestamp: Date.now()
+                                };
+                                var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
+                                var link_2 = config.protocol + "://" + config.domain + "/auth/password/" + token;
+                                fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/password_mail.pug"), "utf8", function (err, data) {
+                                    if (!err) {
+                                        var doc = pug.render(data, { "link": link_2 });
+                                        _mailer.send(username, bcc, message.passwordconfirmtext, doc, function (error) {
+                                            if (!error) {
+                                                Wrapper.SendSuccess(response, { code: 0, message: "" });
+                                            }
+                                            else {
+                                                Wrapper.SendError(response, error.code, error.message, error);
+                                            }
+                                        });
                                     }
                                 });
                             }
-                        });
-                    }
-                    catch (e) {
-                        Wrapper.SendFatal(response, e.code, e.message, e);
-                    }
+                            catch (e) {
+                                Wrapper.SendFatal(response, e.code, e.message, e);
+                            }
+                        }
+                        else {
+                            Wrapper.SendWarn(response, 2, message.usernamenotfound, {
+                                code: 2,
+                                message: message.usernamenotfound
+                            });
+                        }
+                    });
                 }
                 else {
-                    Wrapper.SendWarn(response, 2, message.usernamenotfound, {
-                        code: 2,
-                        message: message.usernamenotfound
-                    });
+                    Wrapper.SendError(response, error.code, error.message, error);
                 }
             });
         };
@@ -883,40 +648,41 @@ var AuthModule;
             var systempassphrase = request.session.id;
             if (request.body.username) {
                 if (request.body.password) {
-                    if (use_publickey) {
-                        request.body.username = Auth.publickey_decrypt(systempassphrase, request.body.username, function (status) {
-                            Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                        });
-                        request.body.password = Auth.publickey_decrypt(systempassphrase, request.body.password, function (status) {
-                            Wrapper.SendError(response, 1, "security infringement", { code: 1, message: "security infringement" });
-                        });
-                    }
-                    passport.authenticate("local", function (error, user) {
+                    Auth.username_and_password_decrypt(use_publickey, systempassphrase, request.body.username, request.body.password, function (error, username, password) {
                         if (!error) {
-                            if (user) {
-                                Wrapper.Guard(request, response, function (request, response) {
-                                    request.login(user, function (error) {
-                                        if (!error) {
-                                            Auth.auth_event("login:local", request.body.username);
-                                            Wrapper.SendSuccess(response, {});
-                                        }
-                                        else {
-                                            Wrapper.SendError(response, error.code, error.message, error);
-                                        }
-                                    });
-                                });
-                            }
-                            else {
-                                Wrapper.SendError(response, 2, message.usernamenotfound, {
-                                    code: 2,
-                                    message: message.usernamenotfound
-                                });
-                            }
+                            request.body.username = username;
+                            request.body.password = password;
+                            passport.authenticate("local", function (error, user) {
+                                if (!error) {
+                                    if (user) {
+                                        Wrapper.Guard(request, response, function (request, response) {
+                                            request.login(user, function (error) {
+                                                if (!error) {
+                                                    Auth.auth_event("login:local", request.body.username);
+                                                    Wrapper.SendSuccess(response, {});
+                                                }
+                                                else {
+                                                    Wrapper.SendError(response, error.code, error.message, error);
+                                                }
+                                            });
+                                        });
+                                    }
+                                    else {
+                                        Wrapper.SendError(response, 2, message.usernamenotfound, {
+                                            code: 2,
+                                            message: message.usernamenotfound
+                                        });
+                                    }
+                                }
+                                else {
+                                    Wrapper.SendError(response, error.code, error.message, error);
+                                }
+                            })(request, response);
                         }
                         else {
                             Wrapper.SendError(response, error.code, error.message, error);
                         }
-                    })(request, response);
+                    });
                 }
                 else {
                     Wrapper.SendError(response, 4, "post_local_login password", { code: 4, message: "password" });

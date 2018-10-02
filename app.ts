@@ -49,7 +49,6 @@ namespace App {
         app.use(helmet());
         app.use(helmet.hidePoweredBy({setTo: "JSF/1.2"}));  // impersonation
 
-
         const _config: any = require('config');
         const config: any = _config.get("systems");
 
@@ -128,6 +127,7 @@ namespace App {
 
         mongoose.connect(connect_url, options)
             .catch(error => {
+                console.log('catch Mongoose exeption. ');
                 logger.fatal('catch Mongoose exeption. ', error.stack);
                 process.exit(1);
             });
@@ -139,6 +139,7 @@ namespace App {
             });
 
             mongoose.connection.on('disconnected', () => {
+                console.log('Mongoose default connection disconnected');
                 logger.fatal('Mongoose default connection disconnected');
                 process.exit(1);
             });
@@ -148,6 +149,7 @@ namespace App {
             });
 
             mongoose.connection.on('error', (error) => {
+                console.log('Mongoose default connection error');
                 logger.fatal('Mongoose default connection error: ' + error);
                 process.exit(1);
             });
@@ -196,6 +198,12 @@ namespace App {
                 {
                     "type": "required",
                     "path": "/systems/",
+                    "name": "accounts",
+                    "description": {}
+                },
+                {
+                    "type": "required",
+                    "path": "/systems/",
                     "name": "publickey",
                     "description": {}
                 },
@@ -230,17 +238,6 @@ namespace App {
                     });
                 }
             };
-
-         /*   let root_modules = [
-                {
-                    "type": "required",
-                    "path": "/systems/",
-                    "name": "front",
-                    "description": {
-                        "display": "Front"
-                    }
-                }
-            ];*/
 
             load_root_module("./server", config.root_modules);
 
@@ -451,7 +448,7 @@ namespace App {
             process.send('ready');
         }
 
-        server.listen(port);
+        server.listen(port, '::0');
         server.on('error', onError);
         server.on('listening', onListening);
 

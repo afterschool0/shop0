@@ -1,27 +1,51 @@
 div(style='display:flex;flex-direction:column;')
     div(style="width:auto;padding:0;")
         .card
-            .card-body
+            .card-body(style="color:#333;font-size:1rem;")
                 div(style="margin:2rem;")
-                    h2 is not Logined
-                    div(style="margin:1rem;")
-                        div role.guest = false;
+                    div(style="margin:1rem;" class="table row")
+                        div(class="title-cell col-4") is not Logined
+                        div(class="title-cell col-4") server
+                        div(class="title-cell col-4") client
+                        div(class="row-cell col-4") guest
+                        div(class="cell col-4") if !role.guest
+                        div(class="cell col-4") ng-if="!role.guest"
                 div(style="margin:2rem;")
-                    h2 is Logined
-                    div(style="margin:1rem;")
-                        div role.guest = true;
-                        | role.temp = true;
-                        br
-                        | role.member = true;
-                        br
-                        | role.user = true;
-                        br
-                        | role.system = true;
+                    div(style="margin:1rem;" class="table row")
+                        div(class="title-cell col-4") is Logined
+                        div(class="title-cell col-4") server
+                        div(class="title-cell col-4") client
+                        div(class="row-cell col-4") guest
+                        div(class="cell col-4") if role.guest
+                        div(class="cell col-4") ng-if="role.guest"
+                        div(class="row-cell col-4") temp
+                        div(class="cell col-4") if role.temp
+                        div(class="cell col-4") ng-if="role.temp"
+                        div(class="row-cell col-4") member
+                        div(class="cell col-4") if role.member
+                        div(class="cell col-4") ng-if="role.member"
+                        div(class="row-cell col-4") user
+                        div(class="cell col-4") if role.user
+                        div(class="cell col-4") ng-if="role.user"
+                        div(class="row-cell col-4") system
+                        div(class="cell col-4") if role.system
+                        div(class="cell col-4") ng-if="role.system"
                 div(style="margin:2rem;")
-                    h2 is Local
-                    div(style="margin:1rem;")
-                        div role.categoly = 0;
+                    div(style="margin:1rem;" class="table row")
+                        div(class="title-cell col-4") is Local
+                        div(class="title-cell col-4") server
+                        div(class="title-cell col-4") client
+                        div(class="row-cell col-4") Local
+                        div(class="cell col-4") if role.categoly = 0
+                        div(class="cell col-4") ng-if="role.categoly = 0"
                 div(style="margin:2rem;")
-                    h2 is OAuth
-                    div(style="margin:1rem;")
-                        div role.categoly = 1;
+                    div(style="margin:1rem;" class="table row")
+                        div(class="title-cell col-4") is OAuth
+                        div(class="title-cell col-4") server
+                        div(class="title-cell col-4") client
+                        div(class="row-cell col-4") OAuth
+                        div(class="cell col-4") if role.categoly = 1
+                        div(class="cell col-4") ng-if="role.categoly = 1"
+
+                div(ng-controller="AccountController")
+                    div(ng-repeat="account in accounts") {{account.nickname}}

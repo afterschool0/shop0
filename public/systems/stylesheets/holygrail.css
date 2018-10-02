@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'Wire One';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Wire One'), local('WireOne'), url(https://fonts.gstatic.com/s/wireone/v8/qFdH35Wah5htUhV75VGlU94.ttf) format('truetype');
+}
 :root {
   --button-scale: 0.8;
   --header-brand-font: 100 1.2rem/2  'Wire One', sans-serif;

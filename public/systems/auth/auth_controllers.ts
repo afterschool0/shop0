@@ -8,7 +8,7 @@
 
 namespace AuthControllersModule {
 
-    let AuthControllers: angular.IModule = angular.module('AuthControllers', ['ngMessages']);
+    let AuthControllers: angular.IModule = angular.module('AuthControllers', ["ngResource",'ngMessages']);
 
     AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService',
         ($scope: any, $rootScope: any, $window: any, $uibModal: any, $log: any, AuthService: any, ProfileService: any): void => {
@@ -58,7 +58,8 @@ namespace AuthControllersModule {
                 });
             };
 
-            $scope.Regist = (items: any): void => {
+            $scope.Regist = (): void => {
+                let items = {};
                 $scope.message = "";
                 progress(true);
                 AuthService.Regist($scope.items.username, $scope.items.password, $scope.items.displayName, items, (account) => {
@@ -70,7 +71,8 @@ namespace AuthControllersModule {
                 });
             };
 
-            $scope.showRegisterDialog = (items: any): void => {
+            $scope.showRegisterDialog = (): void => {
+                let items = {};
                 let modalRegist = $uibModal.open({
                     controller: 'RegisterDialogController',
                     templateUrl: '/auth/dialogs/registerdialog',
@@ -94,7 +96,7 @@ namespace AuthControllersModule {
                 if (profile) {
                     user = profile;
                     $scope.role = user.role;
-                    $scope.$apply();
+           //         $scope.$apply();
                 }
             }, error_handler);
 
@@ -205,6 +207,7 @@ namespace AuthControllersModule {
                 $scope.message = "";
             };
 
+
             $scope.answer = (items: any): void => {
                 progress(true);
                 AuthService.Login($scope.items.username, $scope.items.password, (account: any): void => {
@@ -213,7 +216,7 @@ namespace AuthControllersModule {
                 }, (error: any, message: string): void => {
                     $scope.message = message;
                     progress(false);
-                    $scope.$apply();
+   //                 $scope.$apply();
                 });
             };
         }]);

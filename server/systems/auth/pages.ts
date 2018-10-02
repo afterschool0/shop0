@@ -61,15 +61,6 @@ export namespace AuthPageRouter {
         response.render("systems/auth/mail/password_mail", {config: config,link: ""});
     }]);
 
-
-    router.get("/mail/regist_member_mail", [exception.page_catch, (request: any, response: any): void => {
-        response.render("systems/auth/mail/regist_member_mail", {config: config, link: ""});
-    }]);
-
-    router.get("/mail/username_mail", [exception.page_catch, (request: any, response: any): void => {
-        response.render("systems/auth/mail/username_mail", {config: config, link: ""});
-    }]);
-
 }
 
 module.exports = AuthPageRouter.router;

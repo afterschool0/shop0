@@ -6,7 +6,7 @@
 "use strict";
 var AuthControllersModule;
 (function (AuthControllersModule) {
-    var AuthControllers = angular.module('AuthControllers', ['ngMessages']);
+    var AuthControllers = angular.module('AuthControllers', ["ngResource", 'ngMessages']);
     AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService',
         function ($scope, $rootScope, $window, $uibModal, $log, AuthService, ProfileService) {
             var progress = function (value) {
@@ -47,7 +47,8 @@ var AuthControllersModule;
                 }, function () {
                 });
             };
-            $scope.Regist = function (items) {
+            $scope.Regist = function () {
+                var items = {};
                 $scope.message = "";
                 progress(true);
                 AuthService.Regist($scope.items.username, $scope.items.password, $scope.items.displayName, items, function (account) {
@@ -58,7 +59,8 @@ var AuthControllersModule;
                     progress(false);
                 });
             };
-            $scope.showRegisterDialog = function (items) {
+            $scope.showRegisterDialog = function () {
+                var items = {};
                 var modalRegist = $uibModal.open({
                     controller: 'RegisterDialogController',
                     templateUrl: '/auth/dialogs/registerdialog',
@@ -79,7 +81,7 @@ var AuthControllersModule;
                 if (profile) {
                     user = profile;
                     $scope.role = user.role;
-                    $scope.$apply();
+                    //         $scope.$apply();
                 }
             }, error_handler);
             $scope.showLoginDialog = function () {
@@ -178,7 +180,7 @@ var AuthControllersModule;
                 }, function (error, message) {
                     $scope.message = message;
                     progress(false);
-                    $scope.$apply();
+                    //                 $scope.$apply();
                 });
             };
         }]);

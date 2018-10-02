@@ -72,7 +72,6 @@ export namespace ProfileModule {
 
                     Wrapper.SendSuccess(response, {
                         provider: self.provider,
-                  //      type: self.type,
                         auth: self.auth,
                         username: self.username,
                         groupid: self.groupid,

@@ -26,12 +26,6 @@ export namespace AuthApiRouter {
     router.post("/local/register", [exception.exception, exception.guard, auth.is_enabled_regist_user, auth.post_local_register]);
     router.get("/register/:token", [auth.get_register_token]);
 
-    router.post("/local/member", [exception.exception, exception.guard, exception.authenticate, auth.is_enabled_regist_member, auth.post_member_register]);
-    router.get("/member/:token", [auth.get_member_token]);
-
-    router.post("/local/username", [exception.exception, exception.guard, exception.authenticate, auth.post_local_username]);
-    router.get("/username/:token", [auth.get_username_token]);
-
     router.post("/local/password", [exception.exception, exception.guard, auth.post_local_password]);
     router.get("/password/:token", [auth.get_password_token]);
 
@@ -54,9 +48,15 @@ export namespace AuthApiRouter {
     router.get('/line', passport.authenticate('line'));
     router.get('/line/callback', passport.authenticate('line', {failureRedirect: '/'}), auth.auth_line_callback);
 
+    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    const Wrapper: any = new PromisedModule.Wrapper();
+
+
     const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));
     const Cipher: any = CipherModule.Cipher;
 
+    const ipv6module: any = require(path.join(process.cwd(),"server/systems/common/ipv6"));
+    const ipv6 = ipv6module.IPV6;
 
     interface Decoded {
         status: string,
@@ -69,16 +69,76 @@ export namespace AuthApiRouter {
         cipher: string
     }
 
+    router.get('/token/make', (request: any, response: any) => {
+
+        let key = ipv6.GetIPV6(request); //IP制限の場合
+
+        Cipher.Token("oda.mikio@gmail.com", key, (error: any, token_by_user: string) => {
+            if (!error) {
+                response.send(token_by_user);
+            } else {
+                response.send(error.message);
+            }
+        })
+
+    });
+
+    router.get('/token/enc/:token/:plain', (request: any, response: any) => {
+
+        let key = ipv6.GetIPV6(request); //IP制限の場合
+        let token = request.params.token;
+        let plain = request.params.plain;
+
+        Cipher.Account(token, key, (error: any, account: any) => {
+            if (!error) {
+                if (account) {
+                    let publickey_by_user: string = Cipher.PublicKey(account.passphrase);
+                    let enc: Encoded = Cipher.PublicKeyEncrypt(publickey_by_user, plain);
+                    if (enc.status === "success") {
+                        response.send(encodeURIComponent(enc.cipher));
+                    }
+                } else {
+                    response.send("NG");
+                }
+            } else {
+                response.send(error.message);
+            }
+        });
+
+    });
+
+    router.get('/token/dec/:token/:cipher', (request: any, response: any) => {
+
+        let key = ipv6.GetIPV6(request); //IP制限の場合
+        let token = request.params.token;
+        let cipher_string = decodeURIComponent(request.params.cipher);
+
+        Cipher.Account(token, key, (error: any, account: any) => {
+            if (!error) {
+                if (account) {
+                    let dec: Decoded = Cipher.PublicKeyDecrypt(account.passphrase, cipher_string);
+                    if (dec.status === "success") {
+                        response.send(dec.plaintext);
+                    }
+                } else {
+                    response.send("NG");
+                }
+            } else {
+                response.send(error.message);
+            }
+        });
+    });
 
     router.get('/test', (request: any, response: any) => {
 
-        // let key =  Cipher.GetIP(request); //IP制限の場合
-        let key = "opensesame";         //secret文字列の場合
+        //let key = "opensesame";         //secret文字列の場合
+        let key = ipv6.GetIPV6(request); //IP制限の場合
 
         //  token by user
         Cipher.Token("oda.mikio@gmail.com", key, (error: any, token_by_user: string) => {
             if (!error) {
-                console.log(token_by_user);
+                console.log(token_by_user); //create token.
+
 
                 //
                 //
@@ -86,6 +146,8 @@ export namespace AuthApiRouter {
                 //
                 //
 
+
+                // use token
                 // by_user token to by_user passphrase
                 Cipher.Account(token_by_user, key, (error: any, account: any) => {
                     if (!error) {
@@ -116,15 +178,14 @@ export namespace AuthApiRouter {
                                     response.send(decoded_string);
                                 }
 
-
                             }
                         }
                     }
                 });
             }
         })
-
     });
+
 
 }
 

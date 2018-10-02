@@ -17,10 +17,6 @@ var AuthApiRouter;
     var exception = new ExceptionController.Exception();
     AuthApiRouter.router.post("/local/register", [exception.exception, exception.guard, auth.is_enabled_regist_user, auth.post_local_register]);
     AuthApiRouter.router.get("/register/:token", [auth.get_register_token]);
-    AuthApiRouter.router.post("/local/member", [exception.exception, exception.guard, exception.authenticate, auth.is_enabled_regist_member, auth.post_member_register]);
-    AuthApiRouter.router.get("/member/:token", [auth.get_member_token]);
-    AuthApiRouter.router.post("/local/username", [exception.exception, exception.guard, exception.authenticate, auth.post_local_username]);
-    AuthApiRouter.router.get("/username/:token", [auth.get_username_token]);
     AuthApiRouter.router.post("/local/password", [exception.exception, exception.guard, auth.post_local_password]);
     AuthApiRouter.router.get("/password/:token", [auth.get_password_token]);
     AuthApiRouter.router.post("/local/login", [exception.exception, exception.guard, auth.post_local_login]);
@@ -37,20 +33,79 @@ var AuthApiRouter;
     // line
     AuthApiRouter.router.get('/line', passport.authenticate('line'));
     AuthApiRouter.router.get('/line/callback', passport.authenticate('line', { failureRedirect: '/' }), auth.auth_line_callback);
+    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    var Wrapper = new PromisedModule.Wrapper();
     var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
     var Cipher = CipherModule.Cipher;
+    var ipv6module = require(path.join(process.cwd(), "server/systems/common/ipv6"));
+    var ipv6 = ipv6module.IPV6;
+    AuthApiRouter.router.get('/token/make', function (request, response) {
+        var key = ipv6.GetIPV6(request); //IP制限の場合
+        Cipher.Token("oda.mikio@gmail.com", key, function (error, token_by_user) {
+            if (!error) {
+                response.send(token_by_user);
+            }
+            else {
+                response.send(error.message);
+            }
+        });
+    });
+    AuthApiRouter.router.get('/token/enc/:token/:plain', function (request, response) {
+        var key = ipv6.GetIPV6(request); //IP制限の場合
+        var token = request.params.token;
+        var plain = request.params.plain;
+        Cipher.Account(token, key, function (error, account) {
+            if (!error) {
+                if (account) {
+                    var publickey_by_user = Cipher.PublicKey(account.passphrase);
+                    var enc = Cipher.PublicKeyEncrypt(publickey_by_user, plain);
+                    if (enc.status === "success") {
+                        response.send(encodeURIComponent(enc.cipher));
+                    }
+                }
+                else {
+                    response.send("NG");
+                }
+            }
+            else {
+                response.send(error.message);
+            }
+        });
+    });
+    AuthApiRouter.router.get('/token/dec/:token/:cipher', function (request, response) {
+        var key = ipv6.GetIPV6(request); //IP制限の場合
+        var token = request.params.token;
+        var cipher_string = decodeURIComponent(request.params.cipher);
+        Cipher.Account(token, key, function (error, account) {
+            if (!error) {
+                if (account) {
+                    var dec = Cipher.PublicKeyDecrypt(account.passphrase, cipher_string);
+                    if (dec.status === "success") {
+                        response.send(dec.plaintext);
+                    }
+                }
+                else {
+                    response.send("NG");
+                }
+            }
+            else {
+                response.send(error.message);
+            }
+        });
+    });
     AuthApiRouter.router.get('/test', function (request, response) {
-        // let key =  Cipher.GetIP(request); //IP制限の場合
-        var key = "opensesame"; //secret文字列の場合
+        //let key = "opensesame";         //secret文字列の場合
+        var key = ipv6.GetIPV6(request); //IP制限の場合
         //  token by user
         Cipher.Token("oda.mikio@gmail.com", key, function (error, token_by_user) {
             if (!error) {
-                console.log(token_by_user);
+                console.log(token_by_user); //create token.
                 //
                 //
                 //
                 //
                 //
+                // use token
                 // by_user token to by_user passphrase
                 Cipher.Account(token_by_user, key, function (error, account) {
                     if (!error) {

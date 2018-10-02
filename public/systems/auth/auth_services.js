@@ -7,148 +7,193 @@
 var AuthServicesModule;
 (function (AuthServicesModule) {
     var AuthServices = angular.module('AuthServices', []);
-    AuthServices.service('AuthService', ["PublicKeyService",
-        function (PublicKeyService) {
-            var POST = "POST";
-            var default_header = {
-                'Accept': 'application/json; charset=utf-8',
-                'Content-Type': 'application/json; charset=utf-8',
-                "x-requested-with": "XMLHttpRequest"
-            };
-            var publickey_encrypt = function (key, plain, error) {
-                var result = "";
+    AuthServices.factory('Profile', ['$resource',
+        function ($resource) {
+            return $resource('/profile/api', {}, {
+                get: { method: 'GET' },
+                put: { method: 'PUT' },
+            });
+        }]);
+    AuthServices.factory('Register', ['$resource',
+        function ($resource) {
+            return $resource('/auth/local/register', {}, {
+                regist: { method: 'POST' }
+            });
+        }]);
+    AuthServices.factory('Login', ['$resource',
+        function ($resource) {
+            return $resource('/auth/local/login', {}, {
+                login: { method: 'POST' }
+            });
+        }]);
+    AuthServices.factory('Password', ['$resource',
+        function ($resource) {
+            return $resource('/auth/local/password', {}, {
+                change: { method: 'POST' }
+            });
+        }]);
+    AuthServices.factory('Logout', ['$resource',
+        function ($resource) {
+            return $resource('/auth/logout', {}, {
+                logout: { method: 'GET' }
+            });
+        }]);
+    AuthServices.service('AuthService', ["Register", "Login", "Logout", "Password", "PublicKeyService",
+        function (Register, Login, Logout, Password, PublicKeyService) {
+            var publickey_encrypt = function (key, plain, callback) {
                 var username_encrypted = cryptico.encrypt(plain, key);
                 if (username_encrypted.status === "success") {
-                    result = username_encrypted.cipher;
+                    callback(null, username_encrypted.cipher);
                 }
                 else {
-                    error(username_encrypted.status);
+                    callback({ code: 1, message: username_encrypted.status }, "");
                 }
-                return result;
             };
-            var public_key = function (key, username, password) {
-                var result = { username: "", password: "" };
-                result.username = username;
-                result.password = password;
-                if (key) {
-                    result.username = publickey_encrypt(key, username, function (status) { });
-                    result.password = publickey_encrypt(key, password, function (status) { });
+            var username_and_password_encrypt = function (systempassphrase, username, password, callback) {
+                if (systempassphrase) {
+                    publickey_encrypt(systempassphrase, username, function (error, encrypted_username) {
+                        if (!error) {
+                            publickey_encrypt(systempassphrase, password, function (error, encrypted_password) {
+                                if (!error) {
+                                    callback(null, encrypted_username, encrypted_password);
+                                }
+                                else {
+                                    callback(error, "", "");
+                                }
+                            });
+                        }
+                        else {
+                            callback(error, "", "");
+                        }
+                    });
                 }
-                return result;
+                else {
+                    callback(null, username, password);
+                }
             };
-            var access = function (url, option, callback, error) {
-                fetch(url, option).then(function (res) { return res.json(); }).then(function (account) {
+            this.Regist = function (username, password, displayName, metadata, callback, error_callback) {
+                PublicKeyService.Fixed(function (key) {
+                    var regist = new Register();
+                    username_and_password_encrypt(key, username, password, function (error, username, password) {
+                        if (!error) {
+                            regist.username = username;
+                            regist.password = password;
+                            regist.displayName = displayName;
+                            regist.metadata = metadata;
+                            regist.$regist(function (account) {
+                                if (account) {
+                                    if (account.code === 0) {
+                                        callback(account.value);
+                                    }
+                                    else {
+                                        error_callback(account.code, account.message);
+                                    }
+                                }
+                                else {
+                                    error_callback(10000, "network error");
+                                }
+                            });
+                        }
+                    });
+                });
+            };
+            this.Login = function (username, password, callback, error_callback) {
+                PublicKeyService.Fixed(function (key) {
+                    var login = new Login();
+                    username_and_password_encrypt(key, username, password, function (error, username, password) {
+                        if (!error) {
+                            login.username = username;
+                            login.password = password;
+                            login.$login(function (account) {
+                                if (account) {
+                                    if (account.code === 0) {
+                                        callback(account.value);
+                                    }
+                                    else {
+                                        error_callback(account.code, account.message);
+                                    }
+                                }
+                                else {
+                                    error_callback(10000, "network error");
+                                }
+                            });
+                        }
+                    });
+                });
+            };
+            this.Password = function (username, password, callback, error_callback) {
+                PublicKeyService.Fixed(function (key) {
+                    var pass = new Password();
+                    username_and_password_encrypt(key, username, password, function (error, username, password) {
+                        if (!error) {
+                            pass.username = username;
+                            pass.password = password;
+                            pass.$change(function (account) {
+                                if (account) {
+                                    if (account.code === 0) {
+                                        callback(account.value);
+                                    }
+                                    else {
+                                        error_callback(account.code, account.message);
+                                    }
+                                }
+                                else {
+                                    error_callback(10000, "network error");
+                                }
+                            });
+                        }
+                    });
+                });
+            };
+            this.Logout = function (callback) {
+                var logout = new Logout();
+                logout.$logout(function (account) {
                     if (account) {
                         if (account.code === 0) {
                             callback(account.value);
                         }
-                        else {
-                            error(account.code, account.message);
-                        }
                     }
-                    else {
-                        error(10000, "network error");
-                    }
-                }).catch(function () {
-                    error(10000, "network error");
-                });
-            };
-            this.Regist = function (username, password, displayName, metadata, callback, error) {
-                PublicKeyService.Fixed(function (key) {
-                    var regist = public_key(key, username, password);
-                    regist.displayName = displayName;
-                    regist.metadata = metadata;
-                    var body = JSON.stringify(regist);
-                    access("/auth/local/register", { method: POST, headers: default_header, body: body }, callback, error);
-                });
-            };
-            this.Member = function (username, password, displayName, metadata, callback, error) {
-                PublicKeyService.Fixed(function (key) {
-                    var regist = public_key(key, username, password);
-                    regist.displayName = displayName;
-                    regist.metadata = metadata;
-                    var body = JSON.stringify(regist);
-                    access("/auth/local/register", { method: POST, headers: default_header, body: body }, callback, error);
-                });
-            };
-            this.Login = function (username, password, callback, error) {
-                PublicKeyService.Fixed(function (key) {
-                    var login = public_key(key, username, password);
-                    var body = JSON.stringify(login);
-                    access("/auth/local/login", { method: POST, headers: default_header, body: body }, callback, error);
-                });
-            };
-            this.Logout = function (callback, error) {
-                access("/auth/logout", { method: "GET", cache: "no-cache", headers: default_header }, callback, error);
-            };
-            this.Password = function (username, password, callback, error) {
-                PublicKeyService.Fixed(function (key) {
-                    var pass = public_key(key, username, password);
-                    var body = JSON.stringify(pass);
-                    access("/auth/local/password", { method: POST, headers: default_header, body: body }, callback, error);
                 });
             };
         }]);
-    AuthServices.service('ProfileService', [
-        function () {
-            this.Get = function (callback, error) {
-                var self = {};
-                var options = {
-                    method: "GET",
-                    cache: "no-cache",
-                    headers: {
-                        'Accept': 'application/json; charset=utf-8',
-                        'Content-Type': 'application/json; charset=utf-8',
-                        "x-requested-with": "XMLHttpRequest"
-                    }
-                };
-                fetch("/profile/api", options).then(function (res) { return res.json(); }).then(function (account) {
-                    if (account) {
-                        switch (account.code) {
+    AuthServices.service('ProfileService', ["Profile",
+        function (Self) {
+            this.Get = function (callback, error_callback) {
+                Self.get({}, function (result) {
+                    if (result) {
+                        switch (result.code) {
                             case 0:
-                                callback(account.value);
+                                callback(result.value);
                                 break;
                             case 1:
                                 callback(null);
                                 break;
                             default:
-                                error(account.code, account.message);
+                                error_callback(result.code, result.message);
                         }
                     }
                     else {
-                        error(10000, "network error");
+                        error_callback(10000, "network error");
                     }
-                }).catch(function () {
-                    error(10000, "network error");
                 });
             };
-            this.Put = function (content, callback, error) {
-                var self = {};
+            this.Put = function (content, callback, error_callback) {
+                var self = new Self();
                 self.local = content;
-                var method = "PUT";
-                var body = JSON.stringify(self);
-                var headers = {
-                    'Accept': 'application/json; charset=utf-8',
-                    'Content-Type': 'application/json; charset=utf-8',
-                    "x-requested-with": "XMLHttpRequest"
-                };
-                fetch("/profile/api", { method: method, headers: headers, body: body }).then(function (res) { return res.json(); }).then(function (account) {
-                    if (account) {
-                        if (account.code === 0) {
-                            callback(account.value);
+                self.$put({}, function (result) {
+                    if (result) {
+                        if (result.code === 0) {
+                            callback(result.value);
                         }
                         else {
-                            error(account.code, account.message);
+                            error_callback(result.code, result.message);
                         }
                     }
                     else {
-                        error(10000, "network error");
+                        error_callback(10000, "network error");
                     }
-                }).catch(function () {
-                    error(10000, "network error");
                 });
             };
-        }
-    ]);
+        }]);
 })(AuthServicesModule || (AuthServicesModule = {}));
 //# sourceMappingURL=auth_services.js.map

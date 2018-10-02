@@ -93,7 +93,6 @@ export namespace CipherModule {
                 }
         */
 
-
         static PublicKey(passphrase: string): string {
             let secretkey: any = cipher_cryptico.generateRSAKey(passphrase, 1024);
             return cipher_cryptico.publicKeyString(secretkey);
@@ -107,23 +106,6 @@ export namespace CipherModule {
             let secretkey: any = cipher_cryptico.generateRSAKey(passphrase, 1024);
             return cipher_cryptico.decrypt(crypted, secretkey);
         }
-
-        static GetIP(request: any): string {
-            //::ffff:180.131.105.72
-            if (request.headers['x-forwarded-for']) {
-                return request.headers['x-forwarded-for'];
-            }
-            if (request.connection && request.connection.remoteAddress) {
-                return request.connection.remoteAddress;
-            }
-            if (request.connection.socket && request.connection.socket.remoteAddress) {
-                return request.connection.socket.remoteAddress;
-            }
-            if (request.socket && request.socket.remoteAddress) {
-                return request.socket.remoteAddress;
-            }
-            return '0.0.0.0';
-        };
 
         static Token(username: string, key: string, callback: (error: any, result: any) => void): void {
             LocalAccount.findOne({$and: [{provider: "local"}, {username: username}]}).then((account: any): void => {

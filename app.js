@@ -98,6 +98,7 @@ var App;
         }
         mongoose.connect(connect_url, options)
             .catch(function (error) {
+            console.log('catch Mongoose exeption. ');
             logger.fatal('catch Mongoose exeption. ', error.stack);
             process.exit(1);
         });
@@ -106,6 +107,7 @@ var App;
                 logger.fatal('connected');
             });
             mongoose.connection.on('disconnected', function () {
+                console.log('Mongoose default connection disconnected');
                 logger.fatal('Mongoose default connection disconnected');
                 process.exit(1);
             });
@@ -113,6 +115,7 @@ var App;
                 logger.fatal('reconnected');
             });
             mongoose.connection.on('error', function (error) {
+                console.log('Mongoose default connection error');
                 logger.fatal('Mongoose default connection error: ' + error);
                 process.exit(1);
             });
@@ -156,6 +159,12 @@ var App;
                 {
                     "type": "required",
                     "path": "/systems/",
+                    "name": "accounts",
+                    "description": {}
+                },
+                {
+                    "type": "required",
+                    "path": "/systems/",
                     "name": "publickey",
                     "description": {}
                 },
@@ -187,16 +196,6 @@ var App;
                     });
                 }
             };
-            /*   let root_modules = [
-                   {
-                       "type": "required",
-                       "path": "/systems/",
-                       "name": "front",
-                       "description": {
-                           "display": "Front"
-                       }
-                   }
-               ];*/
             load_root_module("./server", config.root_modules);
             // passport
             var Account = require(path.join(process.cwd(), "models/systems/accounts/account"));
@@ -366,7 +365,7 @@ var App;
             }; // for pm2 cluster.
             process.send('ready');
         }
-        server.listen(port);
+        server.listen(port, '::0');
         server.on('error', onError);
         server.on('listening', onListening);
         console.log("V2");

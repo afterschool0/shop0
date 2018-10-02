@@ -23,6 +23,10 @@ export namespace AuthModule {
     const _config: any = require('config');
     const config: any = _config.get("systems");
 
+    const log4js: any = require('log4js');
+    log4js.configure("./config/systems/logs.json");
+    const logger: any = log4js.getLogger('request');
+
     const message: any = config.message;
 
     const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
@@ -102,7 +106,7 @@ export namespace AuthModule {
         }
 
         static error_handler(e) {
-
+            logger.fatal(e.message);
         }
 
         public create_init_user(initusers: any[]): void {
@@ -379,15 +383,33 @@ export namespace AuthModule {
             }
         }
 
-        static publickey_decrypt(systempassphrase:string, encrypted:string, error:(status:string)=> void) {
-            let result :string = "";
-            let username_decrypted :Decoded = Cipher.PublicKeyDecrypt(systempassphrase, encrypted);
+        static publickey_decrypt(systempassphrase: string, encrypted: string, callback: (error: any, result: string) => void): void {
+            let username_decrypted: Decoded = Cipher.PublicKeyDecrypt(systempassphrase, encrypted);
             if (username_decrypted.status === "success") {
-                result = username_decrypted.plaintext;
+                callback(null, username_decrypted.plaintext);
             } else {
-                error(username_decrypted.status);
+                callback({code: 1, message: username_decrypted.status}, "");
             }
-            return result;
+        }
+
+        static username_and_password_decrypt(use_publickey: boolean, systempassphrase: string, username: string, password: string, callback: (error: any, username: string, password: string) => void) {
+            if (use_publickey) {
+                Auth.publickey_decrypt(systempassphrase, username, (error, decrypted_username): void => {
+                    if (!error) {
+                        Auth.publickey_decrypt(systempassphrase, password, (error, decrypted_password): void => {
+                            if (!error) {
+                                callback(null, decrypted_username, decrypted_password);
+                            } else {
+                                callback(error, "", "");
+                            }
+                        });
+                    } else {
+                        callback(error, "", "");
+                    }
+                });
+            } else {
+                callback(null, username, password);
+            }
         }
 
         /**
@@ -402,62 +424,70 @@ export namespace AuthModule {
             let password: string = request.body.password;
             let systempassphrase: string = request.session.id;
 
-            if (use_publickey) {
-                username = Auth.publickey_decrypt(systempassphrase, username,(status) => {
-                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                });
-                password = Auth.publickey_decrypt(systempassphrase, password,(status) => {
-                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                });
-            }
+            /*
 
-            Wrapper.FindOne(response, 100, LocalAccount, {$and: [{provider: "local"}, {username: username}]},
-                (response: any, account: any): void => {
-                    if (!account) {
-                        try {
+            auth < 100 system
+            auth < 500 user
+            auth < 1000 member
+            auth < 10000 temp
+            auth > 10001 guest
 
-                            let metadata: any = {};
-                            if (request.body.metadata) {
-                                metadata = request.body.metadata;
-                            }
+            */
 
-                            let tokenValue: any = {
-                                username: username,
-                                password: password,
-                                displayName: request.body.displayName,
-                                metadata: metadata,
-                                timestamp: Date.now()
-                            };
+            Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, (error: any, username: string, password: string): void => {
+                if (!error) {
+                    Wrapper.FindOne(response, 100, LocalAccount, {$and: [{provider: "local"}, {username: username}]},
+                        (response: any, account: any): void => {
+                            if (!account) {
+                                try {
 
-                            let token: string = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                            let link: string = config.protocol + "://" + config.domain + "/auth/register/" + token;
+                                    let metadata: any = {};
+                                    if (request.body.metadata) {
+                                        metadata = request.body.metadata;
+                                    }
 
-                            fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_mail.pug"), "utf8", (err, data) => {
-                                if (!err) {
-                                    var doc = pug.render(data, {"link": link});
-                                    _mailer.send(username, bcc, message.registconfirmtext, doc, (error: any) => {
-                                        if (!error) {
-                                            Wrapper.SendSuccess(response, {code: 0, message: ""});
+                                    let tokenValue: any = {
+                                        auth: 1000,
+                                        username: username,
+                                        password: password,
+                                        displayName: request.body.displayName,
+                                        metadata: metadata,
+                                        timestamp: Date.now()
+                                    };
+
+                                    let token: string = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
+                                    let link: string = config.protocol + "://" + config.domain + "/auth/register/" + token;
+
+                                    fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_mail.pug"), "utf8", (err, data) => {
+                                        if (!err) {
+                                            var doc = pug.render(data, {"link": link});
+                                            _mailer.send(username, bcc, message.registconfirmtext, doc, (error: any) => {
+                                                if (!error) {
+                                                    Wrapper.SendSuccess(response, {code: 0, message: ""});
+                                                } else {
+                                                    Wrapper.SendError(response, error.code, error.message, error);
+                                                }
+                                            });
                                         } else {
-                                            Wrapper.SendError(response, error.code, error.message, error);
+                                            console.log(err.message);
                                         }
                                     });
-                                } else {
-                                    console.log(err.message);
-                                }
-                            });
 
-                        } catch (e) {
-                            Wrapper.SendFatal(response, e.code, e.message, e);
-                        }
-                    } else {
-                        Wrapper.SendWarn(response,   1, message.usernamealreadyregist, {
-                            code:   1,
-                            message: message.usernamealreadyregist
+                                } catch (e) {
+                                    Wrapper.SendFatal(response, e.code, e.message, e);
+                                }
+                            } else {
+                                Wrapper.SendWarn(response, 1, message.usernamealreadyregist, {
+                                    code: 1,
+                                    message: message.usernamealreadyregist
+                                });
+                            }
                         });
-                    }
+                } else {
+                    Wrapper.SendError(response, error.code, error.message, error);
                 }
-            );
+
+            });
         }
 
         /**
@@ -554,277 +584,6 @@ export namespace AuthModule {
         }
 
         /**
-         * アカウント作成
-         * @param request
-         * @param response
-         * @returns none
-         */
-        public post_member_register(request: any, response: Express.Response): void {
-
-            let username: string = request.body.username;
-            let password: string = request.body.password;
-            let systempassphrase: string = request.session.id;
-
-            if (use_publickey) {
-                username = Auth.publickey_decrypt(systempassphrase, username,(status) => {
-                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                });
-                password = Auth.publickey_decrypt(systempassphrase, password,(status) => {
-                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                });
-            }
-
-            Wrapper.FindOne(response, 100, LocalAccount, {$and: [{provider: "local"}, {username: username}]},
-                (response: any, account: any): void => {
-                    if (!account) {
-                        try {
-
-                            let metadata: any = {userid: request.user.userid};
-                            if (request.body.metadata) {
-                                metadata = request.body.metadata;
-                                metadata.groupid = request.user.groupid;
-                                metadata.userid = request.user.userid;
-                            }
-
-                            let tokenValue: any = {
-                                username: username,
-                                password: password,
-                                displayName: request.body.displayName,
-                                metadata: metadata,
-                                auth: 101,
-                                timestamp: Date.now()
-                            };
-
-                            let token: string = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                            let link: string = config.protocol + "://" + config.domain + "/auth/member/" + token;
-
-                            fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_member_mail.pug"), "utf8", (err, data) => {
-                                if (!err) {
-                                    var doc = pug.render(data, {"link": link});
-                                    _mailer.send(username, bcc, message.memberconfirmtext, doc, (error: any) => {
-                                        if (!error) {
-                                            Wrapper.SendSuccess(response, {code: 0, message: ""});
-                                        } else {
-                                            Wrapper.SendError(response, error.code, error.message, error);
-                                        }
-                                    });
-                                }
-                            });
-                        } catch (e) {
-                            Wrapper.SendFatal(response, e.code, e.message, e);
-                        }
-                    } else {
-                        Wrapper.SendWarn(response,1, message.usernamealreadyregist, {
-                            code:   1,
-                            message: message.usernamealreadyregist
-                        });
-                    }
-                }
-            );
-        }
-
-        /**
-         * レジスタートークンでユーザ登録
-         * @param request
-         * @param response
-         * @returns none
-         */
-        public get_member_token(request: any, response: Express.Response): void {
-            Wrapper.Exception(request, response, (request: any, response: any): void => {
-                let token: any = Wrapper.Parse(Cipher.FixedDecrypt(request.params.token, config.tokensecret));
-                let tokenDateTime: any = token.timestamp;
-                let nowDate: any = Date.now();
-                if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    LocalAccount.findOne({username: token.username}, (error: any, account_data: any): void => {
-                        if (!error) {
-                            if (!account_data) {
-
-                                let content: any = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
-                                content.mails.push(token.username);
-                                content.nickname = token.displayName;
-                                let groupid = config.systems.groupid;
-                                let userid: string = "";
-                                if (token.metadata.userid) {
-                                    userid = token.metadata.userid;
-                                } else {
-                                    const shasum = crypto.createHash('sha1');
-                                    shasum.update(token.username);
-                                    userid = shasum.digest('hex');
-                                }
-
-                                let passphrase: string = Cipher.FixedCrypt(userid, config.key2);
-
-                                LocalAccount.register(new LocalAccount({
-                                        groupid: groupid,
-                                        userid: userid,
-                                        username: token.username,
-                                        passphrase: passphrase,
-                                        publickey: Cipher.PublicKey(passphrase),
-                                        auth: token.auth,
-                                        local: content
-                                    }),
-                                    token.password,
-                                    (error: any): void => {
-                                        if (!error) {
-                                            let user: { username: string; password: string } = request.body;
-                                            user.username = token.username;
-                                            user.password = token.password;
-                                            passport.authenticate('local', (error: any, user: any): void => {
-                                                if (!error) {
-                                                    if (user) {
-                                                        request.login(user, (error: any): void => {
-                                                            if (!error) {
-                                                                Auth.auth_event("auth:member", request.params.token);
-                                                                response.redirect("/");
-                                                            } else {
-                                                                response.status(500).render('error', {
-                                                                    status: 500,
-                                                                    message: "get_member_token " + error.message
-                                                                });
-                                                            }
-                                                        });
-                                                    } else {
-                                                        response.status(500).render('error', {
-                                                            status: 500,
-                                                            message: "authenticate"
-                                                        });
-                                                    }
-                                                } else {
-                                                    response.status(500).render('error', {
-                                                        status: 500,
-                                                        message: "get_member_token " + error.message
-                                                    });
-                                                }
-                                            })(request, response);
-                                        } else {
-                                            response.status(500).render('error', {
-                                                status: 500,
-                                                message: "get_member_token " + error.message
-                                            });
-                                        }
-                                    });
-                            } else {
-                                response.redirect("/");
-                            }
-                        } else {
-                            response.status(500).render('error', {status: 500, message: "get_register_token " + error.message});
-                        }
-                    });
-                } else {
-                    response.status(200).render('error', {status: 200, message: "timeout"});
-                }
-            });
-        }
-
-        /**
-         * レジスタートークン発行
-         * @param request
-         * @param response
-         * @returns none
-         */
-        public post_local_username(request: any, response: Express.Response): void {
-
-            let username: string = request.body.username;
-            let password: string = request.body.password;
-            let newusername: string = request.body.newusername;
-            let systempassphrase: string = request.session.id;
-
-            if (use_publickey) {
-                username = Auth.publickey_decrypt(systempassphrase, username,(status) => {
-                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                });
-                password = Auth.publickey_decrypt(systempassphrase, password,(status) => {
-                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                });
-            }
-
-            Wrapper.FindOne(response, 1, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
-                if (account) {
-                    Wrapper.FindOne(response, 2, LocalAccount, {$and: [{provider: "local"}, {username: newusername}]}, (response: any, account: any): void => {
-                        if (!account) {
-                            try {
-
-                                let tokenValue: UserToken = {
-                                    username: username,
-                                    password: password,
-                                    newusername: newusername,
-                                    timestamp: Date.now()
-                                };
-
-                                let token: string = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                                let link: string = config.protocol + "://" + config.domain + "/auth/username/" + token;
-                                //let beacon: string = config.protocol + "://" + config.domain + "/beacon/api/" + token;
-
-                                fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/username_mail.pug"), "utf8", (err, data) => {
-                                    if (!err) {
-                                        var doc = pug.render(data, {"link": link});
-                                        _mailer.send(username, bcc, message.usernameconfirmtext, doc, (error: any) => {
-                                            if (!error) {
-                                                Wrapper.SendSuccess(response, {code: 0, message: ""});
-                                            } else {
-                                                Wrapper.SendError(response, error.code, error.message, error);
-                                            }
-                                        });
-                                    } else {
-                                        console.log(err.message);
-                                    }
-                                });
-                            } catch (e) {
-                                Wrapper.SendFatal(response, e.code, e.message, e);
-                            }
-                        } else {
-                            Wrapper.SendWarn(response,  2, message.usernamealreadyregist, {
-                                code:   2,
-                                message: message.usernamealreadyregist
-                            });
-                        }
-                    });
-                } else {
-                    Wrapper.SendWarn(response,   3, message.usernamenotfound, {
-                        code:   3,
-                        message: message.usernamenotfound
-                    });
-                }
-            });
-        }
-
-        /**
-         * ユーザ名トークンでユーザ名変更（多分使用しない)
-         * @param request
-         * @param response
-         * @returns none
-         */
-        public get_username_token(request: any, response: any): void {
-            Wrapper.Exception(request, response, (request: any, response: any): void => {
-                let token = Wrapper.Parse(Cipher.FixedDecrypt(request.params.token, config.tokensecret));
-                let tokenDateTime: any = token.timestamp;
-                let nowDate: any = Date.now();
-                if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    LocalAccount.findOne({username: token.username}, (error: any, account: any): void => {
-                        if (!error) {
-                            if (account) {
-                                account.username = token.newusername;
-                                if (!error) {
-                                    Wrapper.Save(response, 1, account, (): void => {
-                                        response.redirect("/");
-                                    });
-                                } else {
-                                    response.status(500).render("error", {message: "get_username_token " + error.message, status: 500}); // already
-                                }
-                            } else {
-                                response.status(200).render("error", {message: "already", status: 200}); // already
-                            }
-                        } else {
-                            response.status(500).render("error", {message: "get_username_token " + error.message, status: 500}); // timeout
-                        }
-                    });
-                } else {
-                    response.status(200).render("error", {message: "timeout", status: 200}); // timeout
-                }
-            });
-        }
-
-        /**
          * パスワードトークン発行
          * @param request
          * @param response
@@ -835,49 +594,46 @@ export namespace AuthModule {
             let password: string = request.body.password;
             let systempassphrase: string = request.session.id;
 
-            if (use_publickey) {
-                username = Auth.publickey_decrypt(systempassphrase, username,(status) => {
-                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                });
-                password = Auth.publickey_decrypt(systempassphrase, password,(status) => {
-                    Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                });
-            }
+            Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, (error: any, username: string, password: string): void => {
+                if (!error) {
+                    Wrapper.FindOne(response, 1, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
+                        if (account) {
+                            try {
 
-            Wrapper.FindOne(response, 1, LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (response: any, account: any): void => {
-                if (account) {
-                    try {
+                                let tokenValue: any = {
+                                    username: username,
+                                    password: password,
+                                    timestamp: Date.now()
+                                };
 
-                        let tokenValue: any = {
-                            username: username,
-                            password: password,
-                            timestamp: Date.now()
-                        };
+                                let token: any = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
+                                let link: string = config.protocol + "://" + config.domain + "/auth/password/" + token;
 
-                        let token: any = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                        let link: string = config.protocol + "://" + config.domain + "/auth/password/" + token;
-
-                        fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/password_mail.pug"), "utf8", (err, data) => {
-                            if (!err) {
-                                var doc = pug.render(data, {"link": link});
-                                _mailer.send(username, bcc, message.passwordconfirmtext, doc, (error: any) => {
-                                    if (!error) {
-                                        Wrapper.SendSuccess(response, {code: 0, message: ""});
-                                    } else {
-                                        Wrapper.SendError(response, error.code, error.message, error);
+                                fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/password_mail.pug"), "utf8", (err, data) => {
+                                    if (!err) {
+                                        var doc = pug.render(data, {"link": link});
+                                        _mailer.send(username, bcc, message.passwordconfirmtext, doc, (error: any) => {
+                                            if (!error) {
+                                                Wrapper.SendSuccess(response, {code: 0, message: ""});
+                                            } else {
+                                                Wrapper.SendError(response, error.code, error.message, error);
+                                            }
+                                        });
                                     }
                                 });
-                            }
-                        });
 
-                    } catch (e) {
-                        Wrapper.SendFatal(response, e.code, e.message, e);
-                    }
-                } else {
-                    Wrapper.SendWarn(response, 2, message.usernamenotfound, {
-                        code:   2,
-                        message: message.usernamenotfound
+                            } catch (e) {
+                                Wrapper.SendFatal(response, e.code, e.message, e);
+                            }
+                        } else {
+                            Wrapper.SendWarn(response, 2, message.usernamenotfound, {
+                                code: 2,
+                                message: message.usernamenotfound
+                            });
+                        }
                     });
+                } else {
+                    Wrapper.SendError(response, error.code, error.message, error);
                 }
             });
         }
@@ -930,43 +686,42 @@ export namespace AuthModule {
             if (request.body.username) {
                 if (request.body.password) {
 
-                    if (use_publickey) {
-                        request.body.username = Auth.publickey_decrypt(systempassphrase, request.body.username,(status) => {
-                            Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                        });
-                        request.body.password = Auth.publickey_decrypt(systempassphrase, request.body.password,(status) => {
-                            Wrapper.SendError(response, 1, "security infringement", {code:1, message:"security infringement" });
-                        });
-                    }
-
-                    passport.authenticate("local", (error: any, user: any): void => {
+                    Auth.username_and_password_decrypt(use_publickey, systempassphrase, request.body.username, request.body.password, (error: any, username: string, password: string): void => {
                         if (!error) {
-                            if (user) {
-                                Wrapper.Guard(request, response, (request: any, response: any): void => {
-                                    request.login(user, (error: any): void => {
-                                        if (!error) {
-                                            Auth.auth_event("login:local", request.body.username);
-                                            Wrapper.SendSuccess(response, {});
-                                        } else {
-                                            Wrapper.SendError(response, error.code, error.message, error);
-                                        }
-                                    });
-                                });
-                            } else {
-                                Wrapper.SendError(response,  2, message.usernamenotfound, {
-                                    code:  2,
-                                    message: message.usernamenotfound
-                                });
-                            }
+                            request.body.username = username;
+                            request.body.password = password;
+                            passport.authenticate("local", (error: any, user: any): void => {
+                                if (!error) {
+                                    if (user) {
+                                        Wrapper.Guard(request, response, (request: any, response: any): void => {
+                                            request.login(user, (error: any): void => {
+                                                if (!error) {
+                                                    Auth.auth_event("login:local", request.body.username);
+                                                    Wrapper.SendSuccess(response, {});
+                                                } else {
+                                                    Wrapper.SendError(response, error.code, error.message, error);
+                                                }
+                                            });
+                                        });
+                                    } else {
+                                        Wrapper.SendError(response, 2, message.usernamenotfound, {
+                                            code: 2,
+                                            message: message.usernamenotfound
+                                        });
+                                    }
+                                } else {
+                                    Wrapper.SendError(response, error.code, error.message, error);
+                                }
+                            })(request, response);
                         } else {
                             Wrapper.SendError(response, error.code, error.message, error);
                         }
-                    })(request, response);
+                    });
                 } else {
-                    Wrapper.SendError(response,   4, "post_local_login password", {code:  4, message: "password"});
+                    Wrapper.SendError(response, 4, "post_local_login password", {code: 4, message: "password"});
                 }
             } else {
-                Wrapper.SendError(response,  5, "post_local_login username", {code:  5, message: "username"});
+                Wrapper.SendError(response, 5, "post_local_login username", {code: 5, message: "username"});
             }
         }
 
