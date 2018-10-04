@@ -29,7 +29,9 @@ var App;
         var LineStrategy = require("passport-line").Strategy;
         // const GooglePlusStrategy: any = require('passport-google-plus');
         // passport
-        console.log(process.env.LC_CTYPE);
+        console.log("LC_CTYPE : " + process.env.LC_CTYPE);
+        console.log("PWD      : " + process.env.PWD);
+        console.log("HOME     : " + process.env.HOME);
         console.log("Hundred.");
         var app = express();
         // helmet
@@ -138,6 +140,16 @@ var App;
             app.use(passport.initialize());
             app.use(passport.session());
             // passport
+            var load_root_module = function (root, modules) {
+                if (modules) {
+                    modules.forEach(function (module) {
+                        var path = root + module.path;
+                        var name = module.name;
+                        app.use("/", require(path + name + "/api"));
+                        app.use("/", require(path + name + "/pages"));
+                    });
+                }
+            };
             var load_module = function (root, modules) {
                 if (modules) {
                     modules.forEach(function (module) {
@@ -184,19 +196,10 @@ var App;
                 }
             ];
             load_module("./server", modules);
+            load_module("./server", config.plugin_modules);
+            load_root_module("./server", config.root_modules);
             console.log("VR");
             // root
-            var load_root_module = function (root, modules) {
-                if (modules) {
-                    modules.forEach(function (module) {
-                        var path = root + module.path;
-                        var name = module.name;
-                        app.use("/", require(path + name + "/api"));
-                        app.use("/", require(path + name + "/pages"));
-                    });
-                }
-            };
-            load_root_module("./server", config.root_modules);
             // passport
             var Account = require(path.join(process.cwd(), "models/systems/accounts/account"));
             passport.use(new LocalStrategy(Account.authenticate()));
@@ -319,10 +322,6 @@ var App;
     };
     var Serve = function (config, app) {
         var debug = require('debug')('a:server');
-        var http = require('http');
-        var port = normalizePort(process.env.PORT || config.port);
-        app.set('port', port);
-        var server = http.createServer(app);
         function normalizePort(val) {
             var port = parseInt(val, 10);
             if (isNaN(port)) {
@@ -365,12 +364,116 @@ var App;
             }; // for pm2 cluster.
             process.send('ready');
         }
-        server.listen(port, '::0');
+        var port = normalizePort(process.env.PORT || config.port);
+        app.set('port', port);
+        var server = null;
+        switch (config.protocol) {
+            default:
+            case "http":
+                {
+                    var http = require('http');
+                    server = http.createServer(app);
+                }
+                console.log("http");
+                break;
+            case "https":
+                {
+                    if (config.ssl) {
+                        var ssl = config.ssl;
+                        var http = require('spdy');
+                        server = http.createServer({
+                            key: fs.readFileSync(ssl.key),
+                            cert: fs.readFileSync(ssl.cert),
+                        }, app);
+                    }
+                    else {
+                        console.log("no key.");
+                    }
+                }
+                console.log("spdy");
+                break;
+        }
         server.on('error', onError);
         server.on('listening', onListening);
+        server.listen(port, '::0');
         console.log("V2");
         return server;
     };
+    /*
+        let Serve2 = (config:any, app: any): any => {
+            let debug = require('debug')('a:server');
+
+            const fs = require('fs');
+
+            function normalizePort(val) {
+                let port = parseInt(val, 10);
+
+                if (isNaN(port)) {
+                    // named pipe
+                    return val;
+                }
+
+                if (port >= 0) {
+                    // port number
+                    return port;
+                }
+
+                return false;
+            }
+
+            function onError(error) {
+                if (error.syscall !== 'listen') {
+                    throw error;
+                }
+
+                let bind = typeof port === 'string'
+                    ? 'Pipe ' + port
+                    : 'Port ' + port;
+
+                switch (error.code) {
+                    case 'EACCES':
+                        console.error(bind + ' requires elevated privileges');
+                        process.exit(1);
+                        break;
+                    case 'EADDRINUSE':
+                        console.error(bind + ' is already in use');
+                        process.exit(1);
+                        break;
+                    default:
+                        throw error;
+                }
+            }
+
+            function onListening() {
+                let addr = server.address();
+                let bind = typeof addr === 'string'
+                    ? 'pipe ' + addr
+                    : 'port ' + addr.port;
+                debug('Listening on ' + bind);
+
+                process.send = process.send || function () {
+                };  // for pm2 cluster.
+                process.send('ready');
+            }
+
+            let port = normalizePort(process.env.PORT || config.port);
+            app.set('port', port);
+
+            const spdy = require( 'spdy');
+            const server = spdy.createServer({
+                key: fs.readFileSync('config/systems/localhost-privkey.pem'),
+                cert: fs.readFileSync('config/systems/localhost-cert.pem'),
+            }, app);
+
+            server.on('error', onError);
+            server.on('listening', onListening);
+            server.listen(port, '::0');
+
+            console.log("V2");
+
+            return server;
+        };
+    */
     normal();
 })(App || (App = {}));
 //# sourceMappingURL=app.js.map

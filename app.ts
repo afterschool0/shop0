@@ -39,7 +39,9 @@ namespace App {
         // const GooglePlusStrategy: any = require('passport-google-plus');
         // passport
 
-        console.log(process.env.LC_CTYPE);
+        console.log("LC_CTYPE : " + process.env.LC_CTYPE);
+        console.log("PWD      : " + process.env.PWD);
+        console.log("HOME     : " + process.env.HOME);
         console.log("Hundred.");
 
         const app: any = express();
@@ -175,6 +177,17 @@ namespace App {
             app.use(passport.session());
             // passport
 
+            let load_root_module: any = (root: string, modules: any): void => {
+                if (modules) {
+                    modules.forEach((module) => {
+                        let path = root + module.path;
+                        let name = module.name;
+                        app.use("/", require(path + name + "/api"));
+                        app.use("/", require(path + name + "/pages"));
+                    });
+                }
+            };
+
             let load_module: any = (root: string, modules: any): void => {
                 if (modules) {
                     modules.forEach((module) => {
@@ -225,21 +238,13 @@ namespace App {
 
             load_module("./server", modules);
 
+            load_module("./server", config.plugin_modules);
+
+            load_root_module("./server", config.root_modules);
+
             console.log("VR");
             // root
 
-            let load_root_module: any = (root: string, modules: any): void => {
-                if (modules) {
-                    modules.forEach((module) => {
-                        let path = root + module.path;
-                        let name = module.name;
-                        app.use("/", require(path + name + "/api"));
-                        app.use("/", require(path + name + "/pages"));
-                    });
-                }
-            };
-
-            load_root_module("./server", config.root_modules);
 
             // passport
 
@@ -325,7 +330,6 @@ namespace App {
             const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
             const auth: any = new AuthController.Auth();
 
-
             auth.create_init_user(config.initusers);
 
             let server: any = Serve(config, app);
@@ -388,14 +392,8 @@ namespace App {
         });
     };
 
-    let Serve = (config, app: any): any => {
+    let Serve = (config:any, app: any): any => {
         let debug = require('debug')('a:server');
-        let http = require('http');
-
-        let port = normalizePort(process.env.PORT || config.port);
-        app.set('port', port);
-
-        let server = http.createServer(app);
 
         function normalizePort(val) {
             let port = parseInt(val, 10);
@@ -448,15 +446,121 @@ namespace App {
             process.send('ready');
         }
 
-        server.listen(port, '::0');
+
+        let port = normalizePort(process.env.PORT || config.port);
+        app.set('port', port);
+
+        let server:any = null;
+
+        switch (config.protocol) {
+            default:
+            case "http":
+            {
+                let http = require('http');
+                server = http.createServer(app);
+            }
+                console.log("http");
+                break;
+            case "https":
+            {
+                if (config.ssl) {
+                    let ssl = config.ssl;
+                    let http = require( 'spdy');
+                    server = http.createServer({
+                        key: fs.readFileSync(ssl.key),
+                        cert: fs.readFileSync(ssl.cert),
+                    }, app);
+                } else {
+                    console.log("no key.")
+                }
+            }
+                console.log("spdy");
+                break;
+        }
+
         server.on('error', onError);
         server.on('listening', onListening);
+        server.listen(port, '::0');
 
         console.log("V2");
 
         return server;
     };
+    /*
+        let Serve2 = (config:any, app: any): any => {
+            let debug = require('debug')('a:server');
 
+            const fs = require('fs');
+
+            function normalizePort(val) {
+                let port = parseInt(val, 10);
+
+                if (isNaN(port)) {
+                    // named pipe
+                    return val;
+                }
+
+                if (port >= 0) {
+                    // port number
+                    return port;
+                }
+
+                return false;
+            }
+
+            function onError(error) {
+                if (error.syscall !== 'listen') {
+                    throw error;
+                }
+
+                let bind = typeof port === 'string'
+                    ? 'Pipe ' + port
+                    : 'Port ' + port;
+
+                switch (error.code) {
+                    case 'EACCES':
+                        console.error(bind + ' requires elevated privileges');
+                        process.exit(1);
+                        break;
+                    case 'EADDRINUSE':
+                        console.error(bind + ' is already in use');
+                        process.exit(1);
+                        break;
+                    default:
+                        throw error;
+                }
+            }
+
+            function onListening() {
+                let addr = server.address();
+                let bind = typeof addr === 'string'
+                    ? 'pipe ' + addr
+                    : 'port ' + addr.port;
+                debug('Listening on ' + bind);
+
+                process.send = process.send || function () {
+                };  // for pm2 cluster.
+                process.send('ready');
+            }
+
+            let port = normalizePort(process.env.PORT || config.port);
+            app.set('port', port);
+
+            const spdy = require( 'spdy');
+            const server = spdy.createServer({
+                key: fs.readFileSync('config/systems/localhost-privkey.pem'),
+                cert: fs.readFileSync('config/systems/localhost-cert.pem'),
+            }, app);
+
+            server.on('error', onError);
+            server.on('listening', onListening);
+            server.listen(port, '::0');
+
+            console.log("V2");
+
+            return server;
+        };
+    */
     normal();
 
 }
