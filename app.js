@@ -367,31 +367,17 @@ var App;
         var port = normalizePort(process.env.PORT || config.port);
         app.set('port', port);
         var server = null;
-        switch (config.protocol) {
-            default:
-            case "http":
-                {
-                    var http = require('http');
-                    server = http.createServer(app);
-                }
-                console.log("http");
-                break;
-            case "https":
-                {
-                    if (config.ssl) {
-                        var ssl = config.ssl;
-                        var http = require('spdy');
-                        server = http.createServer({
-                            key: fs.readFileSync(ssl.key),
-                            cert: fs.readFileSync(ssl.cert),
-                        }, app);
-                    }
-                    else {
-                        console.log("no key.");
-                    }
-                }
-                console.log("spdy");
-                break;
+        if (config.ssl) {
+            var ssl = config.ssl;
+            var http = require('spdy');
+            server = http.createServer({
+                key: fs.readFileSync(ssl.key),
+                cert: fs.readFileSync(ssl.cert),
+            }, app);
+        }
+        else {
+            var http = require('http');
+            server = http.createServer(app);
         }
         server.on('error', onError);
         server.on('listening', onListening);
@@ -399,81 +385,6 @@ var App;
         console.log("V2");
         return server;
     };
-    /*
-        let Serve2 = (config:any, app: any): any => {
-            let debug = require('debug')('a:server');
-
-            const fs = require('fs');
-
-            function normalizePort(val) {
-                let port = parseInt(val, 10);
-
-                if (isNaN(port)) {
-                    // named pipe
-                    return val;
-                }
-
-                if (port >= 0) {
-                    // port number
-                    return port;
-                }
-
-                return false;
-            }
-
-            function onError(error) {
-                if (error.syscall !== 'listen') {
-                    throw error;
-                }
-
-                let bind = typeof port === 'string'
-                    ? 'Pipe ' + port
-                    : 'Port ' + port;
-
-                switch (error.code) {
-                    case 'EACCES':
-                        console.error(bind + ' requires elevated privileges');
-                        process.exit(1);
-                        break;
-                    case 'EADDRINUSE':
-                        console.error(bind + ' is already in use');
-                        process.exit(1);
-                        break;
-                    default:
-                        throw error;
-                }
-            }
-
-            function onListening() {
-                let addr = server.address();
-                let bind = typeof addr === 'string'
-                    ? 'pipe ' + addr
-                    : 'port ' + addr.port;
-                debug('Listening on ' + bind);
-
-                process.send = process.send || function () {
-                };  // for pm2 cluster.
-                process.send('ready');
-            }
-
-            let port = normalizePort(process.env.PORT || config.port);
-            app.set('port', port);
-
-            const spdy = require( 'spdy');
-            const server = spdy.createServer({
-                key: fs.readFileSync('config/systems/localhost-privkey.pem'),
-                cert: fs.readFileSync('config/systems/localhost-cert.pem'),
-            }, app);
-
-            server.on('error', onError);
-            server.on('listening', onListening);
-            server.listen(port, '::0');
-
-            console.log("V2");
-
-            return server;
-        };
-    */
     normal();
 })(App || (App = {}));
 //# sourceMappingURL=app.js.map
