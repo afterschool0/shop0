@@ -1,6 +1,14 @@
 # Created by .ignore support plugin (hsz.mobi)
-config/*.js
-*.js
-*.log
+config
 product
+typings
+node_modules
+package-lock.json
+app.js
+models/**/*.js
 public/bower_components
+public/systems/**/*.js
+public/applications/**/*.js
+server/**/*.js
+server/**/*.js.map
+*.log
