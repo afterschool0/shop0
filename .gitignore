@@ -12,3 +12,4 @@ public/applications/**/*.js
 server/**/*.js
 server/**/*.js.map
 *.log
+*.pem
