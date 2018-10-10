@@ -168,7 +168,7 @@ var AuthModule;
         Auth.prototype.page_is_system = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (user.Role().system) {
+                if (LocalAccount.Role(user).system) {
                     next();
                 }
                 else {
@@ -189,7 +189,7 @@ var AuthModule;
         Auth.prototype.is_system = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (user.Role().system) {
+                if (LocalAccount.Role(user).system) {
                     next();
                 }
                 else {
@@ -210,7 +210,7 @@ var AuthModule;
         Auth.prototype.page_is_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (user.Role().user) {
+                if (LocalAccount.Role(user).user) {
                     next();
                 }
                 else {
@@ -231,7 +231,7 @@ var AuthModule;
         Auth.prototype.is_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (user.Role().user) {
+                if (LocalAccount.Role(user).user) {
                     next();
                 }
                 else {
@@ -252,7 +252,7 @@ var AuthModule;
         Auth.prototype.is_member = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (user.Role().member) {
+                if (LocalAccount.Role(user).member) {
                     next();
                 }
                 else {
@@ -273,7 +273,7 @@ var AuthModule;
         Auth.prototype.is_temp = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (user.Role().temp) {
+                if (LocalAccount.Role(user).temp) {
                     next();
                 }
                 else {
@@ -294,7 +294,7 @@ var AuthModule;
         Auth.prototype.is_guest = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (user.Role().guest) {
+                if (LocalAccount.Role(user).guest) {
                     next();
                 }
                 else {
@@ -315,7 +315,7 @@ var AuthModule;
         Auth.prototype.is_enabled_regist_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (user.Role().system) {
+                if (LocalAccount.Role(user).system) {
                     next();
                 }
                 else {
@@ -367,12 +367,12 @@ var AuthModule;
                                 callback(null, decrypted_username, decrypted_password);
                             }
                             else {
-                                callback(error, "", "");
+                                callback({ code: 2, message: "no cookie?" }, "", "");
                             }
                         });
                     }
                     else {
-                        callback(error, "", "");
+                        callback({ code: 1, message: "no cookie?" }, "", "");
                     }
                 });
             }

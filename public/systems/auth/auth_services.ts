@@ -163,10 +163,10 @@ namespace AuthServicesModule {
         }]);
 
     AuthServices.service('ProfileService', ["Profile",
-        function (Self: any): void {
+        function (Profile: any): void {
 
             this.Get = (callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
-                Self.get({}, (result: any): void => {
+                Profile.get({}, (result: any): void => {
                     if (result) {
                         switch (result.code) {
                             case 0:
@@ -185,7 +185,7 @@ namespace AuthServicesModule {
             };
 
             this.Put = (content: any, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
-                let self = new Self();
+                let self = new Profile();
                 self.local = content;
                 self.$put({}, (result: any): void => {
                     if (result) {

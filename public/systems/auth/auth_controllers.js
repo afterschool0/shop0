@@ -81,70 +81,69 @@ var AuthControllersModule;
                 if (profile) {
                     user = profile;
                     $scope.role = user.role;
-                    //         $scope.$apply();
-                }
-            }, error_handler);
-            $scope.showLoginDialog = function () {
-                var modalInstance = $uibModal.open({
-                    controller: 'LoginDialogController',
-                    templateUrl: '/auth/dialogs/logindialog',
-                    backdrop: "static",
-                    targetEvent: null
-                });
-                modalInstance.result.then(function (member) {
-                    ProfileService.Get(function (profile) {
-                        if (profile) {
-                            user = profile;
-                            $rootScope.$broadcast('Login');
-                        }
-                    }, error_handler);
-                }, function () {
-                });
-            };
-            $scope.showPasswordDialog = function () {
-                var modalInstance = $uibModal.open({
-                    controller: 'PasswordDialogController',
-                    templateUrl: '/auth/dialogs/passworddialog',
-                    backdrop: false,
-                    targetEvent: null
-                });
-                modalInstance.result.then(function () {
-                    var modalRegistConfirm = $uibModal.open({
-                        controller: 'PasswordConfirmDialogController',
-                        templateUrl: '/auth/dialogs/passwordconfirmdialog',
-                        backdrop: "static",
-                        targetEvent: null
-                    });
-                    modalRegistConfirm.result.then(function () {
-                    }, function () {
-                    });
-                }, function () {
-                });
-            };
-            $scope.Logout = function () {
-                ProfileService.Get(function (profile) {
-                    if (profile) {
-                        user = profile;
-                        AuthService.Logout(function (account) {
-                            $rootScope.$broadcast('Logout');
+                    $scope.showLoginDialog = function () {
+                        var modalInstance = $uibModal.open({
+                            controller: 'LoginDialogController',
+                            templateUrl: '/auth/dialogs/logindialog',
+                            backdrop: "static",
+                            targetEvent: null
+                        });
+                        modalInstance.result.then(function (member) {
+                            ProfileService.Get(function (profile) {
+                                if (profile) {
+                                    user = profile;
+                                    $rootScope.$broadcast('Login');
+                                }
+                            }, error_handler);
                         }, function () {
                         });
-                    }
-                }, error_handler);
-            };
-            $scope.$on('Login', function () {
-                $scope.userid = user.userid;
-                $scope.role = user.role;
-                $window.location.href = "//" + $window.location.host + "/" + user.entry;
-            });
-            $scope.$on('Logout', function () {
-                $scope.userid = "";
-                $scope.role = { guest: false, category: 0 };
-                $window.location.href = "//" + $window.location.host + "/" + user.exit;
-            });
-            $scope.go = function (ref) {
-                $window.location.href = ref;
-            };
+                    };
+                    $scope.showPasswordDialog = function () {
+                        var modalInstance = $uibModal.open({
+                            controller: 'PasswordDialogController',
+                            templateUrl: '/auth/dialogs/passworddialog',
+                            backdrop: false,
+                            targetEvent: null
+                        });
+                        modalInstance.result.then(function () {
+                            var modalRegistConfirm = $uibModal.open({
+                                controller: 'PasswordConfirmDialogController',
+                                templateUrl: '/auth/dialogs/passwordconfirmdialog',
+                                backdrop: "static",
+                                targetEvent: null
+                            });
+                            modalRegistConfirm.result.then(function () {
+                            }, function () {
+                            });
+                        }, function () {
+                        });
+                    };
+                    $scope.Logout = function () {
+                        ProfileService.Get(function (profile) {
+                            if (profile) {
+                                user = profile;
+                                AuthService.Logout(function (account) {
+                                    $rootScope.$broadcast('Logout');
+                                }, function () {
+                                });
+                            }
+                        }, error_handler);
+                    };
+                    $scope.$on('Login', function () {
+                        $scope.userid = user.userid;
+                        $scope.role = user.role;
+                        $window.location.href = "//" + $window.location.host + "/" + user.entry;
+                    });
+                    $scope.$on('Logout', function () {
+                        $scope.userid = "";
+                        $scope.role = { guest: false, category: 0 };
+                        $window.location.href = "//" + $window.location.host + "/" + user.exit;
+                    });
+                    $scope.go = function (ref) {
+                        $window.location.href = ref;
+                    };
+                }
+            }, error_handler);
         }]);
     //! dialogs
     /**

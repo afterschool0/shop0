@@ -25,6 +25,8 @@ export namespace AccountApiRouter {
     const exception: any = new ExceptionController.Exception();
 
     router.get('/api/query/:query/:option', [exception.exception, exception.guard, exception.authenticate, accounts.account_query]);
+    router.get('/api/count/:query', [exception.exception, exception.guard, exception.authenticate, accounts.account_count]);
+
     router.get("/api/:username", [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.get_account]);
     router.put("/api/:username", [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.put_account]);
     router.delete('/api/:username', [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.delete_account]);
@@ -32,4 +34,3 @@ export namespace AccountApiRouter {
 }
 
 module.exports = AccountApiRouter.router;
-

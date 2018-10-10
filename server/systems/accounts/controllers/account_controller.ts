@@ -42,6 +42,13 @@ export namespace AccountModule {
             });
         }
 
+        public account_count(request: any, response: any): void {
+            let query: any = Wrapper.Decode(request.params.query);
+            Wrapper.Count(response, 1, LocalAccount, query,  (response: any, count: any) => {
+                Wrapper.SendSuccess(response, count);
+            });
+        }
+
         public get_account(request: any, response: any): void {
             Wrapper.FindOne(response, 1, LocalAccount,  {username: request.params.username}, (response: any, account: any): void => {
                 if (account) {

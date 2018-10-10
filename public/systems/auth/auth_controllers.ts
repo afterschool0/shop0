@@ -96,80 +96,83 @@ namespace AuthControllersModule {
                 if (profile) {
                     user = profile;
                     $scope.role = user.role;
-           //         $scope.$apply();
+
+
+                    $scope.showLoginDialog = (): void => {
+                        let modalInstance = $uibModal.open({
+                            controller: 'LoginDialogController',
+                            templateUrl: '/auth/dialogs/logindialog',
+                            backdrop: "static",
+                            targetEvent: null
+                        });
+
+                        modalInstance.result.then((member): void => { // Answer
+                            ProfileService.Get((profile) => {
+                                if (profile) {
+                                    user = profile;
+                                    $rootScope.$broadcast('Login');
+                                }
+                            }, error_handler);
+                        }, (): void => { // Error
+                        });
+                    };
+
+                    $scope.showPasswordDialog = (): void => {
+                        let modalInstance = $uibModal.open({
+                            controller: 'PasswordDialogController',
+                            templateUrl: '/auth/dialogs/passworddialog',
+                            backdrop: false,
+                            targetEvent: null
+                        });
+
+                        modalInstance.result.then((): void => {
+                            let modalRegistConfirm = $uibModal.open({
+                                controller: 'PasswordConfirmDialogController',
+                                templateUrl: '/auth/dialogs/passwordconfirmdialog',
+                                backdrop: "static",
+                                targetEvent: null
+                            });
+
+                            modalRegistConfirm.result.then((): void => {
+                            }, (): void => {
+                            });
+
+                        }, (): void => {
+                        });
+                    };
+
+                    $scope.Logout = (): void => {
+                        ProfileService.Get((profile) => {
+                            if (profile) {
+                                user = profile;
+                                AuthService.Logout((account) => {
+                                    $rootScope.$broadcast('Logout');
+                                }, (): void => {
+                                });
+                            }
+                        }, error_handler);
+                    };
+
+                    $scope.$on('Login', (): void => {
+                        $scope.userid = user.userid;
+                        $scope.role = user.role;
+                        $window.location.href = "//" + $window.location.host + "/" + user.entry;
+                    });
+
+                    $scope.$on('Logout', (): void => {
+                        $scope.userid = "";
+                        $scope.role = {guest: false, category: 0};
+                        $window.location.href = "//" + $window.location.host + "/" + user.exit;
+                    });
+
+                    $scope.go = (ref: string): void => {
+                        $window.location.href = ref;
+                    };
+
                 }
             }, error_handler);
 
-            $scope.showLoginDialog = (): void => {
-                let modalInstance = $uibModal.open({
-                    controller: 'LoginDialogController',
-                    templateUrl: '/auth/dialogs/logindialog',
-                    backdrop: "static",
-                    targetEvent: null
-                });
 
-                modalInstance.result.then((member): void => { // Answer
-                    ProfileService.Get((profile) => {
-                        if (profile) {
-                            user = profile;
-                            $rootScope.$broadcast('Login');
-                        }
-                    }, error_handler);
-                }, (): void => { // Error
-                });
-            };
-
-            $scope.showPasswordDialog = (): void => {
-                let modalInstance = $uibModal.open({
-                    controller: 'PasswordDialogController',
-                    templateUrl: '/auth/dialogs/passworddialog',
-                    backdrop: false,
-                    targetEvent: null
-                });
-
-                modalInstance.result.then((): void => {
-                    let modalRegistConfirm = $uibModal.open({
-                        controller: 'PasswordConfirmDialogController',
-                        templateUrl: '/auth/dialogs/passwordconfirmdialog',
-                        backdrop: "static",
-                        targetEvent: null
-                    });
-
-                    modalRegistConfirm.result.then((): void => {
-                    }, (): void => {
-                    });
-
-                }, (): void => {
-                });
-            };
-
-            $scope.Logout = (): void => {
-                ProfileService.Get((profile) => {
-                    if (profile) {
-                        user = profile;
-                        AuthService.Logout((account) => {
-                            $rootScope.$broadcast('Logout');
-                        }, (): void => {
-                        });
-                    }
-                }, error_handler);
-            };
-
-            $scope.$on('Login', (): void => {
-                $scope.userid = user.userid;
-                $scope.role = user.role;
-                $window.location.href = "//" + $window.location.host + "/" + user.entry;
-            });
-
-            $scope.$on('Logout', (): void => {
-                $scope.userid = "";
-                $scope.role = {guest: false, category: 0};
-                $window.location.href = "//" + $window.location.host + "/" + user.exit;
-            });
-
-            $scope.go = (ref: string): void => {
-                $window.location.href = ref;
-            };
         }]);
 
 //! dialogs

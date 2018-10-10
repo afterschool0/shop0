@@ -157,9 +157,9 @@ var AuthServicesModule;
             };
         }]);
     AuthServices.service('ProfileService', ["Profile",
-        function (Self) {
+        function (Profile) {
             this.Get = function (callback, error_callback) {
-                Self.get({}, function (result) {
+                Profile.get({}, function (result) {
                     if (result) {
                         switch (result.code) {
                             case 0:
@@ -178,7 +178,7 @@ var AuthServicesModule;
                 });
             };
             this.Put = function (content, callback, error_callback) {
-                var self = new Self();
+                var self = new Profile();
                 self.local = content;
                 self.$put({}, function (result) {
                     if (result) {

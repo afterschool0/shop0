@@ -211,7 +211,7 @@ export namespace AuthModule {
         public page_is_system(request: any, response: any, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (user.Role().system) {
+                if (LocalAccount.Role(user).system) {
                     next();
                 } else {
                     response.status(403).render('error', {status: 403, message: "Forbidden...", url: request.url});
@@ -231,7 +231,7 @@ export namespace AuthModule {
         public is_system(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (user.Role().system) {
+                if (LocalAccount.Role(user).system) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -251,7 +251,7 @@ export namespace AuthModule {
         public page_is_user(request: any, response: any, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (user.Role().user) {
+                if (LocalAccount.Role(user).user) {
                     next();
                 } else {
                     response.status(403).render('error', {status: 403, message: "Forbidden...", url: request.url});
@@ -271,7 +271,7 @@ export namespace AuthModule {
         public is_user(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (user.Role().user) {
+                if (LocalAccount.Role(user).user) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -291,7 +291,7 @@ export namespace AuthModule {
         public is_member(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (user.Role().member) {
+                if (LocalAccount.Role(user).member) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -311,7 +311,7 @@ export namespace AuthModule {
         public is_temp(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (user.Role().temp) {
+                if (LocalAccount.Role(user).temp) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -331,7 +331,7 @@ export namespace AuthModule {
         public is_guest(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (user.Role().guest) {
+                if (LocalAccount.Role(user).guest) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -351,7 +351,7 @@ export namespace AuthModule {
         public is_enabled_regist_user(request: Express.Request, response: Express.Response, next: any): void {
             let user: any = request.user;
             if (user) {
-                if (user.Role().system) {
+                if (LocalAccount.Role(user).system) {
                     next();
                 } else {
                     Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
@@ -400,11 +400,11 @@ export namespace AuthModule {
                             if (!error) {
                                 callback(null, decrypted_username, decrypted_password);
                             } else {
-                                callback(error, "", "");
+                                callback({code:2, message:"no cookie?"}, "", "");
                             }
                         });
                     } else {
-                        callback(error, "", "");
+                        callback({code:1, message:"no cookie?"}, "", "");
                     }
                 });
             } else {

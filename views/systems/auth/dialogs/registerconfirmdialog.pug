@@ -1,15 +1,15 @@
-div
-    .modal-header
+div(style={"box-shadow":"0 2px 5px 0 rgba(0,0,0,.16)"})
+    .modal-header(style={"background-color":"#CFD8DC"})
         span.h5.modal-title #{message.registconfirmdialogtitle}
-    .modal-body
+    .modal-body(style={"background-color":"#ECEFF1"})
         .row
             .col-12
                 div #{message.registconfirmtext}
         .row
             .col-12
                 include ../../../systems/common/error_message
-    .modal-footer
+    .modal-footer(style={"background-color":"#ECEFF1"})
         .row
             .col-12
-                .text-center(style="margin:2rem;")
+                .text-center(style="padding:1rem;")
                     button.btn.btn-primary(type="button", ng-click='answer()', aria-label="") #{message.ok}

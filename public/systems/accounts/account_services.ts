@@ -26,11 +26,28 @@ namespace AccountServicesModule {
             });
         }]);
 
-    AccountServices.service('AccountService', ['Account', 'AccountQuery',
-        function (Account: any, AccountQuery: any): void {
+    AccountServices.factory('AccountCount', ['$resource',
+        ($resource: any): any => {
+            return $resource('/accounts/api/count/:query', {query: "@query"}, {
+                count: {method: 'GET'}
+            });
+        }]);
+
+    AccountServices.service('AccountService', ['Account', 'AccountQuery', 'AccountCount',
+        function (Account: any, AccountQuery: any, AccountCount:any): void {
 
             this.Query = (query:any,option:any, callback: (result: any[]) => void, error: (code: number, message: string) => void): void => {
                 AccountQuery.query({query: JSON.stringify(query)},{option: JSON.stringify(option)}, (result: any[]): void => {
+                    if (result) {
+                        callback(result);
+                    } else {
+                        error(10000, "network error");
+                    }
+                });
+            };
+
+            this.Count = (query: any, callback: (result: any[]) => void, error: (code: number, message: string) => void): void => {
+                AccountCount.count({query: JSON.stringify(query)}, (result: any): void => {
                     if (result) {
                         callback(result);
                     } else {

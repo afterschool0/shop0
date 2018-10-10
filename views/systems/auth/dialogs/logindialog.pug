@@ -1,10 +1,7 @@
-div
-    .modal-header
+div(style={"box-shadow":"0 2px 5px 0 rgba(0,0,0,.16)"})
+    .modal-header(style={"background-color":"#CFD8DC"})
         span.h5.modal-title #{message.logindialogtitle}
-        //span.pull-right
-            button.btn.btn-box-tool(tabindex="9", type='button', ng-click='cancel()')
-                i.fas.fa-times
-    .modal-body
+    .modal-body(style={"background-color":"#ECEFF1"})
         ng-form(name="validate")
             .row
                 .col-10.offset-1
@@ -31,24 +28,24 @@ div
             .row
                 .col-10.offset-1
                     include ../../../systems/common/error_message
-    .modal-footer
+    .modal-footer(style={"background-color":"#ECEFF1"})
         .row
             .col-12
-                .text-center(style="margin:2rem;")
+                .text-center(style="padding:1rem;")
                     button.btn.btn-warning(tabindex="3", type='button', ng-click='cancel()') #{message.cancel}
                     button.btn.btn-primary(tabindex="4", type="button", ng-click='answer(items);validate.$dirty = false;', style="margin:0.5rem;", ng-disabled="progress || validate.$invalid", aria-label="") #{message.ok}
                     if (config.facebook)
-                        button.btn.btn-primary(tabindex="5", type="button", ng-click="go('/auth/facebook');", style="margin:0.5rem;background-color:#3B5998;", aria-label="")
+                        button.btn(tabindex="5", type="button", ng-click="go('/auth/facebook');", style="margin:0.5rem;background-color:#3B5998;", aria-label="")
                             i.fab.fa-facebook
                     if (config.twitter)
-                        button.btn.btn-primary(tabindex="6", type="button", ng-click="go('/auth/twitter');", style="margin:0.5rem;background-color:#55acee;", aria-label="")
+                        button.btn(tabindex="6", type="button", ng-click="go('/auth/twitter');", style="margin:0.5rem;background-color:#55acee;", aria-label="")
                             i.fab.fa-twitter-square
                     if (config.instagram)
-                        button.btn.btn-primary(tabindex="7", type="button", ng-click="go('/auth/instagram');", style="margin:0.5rem;background-color:#3f729b;", aria-label="")
+                        button.btn(tabindex="7", type="button", ng-click="go('/auth/instagram');", style="margin:0.5rem;background-color:#3f729b;", aria-label="")
                             i.fab.fa-instagram
                     if (config.googleplus)
-                        button.btn.btn-primary(tabindex="8", type="button", ng-click="go('/auth/googleplus');", style="margin:0.5rem;background-color:#dd4b39;", aria-label="")
+                        button.btn(tabindex="8", type="button", ng-click="go('/auth/googleplus');", style="margin:0.5rem;background-color:#dd4b39;", aria-label="")
                             i.fab.fa-google-plus
                     if (config.line)
-                        button.btn.btn-primary(tabindex="9", type="button", ng-click="go('/auth/line');", style="margin:0.5rem;background-color:#1dcd00;", aria-label="")
+                        button.btn(tabindex="9", type="button", ng-click="go('/auth/line');", style="margin:0.5rem;background-color:#1dcd00;", aria-label="")
                             i.fab.fa-empire
