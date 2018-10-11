@@ -1,0 +1,123 @@
+doctype html
+html(lang="ja")
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        title
+        link(rel='shortcut icon', href='favicon.ico')
+
+        link(rel="dns-prefetch", href="https://cdnjs.cloudflare.com")
+        link(rel="dns-prefetch", href="https://cdn.jsdelivr.net")
+        link(rel="dns-prefetch", href="https://stackpath.bootstrapcdn.com")
+        link(rel="dns-prefetch", href="https://use.fontawesome.com")
+
+        link(rel="stylesheet", type="text/css", href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css")
+        link(rel='stylesheet', type='text/css', href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css')
+        link(rel='stylesheet', type='text/css', href='https://use.fontawesome.com/releases/v5.0.10/css/all.css', integrity='sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg', crossorigin='anonymous')
+        link(rel='stylesheet', type="text/css", href='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap-csp.css')
+
+        link(rel="stylesheet", type="text/css", href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.11/css/mdb.min.css")
+
+        link(rel='stylesheet', type="text/css", href='/systems/stylesheets/font_noto.css')
+        link(rel='stylesheet', type="text/css", href='/systems/stylesheets/progress.css')
+        link(rel='stylesheet', type='text/css', href='/systems/stylesheets/layouts.css')
+        link(rel="stylesheet", type="text/css", href="/systems/stylesheets/styles.css")
+
+        style.
+
+            .table {
+                box-sizing: border-box;
+                border: solid 1px #aaa;
+            }
+
+            .title-cell {
+                text-align: center;
+                padding: 0.6rem;
+                font-weight: 700;
+                color: #eee;
+                background-color: #888;
+                border: solid 1px #aaa;
+            }
+
+            .row-cell {
+                padding: 0.6rem;
+                font-weight: 500;
+                background-color: #f8f8f8;
+                border-top: solid 1px #aaa;
+            }
+
+            .cell {
+                padding: 0.6rem;
+                font-weight: 100;
+                border-top: solid 1px #aaa;
+                border-left: solid 1px #aaa;
+            }
+
+    body.noto(ng-app="FrontApplication", style={background: "#ECEFF1"}, ng-controller="LoginController")
+        div(ng-show="progress", style={"z-index": "20000", position: "fixed", top: "50%", left: "50%", "margin-top": "-70px", "margin-left": "-75px"})
+            #progress
+                #rond
+                    #test
+                #load
+        .page-column
+            .header(style={position: "fixed", width: "100%", height: "5rem"})
+                div(style={padding: "1rem"})
+                    img.img-fluid(src="")
+                    div(style={"font-size": "1.8rem"}) auth0
+                if !role.guest
+                    span.pull-right
+                        button.btn.btn-success(type="button", href='#', ng-click="showRegisterDialog()", aria-label="", style={margin: "12px 6px"})
+                            i.fas.fa-sign-in-alt
+                            span &nbsp;#{message.regist}
+                        button.btn.btn-info(type="button", href='#', ng-click="showLoginDialog()", aria-label="", style={margin: "12px 6px"})
+                            i.fas.fa-sign-in-alt
+                            span &nbsp;#{message.login}
+                else
+                    .menu
+                        input#menu-input.menu-unshown(type='checkbox', style={height: "100vh"})
+                        label#menu-open.menu-trigger(for='menu-input')
+                            span
+                            span
+                            span
+                        label#menu-close.menu-unshown(for='menu-input', style={height: "100vh"})
+                        #menu-content
+                            #hidden(style={height: "100vh"})
+                                nav(class=role.user ? 'sidebar-color-invert' : 'sidebar-color', style={height: "100vh"})
+                                    include applications/front/partial/side_content
+            if role.guest
+                .content-row
+                    .main-row(style={"margin-top": "5rem"})
+                        aside.left-pane.main-sidebar(class=role.user ? 'sidebar-color-invert' : 'sidebar-color')
+                            include applications/front/partial/side_content
+                        block content
+                        .right-pane
+                .footer-pane
+            else
+                div
+                    include applications/front/partial/no_logged
+
+    script(type="text/javascript", src="/socket.io/socket.io.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/cryptico/0.0.1343522940/cryptico.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js")
+    script(type="text/javascript", src="https://code.jquery.com/jquery-3.3.1.min.js", integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=", crossorigin="anonymous")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-resource.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-messages.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-aria.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/i18n/angular-locale_ja-jp.js")
+
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js")
+    script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.11/js/mdb.min.js")
+
+    script(type="text/javascript", src='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap.js')
+    script(type="text/javascript", src='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap-tpls.js')
+
+    script(type="text/javascript", src="/systems/common/services.js")
+    script(type="text/javascript", src="/systems/publickey/publickey_services.js")
+    script(type="text/javascript", src="/systems/auth/auth_services.js")
+    script(type="text/javascript", src="/systems/auth/auth_controllers.js")
+    script(type="text/javascript", src="/systems/accounts/account_services.js")
+    script(type="text/javascript", src="/systems/accounts/account_controllers.js")
+    script(type="text/javascript", src="/applications/front/front_controllers.js")
+    script(type="text/javascript", src="/applications/front/front_application.js")

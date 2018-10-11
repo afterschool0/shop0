@@ -28,6 +28,7 @@ export namespace Promised {
             return response;
         }
 
+        // 例外キャッチ
         public Exception(req: Express.Request, res: Express.Response, callback: (req: any, res: any) => void): void {
             try {
                 callback(req, res);
@@ -36,6 +37,7 @@ export namespace Promised {
             }
         }
 
+        // CSRFチェック
         public Guard(req: any, res: Express.Response, callback: (req: any, res: any) => void): void {
             if (req.headers["x-requested-with"] === "XMLHttpRequest") {
                 res = this.BasicHeader(res, "");
@@ -45,6 +47,7 @@ export namespace Promised {
             }
         }
 
+        // userがなければ常に正常、あれば権限チェック
         public Authenticate(req: Express.Request, res: Express.Response, callback: (req: any, res: any) => void): void {
             if (req.user) {
                 if (req.isAuthenticated()) {
@@ -53,8 +56,7 @@ export namespace Promised {
                     this.SendError(res, 1, "", {code: 1, message: ""});
                 }
             } else { // normal case.
-                this.SendSuccess(res, {});
-          //      this.SendError(res, 1, "", {code: 1, message: ""});
+                callback(req, res);
             }
         }
 
@@ -75,10 +77,9 @@ export namespace Promised {
         }
 
         public Find(res: Express.Response, code: number, model: any, query: any, fields: any, option: any, callback: (res: any, object: any) => void): any {
-            return model.find(query, fields, option).then((docs: any): void => {
+            return model.find(query, fields, option).then((docs: any[]): void => {
                 callback(res, docs);
             }).catch((error: any): void => {
-     //           this.SendError(res, error.code, error.message, error);
                 this.SendRaw(res, []);
             });
         }
