@@ -29,14 +29,10 @@ var PageRouter;
                 local = request.user.local;
             }
             response.render("applications/front/index", {
-                local: local,
                 role: LocalAccount.Role(request.user),
-                message: message,
-                status: 200
+                local: local,
+                message: message
             });
-        }]);
-    PageRouter.router.get("/common/alert_dialog", [exception.page_catch, function (request, response) {
-            response.render("systems/common/alert_dialog", { config: config, message: message });
         }]);
 })(PageRouter = exports.PageRouter || (exports.PageRouter = {}));
 module.exports = PageRouter.router;
