@@ -11,5 +11,7 @@ public/systems/**/*.js
 public/applications/**/*.js
 server/**/*.js
 server/**/*.js.map
+spec/**/*.js
+spec/**/*.js.map
 *.log
 *.pem

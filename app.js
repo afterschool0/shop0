@@ -104,6 +104,7 @@ var App;
             logger.fatal('catch Mongoose exeption. ', error.stack);
             process.exit(1);
         });
+        // database
         mongoose.connection.once('open', function () {
             mongoose.connection.on('connected', function () {
                 logger.fatal('connected');
@@ -200,6 +201,19 @@ var App;
             load_root_module("./server", config.root_modules);
             console.log("VR");
             // root
+            // backup
+            var SchedulerModule = require(path.join(process.cwd(), "server/systems/common/scheduler"));
+            var Scheduler = new SchedulerModule.Scheduler();
+            var Commandar = require(path.join(process.cwd(), "server/systems/common/commandar"));
+            var Command = new Commandar.Unix();
+            if (config.db.backup) {
+                Scheduler.Add({
+                    timing: config.db.backup, name: "backup", job: function () {
+                        Command.Backup(config.db);
+                    }
+                });
+            }
+            // backup
             // passport
             var Account = require(path.join(process.cwd(), "models/systems/accounts/account"));
             passport.use(new LocalStrategy(Account.authenticate()));
@@ -301,6 +315,7 @@ var App;
                 }
             });
         });
+        // database
         event.emitter.on('socket', function (data) {
         });
         event.emitter.on('mail', function (mail) {

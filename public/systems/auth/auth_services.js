@@ -41,7 +41,7 @@ var AuthServicesModule;
     AuthServices.service('AuthService', ["Register", "Login", "Logout", "Password", "PublicKeyService",
         function (Register, Login, Logout, Password, PublicKeyService) {
             var publickey_encrypt = function (key, plain, callback) {
-                var username_encrypted = cryptico.encrypt(plain, key);
+                var username_encrypted = cryptico.encrypt(encodeURIComponent(plain), key); // encrypt漢字
                 if (username_encrypted.status === "success") {
                     callback(null, username_encrypted.cipher);
                 }

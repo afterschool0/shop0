@@ -20,7 +20,7 @@ export namespace AuthPageRouter {
 
     const path: any = require('path');
 
-    const ExceptionController: any = require( path.join(process.cwd(), "server/systems/common/exception"));
+    const ExceptionController: any = require(path.join(process.cwd(), "server/systems/common/exception"));
     const exception: any = new ExceptionController.Exception;
 
     router.get('/dialogs/registerdialog', [exception.page_catch, (request: any, response: any): void => {
@@ -51,6 +51,10 @@ export namespace AuthPageRouter {
         response.render("systems/auth/dialogs/passwordconfirmdialog", {config: config, message: message});
     }]);
 
+    router.get("/common/alert_dialog", [exception.page_catch, (request: any, response: any): void => {
+        response.render("systems/common/alert_dialog", {config: config, message: message});
+    }]);
+
     // mail test view.
 
     router.get("/mail/regist_mail", [exception.page_catch, (request: any, response: any): void => {
@@ -58,7 +62,7 @@ export namespace AuthPageRouter {
     }]);
 
     router.get("/mail/password_mail", [exception.page_catch, (request: any, response: any): void => {
-        response.render("systems/auth/mail/password_mail", {config: config,link: ""});
+        response.render("systems/auth/mail/password_mail", {config: config, link: ""});
     }]);
 
 }

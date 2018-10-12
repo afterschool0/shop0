@@ -17,6 +17,8 @@ namespace GulpModule {
 
     let rimraf = require('rimraf');
 
+    //  const babel = require('gulp-babel');
+
     gulp.task('clean', (cb) => {
         rimraf('./product/reservation2', cb);
     });
@@ -31,8 +33,6 @@ namespace GulpModule {
                 'models/**/*.json',
                 'public/**/*.js',
                 'public/**/*.css',
-                'public/*.html',
-                'routes/**/*.js',
                 'server/**/*.js',
                 'server/**/*.pug',
                 'views/**/*.pug',

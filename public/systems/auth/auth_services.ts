@@ -50,7 +50,7 @@ namespace AuthServicesModule {
         function (Register: any, Login: any, Logout: any, Password: any, PublicKeyService): void {
 
             let publickey_encrypt = (key: string, plain: string, callback: (error: any, result: string) => void) => {
-                let username_encrypted = cryptico.encrypt(plain, key);
+                let username_encrypted = cryptico.encrypt(encodeURIComponent(plain), key); // encrypt漢字
                 if (username_encrypted.status === "success") {
                     callback(null, username_encrypted.cipher);
                 } else {

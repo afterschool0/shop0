@@ -134,6 +134,7 @@ namespace App {
                 process.exit(1);
             });
 
+        // database
         mongoose.connection.once('open', () => {
 
             mongoose.connection.on('connected', () => {
@@ -245,6 +246,19 @@ namespace App {
             console.log("VR");
             // root
 
+            // backup
+            const SchedulerModule = require(path.join(process.cwd(), "server/systems/common/scheduler"));
+            const Scheduler: any = new SchedulerModule.Scheduler();
+            const Commandar = require(path.join(process.cwd(), "server/systems/common/commandar"));
+            const Command: any = new Commandar.Unix();
+            if (config.db.backup) {
+                Scheduler.Add({
+                    timing: config.db.backup, name: "backup", job: () => {
+                        Command.Backup(config.db);
+                    }
+                });
+            }
+            // backup
 
             // passport
 
@@ -366,6 +380,7 @@ namespace App {
                 }
             });
         });
+        // database
 
         event.emitter.on('socket', (data): void => {
 

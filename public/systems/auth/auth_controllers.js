@@ -24,7 +24,7 @@ var AuthControllersModule;
             var alert = function (message) {
                 var modalInstance = $uibModal.open({
                     controller: 'AlertDialogController',
-                    templateUrl: '/common/alert_dialog',
+                    templateUrl: '/auth/common/alert_dialog',
                     resolve: {
                         items: function () {
                             return message;

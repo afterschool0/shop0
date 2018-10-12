@@ -82,13 +82,13 @@ html(lang="ja")
                         label#menu-close.menu-unshown(for='menu-input', style={height: "100vh"})
                         #menu-content
                             #hidden(style={height: "100vh"})
-                                nav(class=role.user ? 'sidebar-color-invert' : 'sidebar-color', style={height: "100vh"})
-                                    include applications/front/partial/side_content
+                                nav(class=role.user ? 'sidebar-color-invert': 'sidebar-color', style={height: "100vh"})
+                                    include applications/front/partial/left_content
             if role.guest
                 .content-row
                     .main-row(style={"margin-top": "5rem"})
-                        aside.left-pane.main-sidebar(class=role.user ? 'sidebar-color-invert' : 'sidebar-color')
-                            include applications/front/partial/side_content
+                        aside.left-pane.main-sidebar(class=role.user ? 'sidebar-color-invert': 'sidebar-color')
+                            include applications/front/partial/left_content
                         block content
                         .right-pane
                 .footer-pane

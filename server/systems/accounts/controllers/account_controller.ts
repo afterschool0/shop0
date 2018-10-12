@@ -31,56 +31,86 @@ export namespace AccountModule {
          * @returns none
          */
         public account_query(request: any, response: any): void {
-            let query: any = Wrapper.Decode(request.params.query);
-            let option: any = Wrapper.Decode(request.params.option);
-            Wrapper.Find(response, 1, LocalAccount, query, {}, option, (response: any, accounts: any): any => {
-                let result:any[] = [];
-                accounts.forEach(account => {
-                    result.push(account.local);
-                });
-                Wrapper.SendRaw(response, result);
-            });
-        }
-
-        public account_count(request: any, response: any): void {
-            let query: any = Wrapper.Decode(request.params.query);
-            Wrapper.Count(response, 1, LocalAccount, query,  (response: any, count: any) => {
-                Wrapper.SendSuccess(response, count);
-            });
-        }
-
-        public get_account(request: any, response: any): void {
-            Wrapper.FindOne(response, 1, LocalAccount,  {username: request.params.username}, (response: any, account: any): void => {
-                if (account) {
-                    Wrapper.SendSuccess(response, account.local);
+            let params = request.params;
+            let query: any = Wrapper.Decode(params.query);
+            let option: any = Wrapper.Decode(params.option);
+            Wrapper.Find(LocalAccount, query, {}, option, (error: any, accounts: any): any => {
+                if (!error) {
+                    let result: any[] = [];
+                    accounts.forEach(account => {
+                        result.push(account.local);
+                    });
+                    Wrapper.SendRaw(response, result);
                 } else {
-                    Wrapper.SendWarn(response, 2, "not found", {code: 2, message: "not found"});
+                    Wrapper.SendRaw(response, []);
                 }
             });
         }
 
-        public put_account(request: any, response: any): void {
-            Wrapper.FindOne(response, 1, LocalAccount, {username: request.params.username}, (response: any, account: any): void => {
-                if (account) {
-                    account.local = request.body.local;
-                    account.open = true;
-                    Wrapper.Save(response, 2, account, (response: any, object: any): void => {
-                        Wrapper.SendSuccess(response, object.local);
-                    });
+        public account_count(request: any, response: any): void {
+            let params = request.params;
+            let query: any = Wrapper.Decode(params.query);
+            Wrapper.Count(LocalAccount, query, (error: any, count: any) => {
+                if (!error) {
+                    Wrapper.SendSuccess(response, count);
                 } else {
-                    Wrapper.SendWarn(response, 3, "not found", {code: 2, message: "not found"});
+                    Wrapper.SendError(response, error.code, error.message, error);
+                }
+            });
+        }
+
+        public get_account(request: any, response: any): void {
+            let params = request.params;
+            Wrapper.FindOne(LocalAccount, {username: params.username}, (error: any, account: any): void => {
+                if (!error) {
+                    if (account) {
+                        Wrapper.SendSuccess(response, account.local);
+                    } else {
+                        Wrapper.SendWarn(response, 2, "not found", {code: 2, message: "not found"});
+                    }
+                } else {
+                    Wrapper.SendError(response, error.code, error.message, error);
+                }
+
+            });
+        }
+
+        public put_account(request: any, response: any): void {
+            let params = request.params;
+            Wrapper.FindOne(LocalAccount, {username: params.username}, (error: any, account: any): void => {
+                if (!error) {
+                    if (account) {
+                        account.local = request.body.local;
+                        account.open = true;
+                        Wrapper.Save(account, (error: any, object: any): void => {
+                            if (!error) {
+                                Wrapper.SendSuccess(response, object.local);
+                            } else {
+                                Wrapper.SendError(response, error.code, error.message, error);
+                            }
+                        });
+                    } else {
+                        Wrapper.SendWarn(response, 3, "not found", {code: 2, message: "not found"});
+                    }
+                } else {
+                    Wrapper.SendError(response, error.code, error.message, error);
                 }
             });
         }
 
         public delete_account(request: any, response: any): void {
-            Wrapper.FindOne(response, 1, LocalAccount, {username: request.params.username}, (response: any, page: any): void => {
-                if (page) {
-                    Wrapper.Remove(response, 2, page, (response: any): void => {
-                        Wrapper.SendSuccess(response, {});
-                    });
+            let params = request.params;
+            Wrapper.FindOne(LocalAccount, {username: params.username}, (error: any, page: any): void => {
+                if (!error) {
+                    if (page) {
+                        Wrapper.Remove(page, (error: any, obj:any): void => {
+                            Wrapper.SendSuccess(response, {});
+                        });
+                    } else {
+                        Wrapper.SendWarn(response, 3, "not found", {code: 2, message: "not found"});
+                    }
                 } else {
-                    Wrapper.SendWarn(response, 3, "not found", {code: 2, message: "not found"});
+                    Wrapper.SendError(response, error.code, error.message, error);
                 }
             });
         }

@@ -12,6 +12,7 @@ var GulpModule;
     var pump = require('pump');
     var minify = composer(uglifyjs, console);
     var rimraf = require('rimraf');
+    //  const babel = require('gulp-babel');
     gulp.task('clean', function (cb) {
         rimraf('./product/reservation2', cb);
     });
@@ -24,8 +25,6 @@ var GulpModule;
             'models/**/*.json',
             'public/**/*.js',
             'public/**/*.css',
-            'public/*.html',
-            'routes/**/*.js',
             'server/**/*.js',
             'server/**/*.pug',
             'views/**/*.pug',

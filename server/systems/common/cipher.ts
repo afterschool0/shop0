@@ -69,30 +69,6 @@ export namespace CipherModule {
             return decrypted;
         }
 
-        /*
-                static FixedCrypt(name: string, password: string): string | undefined {
-                    let cipher: any = cipher_crypto.createCipher('aes192', password);
-                    try {
-                        let crypted: string = cipher.update(name, 'utf8', 'hex');
-                        crypted += cipher.final('hex');
-                        return crypted;
-                    } catch (ex) {
-                        console.log(ex.message);
-                    }
-                }
-
-                static FixedDecrypt(name: string, password: string): string | undefined {
-                    let decipher: any = cipher_crypto.createDecipher('aes192', password);
-                    try {
-                        let decrypted: string = decipher.update(name, 'hex', 'utf8');
-                        decrypted += decipher.final('utf8');
-                        return decrypted;
-                    } catch (ex) {
-                        console.log(ex.message);
-                    }
-                }
-        */
-
         static PublicKey(passphrase: string): string {
             let secretkey: any = cipher_cryptico.generateRSAKey(passphrase, 1024);
             return cipher_cryptico.publicKeyString(secretkey);

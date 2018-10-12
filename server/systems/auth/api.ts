@@ -48,14 +48,13 @@ export namespace AuthApiRouter {
     router.get('/line', passport.authenticate('line'));
     router.get('/line/callback', passport.authenticate('line', {failureRedirect: '/'}), auth.auth_line_callback);
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
-    const Wrapper: any = new PromisedModule.Wrapper();
-
+    //const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    //const Wrapper: any = new PromisedModule.Wrapper();
 
     const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));
     const Cipher: any = CipherModule.Cipher;
 
-    const ipv6module: any = require(path.join(process.cwd(),"server/systems/common/ipv6"));
+    const ipv6module: any = require(path.join(process.cwd(), "server/systems/common/ipv6"));
     const ipv6 = ipv6module.IPV6;
 
     interface Decoded {

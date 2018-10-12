@@ -31,7 +31,7 @@ namespace AuthControllersModule {
             let alert = (message): void => {
                 let modalInstance: any = $uibModal.open({
                     controller: 'AlertDialogController',
-                    templateUrl: '/common/alert_dialog',
+                    templateUrl: '/auth/common/alert_dialog',
                     resolve: {
                         items: (): any => {
                             return message;

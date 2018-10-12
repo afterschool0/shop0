@@ -25,20 +25,6 @@ export namespace IPV6Module {
             return result;
         }
 
-    //    static GetIPV6(request: any): string {
-    //        let result = "::ffff:0.0.0.0";
-    //        if (request.headers['x-forwarded-for']) {
-    //            result = IPV6.ToIPV6(request.headers['x-forwarded-for']);
-    //        } else if (request.connection && request.connection.remoteAddress) {
-    //            result = IPV6.ToIPV6(request.connection.remoteAddress);
-    //        } else if (request.connection.socket && request.connection.socket.remoteAddress) {
-    //            result = IPV6.ToIPV6(request.connection.socket.remoteAddress);
-    //        } else if (request.socket && request.socket.remoteAddress) {
-    //            result = IPV6.ToIPV6(request.socket.remoteAddress);
-    //        }
-    //        return result;
-    //    };
-
         static GetIPV6(request: any): string {
             let result:string = "::ffff:0.0.0.0";
             if (request.headers['x-forwarded-for']) {
