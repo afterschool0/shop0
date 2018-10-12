@@ -78,14 +78,14 @@ namespace AuthServicesModule {
                 }
             };
 
-            this.Regist = (username: string, password: string, displayName: string, metadata: any, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
+            this.Regist = (username: string, password: string, groupid: string, metadata: any, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
                 PublicKeyService.Fixed((key) => {
                     let regist: any = new Register();
                     username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
                         if (!error) {
                             regist.username = username;
                             regist.password = password;
-                            regist.displayName = displayName;
+                            regist.groupid = groupid;
                             regist.metadata = metadata;
                             regist.$regist((account: any): void => {
                                 if (account) {
@@ -103,13 +103,14 @@ namespace AuthServicesModule {
                 });
             };
 
-            this.Login = (username: string, password: string, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
+            this.Login = (username: string, password: string, groupid: string, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
                 PublicKeyService.Fixed((key) => {
                     let login = new Login();
                     username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
                         if (!error) {
                             login.username = username;
                             login.password = password;
+                            login.groupid = groupid;
                             login.$login((account: any): void => {  //ログイン
                                 if (account) {
                                     if (account.code === 0) {
@@ -126,13 +127,14 @@ namespace AuthServicesModule {
                 });
             };
 
-            this.Password = (username: string, password: string, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
+            this.Password = (username: string, password: string, groupid: string, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
                 PublicKeyService.Fixed((key) => {
                     let pass: any = new Password();
                     username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
                         if (!error) {
                             pass.username = username;
                             pass.password = password;
+                            pass.groupid = groupid;
                             pass.$change((account: any): void => {
                                 if (account) {
                                     if (account.code === 0) {

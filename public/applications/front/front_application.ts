@@ -12,6 +12,8 @@ namespace FrontApplicationModule {
         "Services",
         "AuthServices",
         "AuthControllers",
+        "AccountServices",
+        "AccountControllers",
         "PublicKeyServices",
         "FrontControllers"
     ]);

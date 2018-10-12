@@ -13,7 +13,7 @@ export module PublicKeyModule {
     const _config: any = require('config');
     const Config: any = _config.get("systems");
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
     const Wrapper: any = new PromisedModule.Wrapper();
 
     const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));

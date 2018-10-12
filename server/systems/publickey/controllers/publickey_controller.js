@@ -10,7 +10,7 @@ var PublicKeyModule;
     var path = require('path');
     var _config = require('config');
     var Config = _config.get("systems");
-    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
     var Wrapper = new PromisedModule.Wrapper();
     var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
     var Cipher = CipherModule.Cipher;

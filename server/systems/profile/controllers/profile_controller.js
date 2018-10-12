@@ -13,7 +13,7 @@ var ProfileModule;
     mongoose.Promise = global.Promise;
     var _config = require('config');
     var config = _config.get("systems");
-    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
     var Wrapper = new PromisedModule.Wrapper();
     var LocalAccount = require(path.join(process.cwd(), "models/systems/accounts/account"));
     var Profile = /** @class */ (function () {

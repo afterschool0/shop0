@@ -10,6 +10,8 @@ var FrontApplicationModule;
         "Services",
         "AuthServices",
         "AuthControllers",
+        "AccountServices",
+        "AccountControllers",
         "PublicKeyServices",
         "FrontControllers"
     ]);

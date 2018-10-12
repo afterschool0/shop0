@@ -60,98 +60,89 @@ export namespace Promised {
             }
         }
 
-        public FindById(res: Express.Response, code: number, model: any, id: any, callback: (res: any, object: any) => void): any {
+        public FindById( model: any, id: any, callback: (error:any, object: any) => void): any {
             return model.findById(id).then((object: any): void => {
-                callback(res, object);
+                callback(null, object);
             }).catch((error: any): void => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
-        public FindOne(res: Express.Response, code: number, model: any, query: any, callback: (res: any, object: any) => void): any {
+        public FindOne(model: any, query: any, callback: (error:any, object: any) => void): any {
             return model.findOne(query).then((doc: any): void => {
-                callback(res, doc);
+                callback(null, doc);
             }).catch((error: any): void => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
-        public Find(res: Express.Response, code: number, model: any, query: any, fields: any, option: any, callback: (res: any, object: any) => void): any {
+        public Find(model: any, query: any, fields: any, option: any, callback: (error:any, object: any) => void): any {
             return model.find(query, fields, option).then((docs: any[]): void => {
-                callback(res, docs);
+                callback(null, docs);
             }).catch((error: any): void => {
-                this.SendRaw(res, []);
+                callback(error,null);
             });
         }
 
-        public Count(res: Express.Response, code: number, model: any, query: any, callback: (response: any, object: any) => void): any {
+        public Count(model: any, query: any, callback: (error:any, object: any) => void): any {
             return model.count(query).then((count) => {
-                callback(res, count);
+                callback(null, count);
             }).catch((error) => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
-        public FindAndModify(res: Express.Response, code: number, model: any, query: any, sort: any, update: any, options: any, callback: (res: any, object: any) => void): any {
+        public FindAndModify(model: any, query: any, sort: any, update: any, options: any, callback: (error:any, object: any) => void): any {
             return model.findAndModify(query, sort, update, options).then((docs: any): void => {
-                callback(res, docs);
+                callback(null, docs);
             }).catch((error: any): void => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
-        public Save(res: Express.Response, code: number, instance: any, callback: (res: any, object: any) => void): any {
-            return instance.save().then(() => {
-                callback(res, instance);
+        public Save(instance: any, callback: (error:any, object: any) => void): any {
+            return instance.save().then((target) => {
+                callback(null,target);
             }).catch((error: any): void => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
-        public Update(res: Express.Response, code: number, model: any, query: any, update: any, callback: (res: any) => void): any {
-            return model.findOneAndUpdate(query, update, {upsert: false}).then(() => {
-                callback(res);
+        public Update(model: any, query: any, update: any, callback: (error:any,object: any) => void): any {
+            return model.findOneAndUpdate(query, update, {upsert: false}).then((target) => {
+                callback(null,target);
             }).catch((error: any): void => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
-        public Upsert(res: Express.Response, code: number, model: any, query: any, update: any, callback: (res: any) => void): any {
-            return model.update(query, update, {upsert: true, multi: false}).then(() => {
-                callback(res);
+        public Upsert(model: any, query: any, update: any, callback: (error:any,object: any) => void): any {
+            return model.update(query, update, {upsert: true, multi: false}).then((target) => {
+                callback(null,target);
             }).catch((error: any): void => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
-        public Remove(res: Express.Response, code: number, instance: any, callback: (res: any) => void): any {
-         //   deleteOne()
-            return instance.remove().then(() => {
-                callback(res);
+        public Remove(instance: any, callback: (error:any,object: any) => void): any {
+            return instance.remove().then((target) => {
+                callback(null,target);
             }).catch((error: any): void => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
-        public Delete(res: Express.Response, code: number, model: any, query: any, callback: (res: any) => void): any {
-         //   return model.remove(query).then(() => {
-            return model.findOneAndRemove(query).then(() => {
-                callback(res);
+        public Delete(model: any, query: any, callback: (error:any, object: any) => void): any {
+            return model.findOneAndRemove(query).then((target) => {
+                callback(null,target);
             }).catch((error: any): void => {
-                this.SendError(res, error.code, error.message, error);
+                callback(error,null);
             });
         }
 
       //  A.findOneAndDelete(conditions) // returns Query
       //  A.findOneAndRemove(conditions) // returns Query
 
-        public If(res: Express.Response, code: number, condition: boolean, callback: (res: any) => void): void {
-            if (condition) {
-                callback(res);
-            } else {
-                this.SendWarn(res, code + 100, "", {code: code + 100, message: ""});
-            }
-        }
 
         public SendWarn(response: any, code: number, message: any, object: any): void {
             logger.warn(message + " " + code);

@@ -48,7 +48,7 @@ export namespace AuthApiRouter {
     router.get('/line', passport.authenticate('line'));
     router.get('/line/callback', passport.authenticate('line', {failureRedirect: '/'}), auth.auth_line_callback);
 
-    //const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    //const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
     //const Wrapper: any = new PromisedModule.Wrapper();
 
     const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));

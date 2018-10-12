@@ -34,6 +34,17 @@ var PageRouter;
                 message: message
             });
         }]);
+    PageRouter.router.get("/" + exit_point + "/users", [function (request, response) {
+            var local = { mails: [""], nickname: "" };
+            if (request.user) {
+                local = request.user.local;
+            }
+            response.render("applications/front/users", {
+                role: LocalAccount.Role(request.user),
+                local: local,
+                message: message
+            });
+        }]);
 })(PageRouter = exports.PageRouter || (exports.PageRouter = {}));
 module.exports = PageRouter.router;
 //# sourceMappingURL=pages.js.map

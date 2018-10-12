@@ -8,7 +8,7 @@
 
 namespace AuthControllersModule {
 
-    let AuthControllers: angular.IModule = angular.module('AuthControllers', ["ngResource",'ngMessages']);
+    let AuthControllers: angular.IModule = angular.module('AuthControllers', ["ngResource", 'ngMessages']);
 
     AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService',
         ($scope: any, $rootScope: any, $window: any, $uibModal: any, $log: any, AuthService: any, ProfileService: any): void => {
@@ -28,7 +28,7 @@ namespace AuthControllersModule {
                 alert(message);
             };
 
-            let alert = (message): void => {
+            let alert = (message: string): void => {
                 let modalInstance: any = $uibModal.open({
                     controller: 'AlertDialogController',
                     templateUrl: '/auth/common/alert_dialog',
@@ -59,10 +59,10 @@ namespace AuthControllersModule {
             };
 
             $scope.Regist = (): void => {
-                let items = {};
+                let items = {nickname: $scope.items.displayName, group: ""};
                 $scope.message = "";
                 progress(true);
-                AuthService.Regist($scope.items.username, $scope.items.password, $scope.items.displayName, items, (account) => {
+                AuthService.Regist($scope.items.username, $scope.items.password, "000000000000000000000001", items, (account) => {
                     confirmAccount();
                     progress(false);
                 }, (error, message) => {
@@ -96,7 +96,6 @@ namespace AuthControllersModule {
                 if (profile) {
                     user = profile;
                     $scope.role = user.role;
-
 
                     $scope.showLoginDialog = (): void => {
                         let modalInstance = $uibModal.open({
@@ -172,17 +171,15 @@ namespace AuthControllersModule {
                 }
             }, error_handler);
 
-
         }]);
 
-//! dialogs
+    //! dialogs
 
     /**
      * ログインダイアログ
      * @param target  Comment for parameter ´target´.
      * @returns       Comment for return value.
      */
-
     AuthControllers.controller('LoginDialogController', ['$scope', '$window', '$uibModalInstance', 'AuthService',
         ($scope: any, $window: any, $uibModalInstance: any, AuthService: any): void => {
 
@@ -213,13 +210,13 @@ namespace AuthControllersModule {
 
             $scope.answer = (items: any): void => {
                 progress(true);
-                AuthService.Login($scope.items.username, $scope.items.password, (account: any): void => {
+                AuthService.Login($scope.items.username, $scope.items.password, "000000000000000000000001", (account: any): void => {
                     $uibModalInstance.close(account);
                     progress(false);
                 }, (error: any, message: string): void => {
                     $scope.message = message;
                     progress(false);
-   //                 $scope.$apply();
+                    //                 $scope.$apply();
                 });
             };
         }]);
@@ -255,7 +252,8 @@ namespace AuthControllersModule {
             $scope.answer = (scope: any): void => {
                 $scope.message = "";
                 progress(true);
-                AuthService.Regist($scope.items.username, $scope.items.password, $scope.items.displayName, items, (account: any): void => {
+                let items = {nickname: $scope.items.displayName, group: ""};
+                AuthService.Regist($scope.items.username, $scope.items.password, "000000000000000000000001", items, (account: any): void => {
                     $uibModalInstance.close(account);
                     progress(false);
                 }, (error: any, message: string): void => {
@@ -308,7 +306,7 @@ namespace AuthControllersModule {
             };
 
             $scope.answer = (answer: any): void => {
-                AuthService.Password($scope.items.username, $scope.items.password, (account: any): void => {
+                AuthService.Password($scope.items.username, $scope.items.password, "000000000000000000000001", (account: any): void => {
                     $uibModalInstance.close(account);
                     progress(false);
                 }, (error: any, message: string): void => {

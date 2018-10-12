@@ -1,0 +1,19 @@
+extends  ../../layout
+
+block content
+
+    .container(style={display: "flex", "flex-direction": "column"})
+        .row(style={width: "auto", padding: "0"})
+            .col-12.text-center
+                .card
+                    .card-body(style={color: "#333", "font-size": "1rem"})
+                        div(ng-controller="AccountController" style={padding: "1rem"})
+                            .table(style={margin: 0})
+                               .row(style={margin:0})
+                                 .title-cell.col-4 nickname
+                                 .title-cell.col-4 mail
+                                 .title-cell.col-4 group
+                               .row(style={margin:0} ng-repeat="account in accounts")
+                                 .row-cell.col-4 {{account.nickname}}
+                                 .cell.col-4 {{account.mails[0]}}
+                                 .cell.col-4 {{account.group}}

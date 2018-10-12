@@ -44,6 +44,18 @@ export namespace PageRouter {
         });
     }]);
 
+    router.get("/" + exit_point + "/users", [ (request: any, response: any): void => {
+        let local = {mails:[""],nickname:""};
+        if (request.user) {
+            local = request.user.local;
+        }
+        response.render("applications/front/users", {
+            role: LocalAccount.Role(request.user),
+            local:local,
+            message: message
+        });
+    }]);
+
 }
 
 module.exports = PageRouter.router;

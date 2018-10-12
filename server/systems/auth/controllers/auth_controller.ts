@@ -29,7 +29,7 @@ export namespace AuthModule {
 
     const message: any = config.message;
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
     const Wrapper: any = new PromisedModule.Wrapper();
 
     const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));
@@ -66,7 +66,6 @@ export namespace AuthModule {
     interface PasswordToken {
         username: string;
         password: string;
-        displayName: string;
         metadata: {},
         timestamp: any;
     }
@@ -124,13 +123,16 @@ export namespace AuthModule {
                             let rootpassword: string = user.password;
                             let content: any = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
 
-                            Wrapper.FindOne( LocalAccount, {username: username}, (error: any, account: any): void => {
+                            if (user.metadata) {
+                                content = Object.assign(content, user.metadata);
+                            }
+
+                            content.mails.push(user.username);
+
+                            Wrapper.FindOne(LocalAccount,  {username: username}, (error: any, account: any): void => {
                                 if (!error) {
                                     if (!account) {
                                         let _promise = new Promise((_resolve: any, _reject: any): void => {
-                                            //let content: any = {"mails": [], "nickname": "", "group": ""};// definition.account_content;
-                                            content.mails.push(username);
-                                            content.nickname = user.displayName;
                                             LocalAccount.register(new LocalAccount({
                                                     groupid: groupid,
                                                     userid: userid,
@@ -369,24 +371,6 @@ export namespace AuthModule {
             }
         }
 
-        /**
-         *
-         * @param request
-         * @param response
-         * @param next
-         * @returns none
-         */
-        public is_enabled_regist_member(request: Express.Request, response: Express.Response, next: any): void {
-            let user: any = request.user;
-            if (user) {
-                if (config.regist.member) {
-                    next();
-                } else {
-                    Wrapper.SendError(response, 403, "Forbidden.", {code: 403, message: "Forbidden."});
-                }
-            }
-        }
-
         static publickey_decrypt(systempassphrase: string, encrypted: string, callback: (error: any, result: string) => void): void {
             let username_decrypted: Decoded = Cipher.PublicKeyDecrypt(systempassphrase, encrypted);
             if (username_decrypted.status === "success") {
@@ -427,37 +411,31 @@ export namespace AuthModule {
             if (body) {
                 let username: string = body.username;
                 let password: string = body.password;
+                let groupid: string = body.groupid;
                 let metadata: any = body.metadata;
                 let systempassphrase: string = request.session.id;
 
                 /*
-
                 auth < 100 system
                 auth < 500 user
                 auth < 1000 member
                 auth < 10000 temp
                 auth > 10001 guest
-
                 */
 
                 Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, (error: any, username: string, password: string): void => {
                     if (!error) {
-                        Wrapper.FindOne(LocalAccount, {$and: [{provider: "local"}, {username: username}]},
+                        Wrapper.FindOne(LocalAccount, {username: username},
                             (error: any, account: any): void => {
                                 if (!error) {
                                     if (!account) {
                                         try {
 
-                                            //let metadata: any = {};
-                                            //if (request.body.metadata) {
-                                            //    metadata = request.body.metadata;
-                                            //}
-
                                             let tokenValue: any = {
                                                 auth: 1000,
                                                 username: username,
                                                 password: password,
-                                                displayName: request.body.displayName,
+                                                groupid: groupid,
                                                 metadata: metadata,
                                                 timestamp: Date.now()
                                             };
@@ -499,7 +477,6 @@ export namespace AuthModule {
             } else {
                 Wrapper.SendError(response, 1, "", {code: 1, message: ""});
             }
-
         }
 
         /**
@@ -515,23 +492,21 @@ export namespace AuthModule {
                 let tokenDateTime: any = token.timestamp;
                 let nowDate: any = Date.now();
                 if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    Wrapper.FindOne(LocalAccount, {$and: [{provider: "local"}, {username: token.username}]}, (error: any, account: any): void => {
-                        //LocalAccount.findOne({username: token.username}, (error: any, account_data: any): void => {
+                    Wrapper.FindOne(LocalAccount, {username: token.username}, (error: any, account: any): void => {
                         if (!error) {
                             if (!account) {
-                                let groupid = config.systems.groupid;
+                                let groupid = token.groupid;//config.systems.groupid;
                                 const shasum = crypto.createHash('sha1');
                                 shasum.update(token.username);
                                 let userid: string = shasum.digest('hex');
                                 let passphrase: string = Cipher.FixedCrypt(userid, config.key2);
                                 let content: any = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
 
-                                content.mails.push(token.username);
-                                content.nickname = token.displayName;
-
-                                if (token.metadata.userid) {
-                                    userid = token.metadata.userid;
+                                if (token.metadata) {
+                                    content = Object.assign(content, token.metadata);
                                 }
+
+                                content.mails.push(token.username);
 
                                 LocalAccount.register(new LocalAccount({
                                         groupid: groupid,
@@ -605,11 +580,11 @@ export namespace AuthModule {
         public post_local_password(request: any, response: Express.Response): void {
             let username: string = request.body.username;
             let password: string = request.body.password;
+            let groupid: string = request.body.groupid;
             let systempassphrase: string = request.session.id;
-
             Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, (error: any, username: string, password: string): void => {
                 if (!error) {
-                    Wrapper.FindOne(LocalAccount, {$and: [{provider: "local"}, {username: username}]}, (error: any, account: any): void => {
+                    Wrapper.FindOne(LocalAccount, {username: username}, (error: any, account: any): void => {
                         if (!error) {
                             if (account) {
                                 try {
@@ -617,6 +592,7 @@ export namespace AuthModule {
                                     let tokenValue: any = {
                                         username: username,
                                         password: password,
+                                        groupid: groupid,
                                         timestamp: Date.now()
                                     };
 
@@ -663,18 +639,16 @@ export namespace AuthModule {
          */
         public get_password_token(request: any, response: Express.Response): void {
             Wrapper.Exception(request, response, (request: any, response: any): void => {
-
                 let token: any = Wrapper.Parse(Cipher.FixedDecrypt(request.params.token, config.tokensecret));
                 let tokenDateTime: any = token.timestamp;
                 let nowDate: any = Date.now();
                 if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    //LocalAccount.findOne({username: token.username}, (error: any, account: any): void => {
-                    Wrapper.FindOne(LocalAccount, {$and: [{provider: "local"}, {username: token.username}]}, (error: any, account: any): void => {
+                    Wrapper.FindOne(LocalAccount,  {username: token.username}, (error: any, account: any): void => {
                         if (!error) {
                             if (account) {
                                 account.setPassword(token.password, (error: any): void => {
                                     if (!error) {
-                                        Wrapper.Save(account, (error,obj): void => {
+                                        Wrapper.Save(account, (error, obj): void => {
                                             if (!error) {
                                                 response.redirect("/");
                                             } else {
@@ -756,7 +730,7 @@ export namespace AuthModule {
          * @returns none
          */
         public auth_facebook_callback(request: any, response: Express.Response): void {
-            Wrapper.FindOne(LocalAccount, {userid: request.user.username}, (error: any, account: any): void => {
+            Wrapper.FindOne(LocalAccount,  {username: request.user.username}, (error: any, account: any): void => {
                 if (!error) {
                     if (!account) {
                         let groupid = config.systems.groupid;
@@ -796,7 +770,7 @@ export namespace AuthModule {
          * @returns none
          */
         public auth_twitter_callback(request: any, response: Express.Response): void {
-            Wrapper.FindOne(LocalAccount, {userid: request.user.username}, (error: any, account: any): void => {
+            Wrapper.FindOne(LocalAccount,  {username: request.user.username}, (error: any, account: any): void => {
                 if (!error) {
                     if (!account) {
                         let groupid = config.systems.groupid;
@@ -836,7 +810,7 @@ export namespace AuthModule {
          * @returns none
          */
         public auth_instagram_callback(request: any, response: Express.Response): void {
-            Wrapper.FindOne(LocalAccount, {userid: request.user.username}, (error: any, account: any): void => {
+            Wrapper.FindOne(LocalAccount, {username: request.user.username}, (error: any, account: any): void => {
                 if (!error) {
                     if (!account) {
                         let groupid = config.systems.groupid;
@@ -866,7 +840,6 @@ export namespace AuthModule {
                 } else {
                     Wrapper.SendError(response, error.code, error.message, error);
                 }
-
             });
         }
 
@@ -877,7 +850,7 @@ export namespace AuthModule {
          * @returns none
          */
         public auth_line_callback(request: any, response: Express.Response): void {
-            Wrapper.FindOne(LocalAccount, {userid: request.user.username}, (error: any, account: any): void => {
+            Wrapper.FindOne(LocalAccount,  {username: request.user.username}, (error: any, account: any): void => {
                 if (!error) {
                     if (!account) {
                         let groupid = config.systems.groupid;

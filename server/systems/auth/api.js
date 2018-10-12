@@ -33,7 +33,7 @@ var AuthApiRouter;
     // line
     AuthApiRouter.router.get('/line', passport.authenticate('line'));
     AuthApiRouter.router.get('/line/callback', passport.authenticate('line', { failureRedirect: '/' }), auth.auth_line_callback);
-    //const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    //const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
     //const Wrapper: any = new PromisedModule.Wrapper();
     var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
     var Cipher = CipherModule.Cipher;

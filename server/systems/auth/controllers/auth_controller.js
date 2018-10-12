@@ -21,7 +21,7 @@ var AuthModule;
     log4js.configure("./config/systems/logs.json");
     var logger = log4js.getLogger('request');
     var message = config.message;
-    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
     var Wrapper = new PromisedModule.Wrapper();
     var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
     var Cipher = CipherModule.Cipher;
@@ -82,13 +82,14 @@ var AuthModule;
                             var passphrase_1 = Cipher.FixedCrypt(userid_1, config.key2);
                             var rootpassword_1 = user.password;
                             var content_1 = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
+                            if (user.metadata) {
+                                content_1 = Object.assign(content_1, user.metadata);
+                            }
+                            content_1.mails.push(user.username);
                             Wrapper.FindOne(LocalAccount, { username: username_1 }, function (error, account) {
                                 if (!error) {
                                     if (!account) {
                                         var _promise = new Promise(function (_resolve, _reject) {
-                                            //let content: any = {"mails": [], "nickname": "", "group": ""};// definition.account_content;
-                                            content_1.mails.push(username_1);
-                                            content_1.nickname = user.displayName;
                                             LocalAccount.register(new LocalAccount({
                                                 groupid: groupid_1,
                                                 userid: userid_1,
@@ -336,24 +337,6 @@ var AuthModule;
                 }
             }
         };
-        /**
-         *
-         * @param request
-         * @param response
-         * @param next
-         * @returns none
-         */
-        Auth.prototype.is_enabled_regist_member = function (request, response, next) {
-            var user = request.user;
-            if (user) {
-                if (config.regist.member) {
-                    next();
-                }
-                else {
-                    Wrapper.SendError(response, 403, "Forbidden.", { code: 403, message: "Forbidden." });
-                }
-            }
-        };
         Auth.publickey_decrypt = function (systempassphrase, encrypted, callback) {
             var username_decrypted = Cipher.PublicKeyDecrypt(systempassphrase, encrypted);
             if (username_decrypted.status === "success") {
@@ -396,32 +379,27 @@ var AuthModule;
             if (body) {
                 var username = body.username;
                 var password = body.password;
+                var groupid_2 = body.groupid;
                 var metadata_1 = body.metadata;
                 var systempassphrase = request.session.id;
                 /*
-
                 auth < 100 system
                 auth < 500 user
                 auth < 1000 member
                 auth < 10000 temp
                 auth > 10001 guest
-
                 */
                 Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, function (error, username, password) {
                     if (!error) {
-                        Wrapper.FindOne(LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (error, account) {
+                        Wrapper.FindOne(LocalAccount, { username: username }, function (error, account) {
                             if (!error) {
                                 if (!account) {
                                     try {
-                                        //let metadata: any = {};
-                                        //if (request.body.metadata) {
-                                        //    metadata = request.body.metadata;
-                                        //}
                                         var tokenValue = {
                                             auth: 1000,
                                             username: username,
                                             password: password,
-                                            displayName: request.body.displayName,
+                                            groupid: groupid_2,
                                             metadata: metadata_1,
                                             timestamp: Date.now()
                                         };
@@ -481,21 +459,19 @@ var AuthModule;
                 var tokenDateTime = token.timestamp;
                 var nowDate = Date.now();
                 if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    Wrapper.FindOne(LocalAccount, { $and: [{ provider: "local" }, { username: token.username }] }, function (error, account) {
-                        //LocalAccount.findOne({username: token.username}, (error: any, account_data: any): void => {
+                    Wrapper.FindOne(LocalAccount, { username: token.username }, function (error, account) {
                         if (!error) {
                             if (!account) {
-                                var groupid = config.systems.groupid;
+                                var groupid = token.groupid; //config.systems.groupid;
                                 var shasum = crypto.createHash('sha1');
                                 shasum.update(token.username);
                                 var userid = shasum.digest('hex');
                                 var passphrase = Cipher.FixedCrypt(userid, config.key2);
                                 var content = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
-                                content.mails.push(token.username);
-                                content.nickname = token.displayName;
-                                if (token.metadata.userid) {
-                                    userid = token.metadata.userid;
+                                if (token.metadata) {
+                                    content = Object.assign(content, token.metadata);
                                 }
+                                content.mails.push(token.username);
                                 LocalAccount.register(new LocalAccount({
                                     groupid: groupid,
                                     userid: userid,
@@ -572,16 +548,18 @@ var AuthModule;
         Auth.prototype.post_local_password = function (request, response) {
             var username = request.body.username;
             var password = request.body.password;
+            var groupid = request.body.groupid;
             var systempassphrase = request.session.id;
             Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, function (error, username, password) {
                 if (!error) {
-                    Wrapper.FindOne(LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (error, account) {
+                    Wrapper.FindOne(LocalAccount, { username: username }, function (error, account) {
                         if (!error) {
                             if (account) {
                                 try {
                                     var tokenValue = {
                                         username: username,
                                         password: password,
+                                        groupid: groupid,
                                         timestamp: Date.now()
                                     };
                                     var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
@@ -633,8 +611,7 @@ var AuthModule;
                 var tokenDateTime = token.timestamp;
                 var nowDate = Date.now();
                 if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    //LocalAccount.findOne({username: token.username}, (error: any, account: any): void => {
-                    Wrapper.FindOne(LocalAccount, { $and: [{ provider: "local" }, { username: token.username }] }, function (error, account) {
+                    Wrapper.FindOne(LocalAccount, { username: token.username }, function (error, account) {
                         if (!error) {
                             if (account) {
                                 account.setPassword(token.password, function (error) {
@@ -730,7 +707,7 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.auth_facebook_callback = function (request, response) {
-            Wrapper.FindOne(LocalAccount, { userid: request.user.username }, function (error, account) {
+            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, account) {
                 if (!error) {
                     if (!account) {
                         var groupid = config.systems.groupid;
@@ -769,7 +746,7 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.auth_twitter_callback = function (request, response) {
-            Wrapper.FindOne(LocalAccount, { userid: request.user.username }, function (error, account) {
+            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, account) {
                 if (!error) {
                     if (!account) {
                         var groupid = config.systems.groupid;
@@ -809,7 +786,7 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.auth_instagram_callback = function (request, response) {
-            Wrapper.FindOne(LocalAccount, { userid: request.user.username }, function (error, account) {
+            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, account) {
                 if (!error) {
                     if (!account) {
                         var groupid = config.systems.groupid;
@@ -849,7 +826,7 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.auth_line_callback = function (request, response) {
-            Wrapper.FindOne(LocalAccount, { userid: request.user.username }, function (error, account) {
+            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, account) {
                 if (!error) {
                     if (!account) {
                         var groupid = config.systems.groupid;

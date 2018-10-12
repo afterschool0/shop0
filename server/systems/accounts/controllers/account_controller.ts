@@ -13,7 +13,7 @@ export namespace AccountModule {
     mongoose.Promise = global.Promise;
     const path: any = require('path');
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
+    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
     const Wrapper: any = new PromisedModule.Wrapper();
 
     const LocalAccount: any = require(path.join(process.cwd(), "models/systems/accounts/account"));
