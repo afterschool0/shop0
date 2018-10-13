@@ -82,41 +82,35 @@ var AuthModule;
                             var passphrase_1 = Cipher.FixedCrypt(userid_1, config.key2);
                             var rootpassword_1 = user.password;
                             var content_1 = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
-                            if (user.metadata) {
-                                content_1 = Object.assign(content_1, user.metadata);
-                            }
-                            content_1.mails.push(user.username);
-                            Wrapper.FindOne(LocalAccount, { username: username_1 }, function (error, account) {
-                                if (!error) {
-                                    if (!account) {
-                                        var _promise = new Promise(function (_resolve, _reject) {
-                                            LocalAccount.register(new LocalAccount({
-                                                groupid: groupid_1,
-                                                userid: userid_1,
-                                                username: username_1,
-                                                type: type_1,
-                                                auth: auth_1,
-                                                passphrase: passphrase_1,
-                                                publickey: Cipher.PublicKey(passphrase_1),
-                                                local: content_1
-                                            }), rootpassword_1, function (error) {
-                                                if (!error) {
-                                                    _resolve({});
-                                                }
-                                                else {
-                                                    _reject(error);
-                                                }
-                                            });
+                            Wrapper.FindOne(null, 1000, LocalAccount, { username: username_1 }, function (response, account) {
+                                if (!account) {
+                                    var _promise = new Promise(function (_resolve, _reject) {
+                                        //let content: any = {"mails": [], "nickname": "", "group": ""};// definition.account_content;
+                                        content_1.mails.push(username_1);
+                                        content_1.nickname = user.displayName;
+                                        LocalAccount.register(new LocalAccount({
+                                            groupid: groupid_1,
+                                            userid: userid_1,
+                                            username: username_1,
+                                            type: type_1,
+                                            auth: auth_1,
+                                            passphrase: passphrase_1,
+                                            publickey: Cipher.PublicKey(passphrase_1),
+                                            local: content_1
+                                        }), rootpassword_1, function (error) {
+                                            if (!error) {
+                                                _resolve({});
+                                            }
+                                            else {
+                                                _reject(error);
+                                            }
                                         });
-                                        _promise.then(function (results) {
-                                            resolve({});
-                                        }).catch(function (error) {
-                                            reject(error);
-                                        });
-                                    }
-                                }
-                                else {
-                                    reject(error);
+                                    });
+                                    _promise.then(function (results) {
+                                        resolve({});
+                                    }).catch(function (error) {
+                                        reject(error);
+                                    });
                                 }
                             });
                         }
@@ -174,7 +168,7 @@ var AuthModule;
         Auth.prototype.page_is_system = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (LocalAccount.Role(user).system) {
+                if (user.Role().system) {
                     next();
                 }
                 else {
@@ -195,7 +189,7 @@ var AuthModule;
         Auth.prototype.is_system = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (LocalAccount.Role(user).system) {
+                if (user.Role().system) {
                     next();
                 }
                 else {
@@ -216,7 +210,7 @@ var AuthModule;
         Auth.prototype.page_is_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (LocalAccount.Role(user).user) {
+                if (user.Role().user) {
                     next();
                 }
                 else {
@@ -237,7 +231,7 @@ var AuthModule;
         Auth.prototype.is_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (LocalAccount.Role(user).user) {
+                if (user.Role().user) {
                     next();
                 }
                 else {
@@ -258,7 +252,7 @@ var AuthModule;
         Auth.prototype.is_member = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (LocalAccount.Role(user).member) {
+                if (user.Role().member) {
                     next();
                 }
                 else {
@@ -279,7 +273,7 @@ var AuthModule;
         Auth.prototype.is_temp = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (LocalAccount.Role(user).temp) {
+                if (user.Role().temp) {
                     next();
                 }
                 else {
@@ -300,7 +294,7 @@ var AuthModule;
         Auth.prototype.is_guest = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (LocalAccount.Role(user).guest) {
+                if (user.Role().guest) {
                     next();
                 }
                 else {
@@ -321,7 +315,7 @@ var AuthModule;
         Auth.prototype.is_enabled_regist_user = function (request, response, next) {
             var user = request.user;
             if (user) {
-                if (LocalAccount.Role(user).system) {
+                if (user.Role().system) {
                     next();
                 }
                 else {
@@ -337,10 +331,28 @@ var AuthModule;
                 }
             }
         };
+        /**
+         *
+         * @param request
+         * @param response
+         * @param next
+         * @returns none
+         */
+        Auth.prototype.is_enabled_regist_member = function (request, response, next) {
+            var user = request.user;
+            if (user) {
+                if (config.regist.member) {
+                    next();
+                }
+                else {
+                    Wrapper.SendError(response, 403, "Forbidden.", { code: 403, message: "Forbidden." });
+                }
+            }
+        };
         Auth.publickey_decrypt = function (systempassphrase, encrypted, callback) {
             var username_decrypted = Cipher.PublicKeyDecrypt(systempassphrase, encrypted);
             if (username_decrypted.status === "success") {
-                callback(null, decodeURIComponent(username_decrypted.plaintext));
+                callback(null, username_decrypted.plaintext);
             }
             else {
                 callback({ code: 1, message: username_decrypted.status }, "");
@@ -348,6 +360,7 @@ var AuthModule;
         };
         Auth.username_and_password_decrypt = function (use_publickey, systempassphrase, username, password, callback) {
             if (use_publickey) {
+                console.log(username);
                 Auth.publickey_decrypt(systempassphrase, username, function (error, decrypted_username) {
                     if (!error) {
                         Auth.publickey_decrypt(systempassphrase, password, function (error, decrypted_password) {
@@ -355,12 +368,12 @@ var AuthModule;
                                 callback(null, decrypted_username, decrypted_password);
                             }
                             else {
-                                callback({ code: 2, message: "no cookie?" }, "", "");
+                                callback(error, "", "");
                             }
                         });
                     }
                     else {
-                        callback({ code: 1, message: "no cookie?" }, "", "");
+                        callback(error, "", "");
                     }
                 });
             }
@@ -375,77 +388,70 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.post_local_register = function (request, response) {
-            var body = request.body;
-            if (body) {
-                var username = body.username;
-                var password = body.password;
-                var groupid_2 = body.groupid;
-                var metadata_1 = body.metadata;
-                var systempassphrase = request.session.id;
-                /*
-                auth < 100 system
-                auth < 500 user
-                auth < 1000 member
-                auth < 10000 temp
-                auth > 10001 guest
-                */
-                Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, function (error, username, password) {
-                    if (!error) {
-                        Wrapper.FindOne(LocalAccount, { username: username }, function (error, account) {
-                            if (!error) {
-                                if (!account) {
-                                    try {
-                                        var tokenValue = {
-                                            auth: 1000,
-                                            username: username,
-                                            password: password,
-                                            groupid: groupid_2,
-                                            metadata: metadata_1,
-                                            timestamp: Date.now()
-                                        };
-                                        var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                                        var link_1 = config.protocol + "://" + config.domain + "/auth/register/" + token;
-                                        fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_mail.pug"), "utf8", function (err, data) {
-                                            if (!err) {
-                                                var doc = pug.render(data, { "link": link_1 });
-                                                _mailer.send(username, bcc, message.registconfirmtext, doc, function (error) {
-                                                    if (!error) {
-                                                        Wrapper.SendSuccess(response, { code: 0, message: "" });
-                                                    }
-                                                    else {
-                                                        Wrapper.SendError(response, error.code, error.message, error);
-                                                    }
-                                                });
+            var username = request.body.username;
+            var password = request.body.password;
+            var systempassphrase = request.session.id;
+            /*
+
+            auth < 100 system
+            auth < 500 user
+            auth < 1000 member
+            auth < 10000 temp
+            auth > 10001 guest
+
+            */
+            Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, function (error, username, password) {
+                if (!error) {
+                    Wrapper.FindOne(response, 100, LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (response, account) {
+                        if (!account) {
+                            try {
+                                var metadata = {};
+                                if (request.body.metadata) {
+                                    metadata = request.body.metadata;
+                                }
+                                var tokenValue = {
+                                    auth: 1000,
+                                    username: username,
+                                    password: password,
+                                    displayName: request.body.displayName,
+                                    metadata: metadata,
+                                    timestamp: Date.now()
+                                };
+                                var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
+                                var link_1 = config.protocol + "://" + config.domain + "/auth/register/" + token;
+                                fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/regist_mail.pug"), "utf8", function (err, data) {
+                                    if (!err) {
+                                        var doc = pug.render(data, { "link": link_1 });
+                                        _mailer.send(username, bcc, message.registconfirmtext, doc, function (error) {
+                                            if (!error) {
+                                                Wrapper.SendSuccess(response, { code: 0, message: "" });
                                             }
                                             else {
-                                                console.log(err.message);
+                                                Wrapper.SendError(response, error.code, error.message, error);
                                             }
                                         });
                                     }
-                                    catch (e) {
-                                        Wrapper.SendFatal(response, e.code, e.message, e);
+                                    else {
+                                        console.log(err.message);
                                     }
-                                }
-                                else {
-                                    Wrapper.SendWarn(response, 1, message.usernamealreadyregist, {
-                                        code: 1,
-                                        message: message.usernamealreadyregist
-                                    });
-                                }
+                                });
                             }
-                            else {
-                                Wrapper.SendError(response, error.code, error.message, error);
+                            catch (e) {
+                                Wrapper.SendFatal(response, e.code, e.message, e);
                             }
-                        });
-                    }
-                    else {
-                        Wrapper.SendError(response, error.code, error.message, error);
-                    }
-                });
-            }
-            else {
-                Wrapper.SendError(response, 1, "", { code: 1, message: "" });
-            }
+                        }
+                        else {
+                            Wrapper.SendWarn(response, 1, message.usernamealreadyregist, {
+                                code: 1,
+                                message: message.usernamealreadyregist
+                            });
+                        }
+                    });
+                }
+                else {
+                    Wrapper.SendError(response, error.code, error.message, error);
+                }
+            });
         };
         /**
          * レジスタートークンでユーザ登録
@@ -459,19 +465,20 @@ var AuthModule;
                 var tokenDateTime = token.timestamp;
                 var nowDate = Date.now();
                 if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    Wrapper.FindOne(LocalAccount, { username: token.username }, function (error, account) {
+                    LocalAccount.findOne({ username: token.username }, function (error, account_data) {
                         if (!error) {
-                            if (!account) {
-                                var groupid = token.groupid; //config.systems.groupid;
+                            if (!account_data) {
+                                var groupid = config.systems.groupid;
                                 var shasum = crypto.createHash('sha1');
                                 shasum.update(token.username);
                                 var userid = shasum.digest('hex');
                                 var passphrase = Cipher.FixedCrypt(userid, config.key2);
                                 var content = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
-                                if (token.metadata) {
-                                    content = Object.assign(content, token.metadata);
-                                }
                                 content.mails.push(token.username);
+                                content.nickname = token.displayName;
+                                if (token.metadata.userid) {
+                                    userid = token.metadata.userid;
+                                }
                                 LocalAccount.register(new LocalAccount({
                                     groupid: groupid,
                                     userid: userid,
@@ -548,49 +555,42 @@ var AuthModule;
         Auth.prototype.post_local_password = function (request, response) {
             var username = request.body.username;
             var password = request.body.password;
-            var groupid = request.body.groupid;
             var systempassphrase = request.session.id;
             Auth.username_and_password_decrypt(use_publickey, systempassphrase, username, password, function (error, username, password) {
                 if (!error) {
-                    Wrapper.FindOne(LocalAccount, { username: username }, function (error, account) {
-                        if (!error) {
-                            if (account) {
-                                try {
-                                    var tokenValue = {
-                                        username: username,
-                                        password: password,
-                                        groupid: groupid,
-                                        timestamp: Date.now()
-                                    };
-                                    var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
-                                    var link_2 = config.protocol + "://" + config.domain + "/auth/password/" + token;
-                                    fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/password_mail.pug"), "utf8", function (err, data) {
-                                        if (!err) {
-                                            var doc = pug.render(data, { "link": link_2 });
-                                            _mailer.send(username, bcc, message.passwordconfirmtext, doc, function (error) {
-                                                if (!error) {
-                                                    Wrapper.SendSuccess(response, { code: 0, message: "" });
-                                                }
-                                                else {
-                                                    Wrapper.SendError(response, error.code, error.message, error);
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                                catch (e) {
-                                    Wrapper.SendFatal(response, e.code, e.message, e);
-                                }
-                            }
-                            else {
-                                Wrapper.SendWarn(response, 2, message.usernamenotfound, {
-                                    code: 2,
-                                    message: message.usernamenotfound
+                    Wrapper.FindOne(response, 1, LocalAccount, { $and: [{ provider: "local" }, { username: username }] }, function (response, account) {
+                        if (account) {
+                            try {
+                                var tokenValue = {
+                                    username: username,
+                                    password: password,
+                                    timestamp: Date.now()
+                                };
+                                var token = Cipher.FixedCrypt(JSON.stringify(tokenValue), config.tokensecret);
+                                var link_2 = config.protocol + "://" + config.domain + "/auth/password/" + token;
+                                fs.readFile(path.join(process.cwd(), "views/systems/auth/mail/password_mail.pug"), "utf8", function (err, data) {
+                                    if (!err) {
+                                        var doc = pug.render(data, { "link": link_2 });
+                                        _mailer.send(username, bcc, message.passwordconfirmtext, doc, function (error) {
+                                            if (!error) {
+                                                Wrapper.SendSuccess(response, { code: 0, message: "" });
+                                            }
+                                            else {
+                                                Wrapper.SendError(response, error.code, error.message, error);
+                                            }
+                                        });
+                                    }
                                 });
+                            }
+                            catch (e) {
+                                Wrapper.SendFatal(response, e.code, e.message, e);
                             }
                         }
                         else {
-                            Wrapper.SendError(response, error.code, error.message, error);
+                            Wrapper.SendWarn(response, 2, message.usernamenotfound, {
+                                code: 2,
+                                message: message.usernamenotfound
+                            });
                         }
                     });
                 }
@@ -611,18 +611,13 @@ var AuthModule;
                 var tokenDateTime = token.timestamp;
                 var nowDate = Date.now();
                 if ((tokenDateTime - nowDate) < (config.regist.expire * 60 * 1000)) {
-                    Wrapper.FindOne(LocalAccount, { username: token.username }, function (error, account) {
+                    LocalAccount.findOne({ username: token.username }, function (error, account) {
                         if (!error) {
                             if (account) {
                                 account.setPassword(token.password, function (error) {
                                     if (!error) {
-                                        Wrapper.Save(account, function (error, obj) {
-                                            if (!error) {
-                                                response.redirect("/");
-                                            }
-                                            else {
-                                                response.status(500).render("error", { message: "db error", status: 500 }); // timeout
-                                            }
+                                        Wrapper.Save(response, 1, account, function () {
+                                            response.redirect("/");
                                         });
                                     }
                                     else {
@@ -649,8 +644,6 @@ var AuthModule;
          * @param request
          * @param response
          * @returns none
-         *
-         * authenticateはsessionのパスワードをそのまま使用する
          */
         Auth.prototype.post_local_login = function (request, response) {
             var systempassphrase = request.session.id;
@@ -707,35 +700,30 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.auth_facebook_callback = function (request, response) {
-            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, account) {
-                if (!error) {
-                    if (!account) {
-                        var groupid = config.systems.groupid;
-                        var userid = request.user.id; //facebook
-                        var passphrase = Cipher.FixedCrypt(userid, config.key2);
-                        var new_account_1 = new LocalAccount();
-                        new_account_1.provider = "facebook";
-                        new_account_1.groupid = groupid;
-                        new_account_1.userid = userid;
-                        new_account_1.username = request.user.username;
-                        new_account_1.passphrase = passphrase;
-                        new_account_1.publickey = Cipher.PublicKey(passphrase);
-                        new_account_1.local = { mails: [], nickname: request.user.displayName, tokens: {} };
-                        new_account_1.registerDate = Date.now();
-                        new_account_1.save(function (error) {
-                            if (!error) {
-                                Auth.auth_event("auth:facebook", new_account_1);
-                                response.redirect("/");
-                            }
-                        });
-                    }
-                    else {
-                        Auth.auth_event("login:facebook", request.user.username);
-                        response.redirect("/");
-                    }
+            Wrapper.FindOne(response, 1000, LocalAccount, { userid: request.user.username }, function (response, account) {
+                if (!account) {
+                    var groupid = config.systems.groupid;
+                    var userid = request.user.id; //facebook
+                    var passphrase = Cipher.FixedCrypt(userid, config.key2);
+                    var new_account_1 = new LocalAccount();
+                    new_account_1.provider = "facebook";
+                    new_account_1.groupid = groupid;
+                    new_account_1.userid = userid;
+                    new_account_1.username = request.user.username;
+                    new_account_1.passphrase = passphrase;
+                    new_account_1.publickey = Cipher.PublicKey(passphrase);
+                    new_account_1.local = { mails: [], nickname: request.user.displayName, tokens: {} };
+                    new_account_1.registerDate = Date.now();
+                    new_account_1.save(function (error) {
+                        if (!error) {
+                            Auth.auth_event("auth:facebook", new_account_1);
+                            response.redirect("/");
+                        }
+                    });
                 }
                 else {
-                    Wrapper.SendError(response, error.code, error.message, error);
+                    Auth.auth_event("login:facebook", request.user.username);
+                    response.redirect("/");
                 }
             });
         };
@@ -746,36 +734,31 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.auth_twitter_callback = function (request, response) {
-            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, account) {
-                if (!error) {
-                    if (!account) {
-                        var groupid = config.systems.groupid;
-                        var userid = request.user.id; //twitter
-                        var passphrase = Cipher.FixedCrypt(userid, config.key2);
-                        var content = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
-                        var new_account_2 = new LocalAccount();
-                        new_account_2.provider = "twitter";
-                        new_account_2.groupid = groupid;
-                        new_account_2.userid = userid;
-                        new_account_2.username = request.user.username;
-                        new_account_2.passphrase = passphrase;
-                        new_account_2.publickey = Cipher.PublicKey(passphrase);
-                        new_account_2.local = content;
-                        new_account_2.registerDate = Date.now(); // Legacy of v1
-                        new_account_2.save(function (error) {
-                            if (!error) {
-                                Auth.auth_event("auth:twitter", new_account_2);
-                                response.redirect("/");
-                            }
-                        });
-                    }
-                    else {
-                        Auth.auth_event("login:twitter", request.user.username);
-                        response.redirect("/");
-                    }
+            Wrapper.FindOne(response, 1000, LocalAccount, { userid: request.user.username }, function (response, account) {
+                if (!account) {
+                    var groupid = config.systems.groupid;
+                    var userid = request.user.id; //twitter
+                    var passphrase = Cipher.FixedCrypt(userid, config.key2);
+                    var content = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
+                    var new_account_2 = new LocalAccount();
+                    new_account_2.provider = "twitter";
+                    new_account_2.groupid = groupid;
+                    new_account_2.userid = userid;
+                    new_account_2.username = request.user.username;
+                    new_account_2.passphrase = passphrase;
+                    new_account_2.publickey = Cipher.PublicKey(passphrase);
+                    new_account_2.local = content;
+                    new_account_2.registerDate = Date.now(); // Legacy of v1
+                    new_account_2.save(function (error) {
+                        if (!error) {
+                            Auth.auth_event("auth:twitter", new_account_2);
+                            response.redirect("/");
+                        }
+                    });
                 }
                 else {
-                    Wrapper.SendError(response, error.code, error.message, error);
+                    Auth.auth_event("login:twitter", request.user.username);
+                    response.redirect("/");
                 }
             });
         };
@@ -786,36 +769,31 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.auth_instagram_callback = function (request, response) {
-            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, account) {
-                if (!error) {
-                    if (!account) {
-                        var groupid = config.systems.groupid;
-                        var userid = request.user.id;
-                        var passphrase = Cipher.FixedCrypt(userid, config.key2);
-                        var content = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
-                        var new_account_3 = new LocalAccount();
-                        new_account_3.provider = "instagram";
-                        new_account_3.groupid = groupid;
-                        new_account_3.userid = userid;
-                        new_account_3.username = request.user.username;
-                        new_account_3.passphrase = passphrase;
-                        new_account_3.publickey = Cipher.PublicKey(passphrase);
-                        new_account_3.local = content;
-                        new_account_3.registerDate = Date.now(); // Legacy of v1
-                        new_account_3.save(function (error) {
-                            if (!error) {
-                                Auth.auth_event("auth:instagram", new_account_3);
-                                response.redirect("/");
-                            }
-                        });
-                    }
-                    else {
-                        Auth.auth_event("login:instagram", request.user.username);
-                        response.redirect("/");
-                    }
+            Wrapper.FindOne(response, 1000, LocalAccount, { userid: request.user.username }, function (response, account) {
+                if (!account) {
+                    var groupid = config.systems.groupid;
+                    var userid = request.user.id;
+                    var passphrase = Cipher.FixedCrypt(userid, config.key2);
+                    var content = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
+                    var new_account_3 = new LocalAccount();
+                    new_account_3.provider = "instagram";
+                    new_account_3.groupid = groupid;
+                    new_account_3.userid = userid;
+                    new_account_3.username = request.user.username;
+                    new_account_3.passphrase = passphrase;
+                    new_account_3.publickey = Cipher.PublicKey(passphrase);
+                    new_account_3.local = content;
+                    new_account_3.registerDate = Date.now(); // Legacy of v1
+                    new_account_3.save(function (error) {
+                        if (!error) {
+                            Auth.auth_event("auth:instagram", new_account_3);
+                            response.redirect("/");
+                        }
+                    });
                 }
                 else {
-                    Wrapper.SendError(response, error.code, error.message, error);
+                    Auth.auth_event("login:instagram", request.user.username);
+                    response.redirect("/");
                 }
             });
         };
@@ -826,35 +804,30 @@ var AuthModule;
          * @returns none
          */
         Auth.prototype.auth_line_callback = function (request, response) {
-            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, account) {
-                if (!error) {
-                    if (!account) {
-                        var groupid = config.systems.groupid;
-                        var userid = request.user.id;
-                        var passphrase = Cipher.FixedCrypt(userid, config.key2);
-                        var new_account_4 = new LocalAccount();
-                        new_account_4.provider = "line";
-                        new_account_4.groupid = groupid;
-                        new_account_4.userid = userid;
-                        new_account_4.username = userid;
-                        new_account_4.passphrase = passphrase;
-                        new_account_4.publickey = Cipher.PublicKey(passphrase);
-                        new_account_4.local = { mails: [], nickname: request.user.displayName, tokens: {} };
-                        new_account_4.registerDate = Date.now(); // Legacy of v1
-                        new_account_4.save(function (error) {
-                            if (!error) {
-                                Auth.auth_event("auth:line", new_account_4);
-                                response.redirect("/");
-                            }
-                        });
-                    }
-                    else {
-                        Auth.auth_event("login:line", request.user.username);
-                        response.redirect("/");
-                    }
+            Wrapper.FindOne(response, 1000, LocalAccount, { userid: request.user.username }, function (response, account) {
+                if (!account) {
+                    var groupid = config.systems.groupid;
+                    var userid = request.user.id;
+                    var passphrase = Cipher.FixedCrypt(userid, config.key2);
+                    var new_account_4 = new LocalAccount();
+                    new_account_4.provider = "line";
+                    new_account_4.groupid = groupid;
+                    new_account_4.userid = userid;
+                    new_account_4.username = userid;
+                    new_account_4.passphrase = passphrase;
+                    new_account_4.publickey = Cipher.PublicKey(passphrase);
+                    new_account_4.local = { mails: [], nickname: request.user.displayName, tokens: {} };
+                    new_account_4.registerDate = Date.now(); // Legacy of v1
+                    new_account_4.save(function (error) {
+                        if (!error) {
+                            Auth.auth_event("auth:line", new_account_4);
+                            response.redirect("/");
+                        }
+                    });
                 }
                 else {
-                    Wrapper.SendError(response, error.code, error.message, error);
+                    Auth.auth_event("login:line", request.user.username);
+                    response.redirect("/");
                 }
             });
         };

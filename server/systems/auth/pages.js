@@ -36,9 +36,6 @@ var AuthPageRouter;
     AuthPageRouter.router.get("/dialogs/passwordconfirmdialog", [exception.page_catch, function (request, response) {
             response.render("systems/auth/dialogs/passwordconfirmdialog", { config: config, message: message });
         }]);
-    AuthPageRouter.router.get("/common/alert_dialog", [exception.page_catch, function (request, response) {
-            response.render("systems/common/alert_dialog", { config: config, message: message });
-        }]);
     // mail test view.
     AuthPageRouter.router.get("/mail/regist_mail", [exception.page_catch, function (request, response) {
             response.render("systems/auth/mail/regist_mail", { config: config, link: "" });

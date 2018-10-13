@@ -23,7 +23,6 @@ var Promised;
             response.contentType("application/json");
             return response;
         };
-        // 例外キャッチ
         Wrapper.prototype.Exception = function (req, res, callback) {
             try {
                 callback(req, res);
@@ -32,7 +31,6 @@ var Promised;
                 this.SendFatal(res, e.code, e.message, e);
             }
         };
-        // CSRFチェック
         Wrapper.prototype.Guard = function (req, res, callback) {
             if (req.headers["x-requested-with"] === "XMLHttpRequest") {
                 res = this.BasicHeader(res, "");
@@ -42,7 +40,6 @@ var Promised;
                 this.SendError(res, 1, "", { code: 1, message: "CSRF?" });
             }
         };
-        // userがなければ常に正常、あれば権限チェック
         Wrapper.prototype.Authenticate = function (req, res, callback) {
             if (req.user) {
                 if (req.isAuthenticated()) {
@@ -53,7 +50,8 @@ var Promised;
                 }
             }
             else { // normal case.
-                callback(req, res);
+                this.SendSuccess(res, {});
+                //      this.SendError(res, 1, "", {code: 1, message: ""});
             }
         };
         Wrapper.prototype.FindById = function (res, code, model, id, callback) {
@@ -77,6 +75,7 @@ var Promised;
             return model.find(query, fields, option).then(function (docs) {
                 callback(res, docs);
             }).catch(function (error) {
+                //           this.SendError(res, error.code, error.message, error);
                 _this.SendRaw(res, []);
             });
         };

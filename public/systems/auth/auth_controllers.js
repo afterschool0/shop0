@@ -24,7 +24,7 @@ var AuthControllersModule;
             var alert = function (message) {
                 var modalInstance = $uibModal.open({
                     controller: 'AlertDialogController',
-                    templateUrl: '/auth/common/alert_dialog',
+                    templateUrl: '/common/alert_dialog',
                     resolve: {
                         items: function () {
                             return message;
@@ -48,10 +48,10 @@ var AuthControllersModule;
                 });
             };
             $scope.Regist = function () {
-                var items = { nickname: $scope.items.displayName, group: "" };
+                var items = {};
                 $scope.message = "";
                 progress(true);
-                AuthService.Regist($scope.items.username, $scope.items.password, "000000000000000000000001", items, function (account) {
+                AuthService.Regist($scope.items.username, $scope.items.password, $scope.items.displayName, items, function (account) {
                     confirmAccount();
                     progress(false);
                 }, function (error, message) {
@@ -173,7 +173,7 @@ var AuthControllersModule;
             };
             $scope.answer = function (items) {
                 progress(true);
-                AuthService.Login($scope.items.username, $scope.items.password, "000000000000000000000001", function (account) {
+                AuthService.Login($scope.items.username, $scope.items.password, function (account) {
                     $uibModalInstance.close(account);
                     progress(false);
                 }, function (error, message) {
@@ -208,8 +208,7 @@ var AuthControllersModule;
             $scope.answer = function (scope) {
                 $scope.message = "";
                 progress(true);
-                var items = { nickname: $scope.items.displayName, group: "" };
-                AuthService.Regist($scope.items.username, $scope.items.password, "000000000000000000000001", items, function (account) {
+                AuthService.Regist($scope.items.username, $scope.items.password, $scope.items.displayName, items, function (account) {
                     $uibModalInstance.close(account);
                     progress(false);
                 }, function (error, message) {
@@ -251,7 +250,7 @@ var AuthControllersModule;
                 $scope.message = "";
             };
             $scope.answer = function (answer) {
-                AuthService.Password($scope.items.username, $scope.items.password, "000000000000000000000001", function (account) {
+                AuthService.Password($scope.items.username, $scope.items.password, function (account) {
                     $uibModalInstance.close(account);
                     progress(false);
                 }, function (error, message) {

@@ -99,7 +99,6 @@ body {
   display: var(--main-pane-display);
   width: calc(100vw - var(--left-pane-width) - var(--right-pane-width));
   color: #6464c8;
-  background: #ffffff;
 }
 .right-pane {
   display: var(--right-pane-display);

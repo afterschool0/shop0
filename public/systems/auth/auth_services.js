@@ -41,7 +41,7 @@ var AuthServicesModule;
     AuthServices.service('AuthService', ["Register", "Login", "Logout", "Password", "PublicKeyService",
         function (Register, Login, Logout, Password, PublicKeyService) {
             var publickey_encrypt = function (key, plain, callback) {
-                var username_encrypted = cryptico.encrypt(encodeURIComponent(plain), key); // encrypt漢字
+                var username_encrypted = cryptico.encrypt(plain, key);
                 if (username_encrypted.status === "success") {
                     callback(null, username_encrypted.cipher);
                 }
@@ -71,14 +71,14 @@ var AuthServicesModule;
                     callback(null, username, password);
                 }
             };
-            this.Regist = function (username, password, groupid, metadata, callback, error_callback) {
+            this.Regist = function (username, password, displayName, metadata, callback, error_callback) {
                 PublicKeyService.Fixed(function (key) {
                     var regist = new Register();
                     username_and_password_encrypt(key, username, password, function (error, username, password) {
                         if (!error) {
                             regist.username = username;
                             regist.password = password;
-                            regist.groupid = groupid;
+                            regist.displayName = displayName;
                             regist.metadata = metadata;
                             regist.$regist(function (account) {
                                 if (account) {
@@ -97,14 +97,13 @@ var AuthServicesModule;
                     });
                 });
             };
-            this.Login = function (username, password, groupid, callback, error_callback) {
+            this.Login = function (username, password, callback, error_callback) {
                 PublicKeyService.Fixed(function (key) {
                     var login = new Login();
                     username_and_password_encrypt(key, username, password, function (error, username, password) {
                         if (!error) {
                             login.username = username;
                             login.password = password;
-                            login.groupid = groupid;
                             login.$login(function (account) {
                                 if (account) {
                                     if (account.code === 0) {
@@ -122,14 +121,13 @@ var AuthServicesModule;
                     });
                 });
             };
-            this.Password = function (username, password, groupid, callback, error_callback) {
+            this.Password = function (username, password, callback, error_callback) {
                 PublicKeyService.Fixed(function (key) {
                     var pass = new Password();
                     username_and_password_encrypt(key, username, password, function (error, username, password) {
                         if (!error) {
                             pass.username = username;
                             pass.password = password;
-                            pass.groupid = groupid;
                             pass.$change(function (account) {
                                 if (account) {
                                     if (account.code === 0) {

@@ -9,7 +9,7 @@ var SessionModule;
 (function (SessionModule) {
     var _ = require('lodash');
     var path = require('path');
-    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
+    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     var Wrapper = new PromisedModule.Wrapper();
     var Session = /** @class */ (function () {
         function Session() {
