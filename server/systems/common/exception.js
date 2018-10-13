@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ExceptionModule;
 (function (ExceptionModule) {
     var path = require('path');
-    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
+    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     var Wrapper = new PromisedModule.Wrapper();
     var Exception = /** @class */ (function () {
         function Exception() {

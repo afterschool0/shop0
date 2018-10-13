@@ -21,7 +21,7 @@ var AuthModule;
     log4js.configure("./config/systems/logs.json");
     var logger = log4js.getLogger('request');
     var message = config.message;
-    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
+    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     var Wrapper = new PromisedModule.Wrapper();
     var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
     var Cipher = CipherModule.Cipher;
