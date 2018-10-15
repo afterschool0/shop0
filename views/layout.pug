@@ -53,7 +53,7 @@ html(lang="ja")
                 border-left: solid 1px #aaa;
             }
 
-    body.noto(ng-app="FrontApplication", style={background: "#ECEFF1"}, ng-controller="LoginController")
+    body.noto(ng-app="FrontApplication", style={background: "#B0BEC5"}, ng-controller="LoginController")
         div(ng-show="progress", style={"z-index": "20000", position: "fixed", top: "50%", left: "50%", "margin-top": "-70px", "margin-left": "-75px"})
             #progress
                 #rond
@@ -86,7 +86,7 @@ html(lang="ja")
                                     include applications/front/partial/left_content
             if role.guest
                 .content-row
-                    .main-row(style={"margin-top": "5rem"})
+                    .main-row(style={"height: 100%;margin-top": "5rem"})
                         aside.left-pane.main-sidebar(class=role.user ? 'sidebar-color-invert': 'sidebar-color')
                             include applications/front/partial/left_content
                         block content
@@ -114,8 +114,8 @@ html(lang="ja")
     script(type="text/javascript", src='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap-tpls.js')
 
     script(type="text/javascript", src="/systems/common/services.js")
-    script(type="text/javascript", src="/systems/publickey/publickey_services.js")
-    script(type="text/javascript", src="/systems/auth/auth_services.js")
+    script(type="text/javascript", src="/systems/publickey/publickey_services_fetch.js")
+    script(type="text/javascript", src="/systems/auth/auth_services_fetch.js")
     script(type="text/javascript", src="/systems/auth/auth_controllers.js")
     script(type="text/javascript", src="/systems/accounts/account_services.js")
     script(type="text/javascript", src="/systems/accounts/account_controllers.js")

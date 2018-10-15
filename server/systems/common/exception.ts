@@ -10,7 +10,7 @@ export namespace ExceptionModule {
 
     const path: any = require('path');
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
+    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     const Wrapper: any = new PromisedModule.Wrapper();
 
     export class Exception {

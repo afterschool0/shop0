@@ -8,7 +8,6 @@
 
 export namespace SchedulerModule {
 
-
     let schedule: any = require("node-schedule");
 
     export class Scheduler {

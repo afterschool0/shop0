@@ -23,6 +23,7 @@ var Promised;
             response.contentType("application/json");
             return response;
         };
+        // 例外キャッチ
         Wrapper.prototype.Exception = function (req, res, callback) {
             try {
                 callback(req, res);
@@ -31,6 +32,7 @@ var Promised;
                 this.SendFatal(res, e.code, e.message, e);
             }
         };
+        // CSRFチェック
         Wrapper.prototype.Guard = function (req, res, callback) {
             if (req.headers["x-requested-with"] === "XMLHttpRequest") {
                 res = this.BasicHeader(res, "");
@@ -40,6 +42,7 @@ var Promised;
                 this.SendError(res, 1, "", { code: 1, message: "CSRF?" });
             }
         };
+        // userがなければ常に正常、あれば権限チェック
         Wrapper.prototype.Authenticate = function (req, res, callback) {
             if (req.user) {
                 if (req.isAuthenticated()) {
@@ -50,103 +53,81 @@ var Promised;
                 }
             }
             else { // normal case.
-                this.SendSuccess(res, {});
-                //      this.SendError(res, 1, "", {code: 1, message: ""});
+                callback(req, res);
             }
         };
-        Wrapper.prototype.FindById = function (res, code, model, id, callback) {
-            var _this = this;
+        Wrapper.prototype.FindById = function (model, id, callback) {
             return model.findById(id).then(function (object) {
-                callback(res, object);
+                callback(null, object);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.FindOne = function (res, code, model, query, callback) {
-            var _this = this;
+        Wrapper.prototype.FindOne = function (model, query, callback) {
             return model.findOne(query).then(function (doc) {
-                callback(res, doc);
+                callback(null, doc);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.Find = function (res, code, model, query, fields, option, callback) {
-            var _this = this;
+        Wrapper.prototype.Find = function (model, query, fields, option, callback) {
             return model.find(query, fields, option).then(function (docs) {
-                callback(res, docs);
+                callback(null, docs);
             }).catch(function (error) {
-                //           this.SendError(res, error.code, error.message, error);
-                _this.SendRaw(res, []);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.Count = function (res, code, model, query, callback) {
-            var _this = this;
+        Wrapper.prototype.Count = function (model, query, callback) {
             return model.count(query).then(function (count) {
-                callback(res, count);
+                callback(null, count);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.FindAndModify = function (res, code, model, query, sort, update, options, callback) {
-            var _this = this;
+        Wrapper.prototype.FindAndModify = function (model, query, sort, update, options, callback) {
             return model.findAndModify(query, sort, update, options).then(function (docs) {
-                callback(res, docs);
+                callback(null, docs);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.Save = function (res, code, instance, callback) {
-            var _this = this;
-            return instance.save().then(function () {
-                callback(res, instance);
+        Wrapper.prototype.Save = function (instance, callback) {
+            return instance.save().then(function (target) {
+                callback(null, target);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.Update = function (res, code, model, query, update, callback) {
-            var _this = this;
-            return model.findOneAndUpdate(query, update, { upsert: false }).then(function () {
-                callback(res);
+        Wrapper.prototype.Update = function (model, query, update, callback) {
+            return model.findOneAndUpdate(query, update, { upsert: false }).then(function (target) {
+                callback(null, target);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.Upsert = function (res, code, model, query, update, callback) {
-            var _this = this;
-            return model.update(query, update, { upsert: true, multi: false }).then(function () {
-                callback(res);
+        Wrapper.prototype.Upsert = function (model, query, update, callback) {
+            return model.update(query, update, { upsert: true, multi: false }).then(function (target) {
+                callback(null, target);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.Remove = function (res, code, instance, callback) {
-            var _this = this;
-            //   deleteOne()
-            return instance.remove().then(function () {
-                callback(res);
+        Wrapper.prototype.Remove = function (instance, callback) {
+            return instance.remove().then(function (target) {
+                callback(null, target);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
-        Wrapper.prototype.Delete = function (res, code, model, query, callback) {
-            var _this = this;
-            //   return model.remove(query).then(() => {
-            return model.findOneAndRemove(query).then(function () {
-                callback(res);
+        Wrapper.prototype.Delete = function (model, query, callback) {
+            return model.findOneAndRemove(query).then(function (target) {
+                callback(null, target);
             }).catch(function (error) {
-                _this.SendError(res, error.code, error.message, error);
+                callback(error, null);
             });
         };
         //  A.findOneAndDelete(conditions) // returns Query
         //  A.findOneAndRemove(conditions) // returns Query
-        Wrapper.prototype.If = function (res, code, condition, callback) {
-            if (condition) {
-                callback(res);
-            }
-            else {
-                this.SendWarn(res, code + 100, "", { code: code + 100, message: "" });
-            }
-        };
         Wrapper.prototype.SendWarn = function (response, code, message, object) {
             logger.warn(message + " " + code);
             if (response) {

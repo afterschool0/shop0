@@ -29,7 +29,7 @@ export namespace AuthModule {
 
     const message: any = config.message;
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper2"));
+    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     const Wrapper: any = new PromisedModule.Wrapper();
 
     const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));

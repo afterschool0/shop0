@@ -32,16 +32,26 @@ var ProfileModule;
          * @returns none
          */
         Profile.prototype.put_profile = function (request, response) {
-            Wrapper.FindOne(response, 1, LocalAccount, { username: request.user.username }, function (response, self) {
-                if (self) {
-                    self.local = request.body.local;
-                    self.open = true;
-                    Wrapper.Save(response, 1, self, function (response, object) {
-                        Wrapper.SendSuccess(response, object.local);
-                    });
+            Wrapper.FindOne(LocalAccount, { username: request.user.username }, function (error, self) {
+                if (!error) {
+                    if (self) {
+                        self.local = request.body.local;
+                        self.open = true;
+                        Wrapper.Save(self, function (error, object) {
+                            if (!error) {
+                                Wrapper.SendSuccess(response, object.local);
+                            }
+                            else {
+                                Wrapper.SendError(response, error.code, error.message, error);
+                            }
+                        });
+                    }
+                    else {
+                        Wrapper.SendWarn(response, 2, "profile not found", { code: 2, message: "profile not found" });
+                    }
                 }
                 else {
-                    Wrapper.SendWarn(response, 2, "profile not found", { code: 2, message: "profile not found" });
+                    Wrapper.SendError(response, error.code, error.message, error);
                 }
             });
         };
@@ -51,32 +61,43 @@ var ProfileModule;
          * @returns none
          */
         Profile.prototype.get_profile = function (request, response) {
-            Wrapper.FindOne(response, 1, LocalAccount, { username: request.user.username }, function (response, self) {
-                if (self) {
-                    var entry_point = "";
-                    if (config.entry_point) {
-                        entry_point = config.entry_point;
+            var user = request.user;
+            if (user) {
+                Wrapper.FindOne(LocalAccount, { username: user.username }, function (error, self) {
+                    if (!error) {
+                        if (self) {
+                            var entry_point = "";
+                            if (config.entry_point) {
+                                entry_point = config.entry_point;
+                            }
+                            var exit_point = "";
+                            if (config.exit_point) {
+                                exit_point = config.exit_point;
+                            }
+                            Wrapper.SendSuccess(response, {
+                                provider: self.provider,
+                                auth: self.auth,
+                                username: self.username,
+                                groupid: self.groupid,
+                                userid: self.userid,
+                                local: self.local,
+                                role: self.Role(),
+                                entry: entry_point,
+                                exit: exit_point
+                            });
+                        }
+                        else {
+                            Wrapper.SendWarn(response, 2, "profile not found", { code: 2, message: "profile not found" });
+                        }
                     }
-                    var exit_point = "";
-                    if (config.exit_point) {
-                        exit_point = config.exit_point;
+                    else {
+                        Wrapper.SendError(response, error.code, error.message, error);
                     }
-                    Wrapper.SendSuccess(response, {
-                        provider: self.provider,
-                        auth: self.auth,
-                        username: self.username,
-                        groupid: self.groupid,
-                        userid: self.userid,
-                        local: self.local,
-                        role: self.Role(),
-                        entry: entry_point,
-                        exit: exit_point
-                    });
-                }
-                else {
-                    Wrapper.SendWarn(response, 2, "profile not found", { code: 2, message: "profile not found" });
-                }
-            });
+                });
+            }
+            else {
+                Wrapper.SendSuccess(response, {});
+            }
         };
         return Profile;
     }());
