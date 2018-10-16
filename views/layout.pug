@@ -63,13 +63,13 @@ html(lang="ja")
             .header(style={position: "fixed", width: "100%", height: "5rem"})
                 div(style={padding: "1rem"})
                     img.img-fluid(src="")
-                    div(style={"font-size": "1.8rem"}) auth0
+                    div(style={"font-size": "1.8rem","font-weight":900}) auth0
                 if !role.guest
                     span.pull-right
-                        button.btn.btn-success(type="button", href='#', ng-click="showRegisterDialog()", aria-label="", style={margin: "12px 6px"})
+                        button.btn.btn-success(type="button", href='#', ng-click="showRegisterDialog()", aria-label="", style={"font-weight":700,margin: "12px 6px"})
                             i.fas.fa-sign-in-alt
                             span &nbsp;#{message.regist}
-                        button.btn.btn-info(type="button", href='#', ng-click="showLoginDialog()", aria-label="", style={margin: "12px 6px"})
+                        button.btn.btn-info(type="button", href='#', ng-click="showLoginDialog()", aria-label="", style={"font-weight":700,margin: "12px 6px"})
                             i.fas.fa-sign-in-alt
                             span &nbsp;#{message.login}
                 else
@@ -94,7 +94,7 @@ html(lang="ja")
                 .footer-pane
             else
                 div
-                    include applications/front/partial/no_logged
+                    include systems/auth/partial/registerpane
 
     script(type="text/javascript", src="/socket.io/socket.io.js")
     script(type="text/javascript", src="https://cdnjs.cloudflare.com/ajax/libs/cryptico/0.0.1343522940/cryptico.min.js")
@@ -112,10 +112,13 @@ html(lang="ja")
 
     script(type="text/javascript", src='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap.js')
     script(type="text/javascript", src='/scripts/angular1-ui-bootstrap4/dist/ui-bootstrap-tpls.js')
+    //script(type="text/javascript", src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-show-password/1.1.2/bootstrap-show-password.min.js')
 
     script(type="text/javascript", src="/systems/common/services.js")
-    script(type="text/javascript", src="/systems/publickey/publickey_services_fetch.js")
-    script(type="text/javascript", src="/systems/auth/auth_services_fetch.js")
+    script(type="text/javascript", src="/systems/publickey/publickey_services.js")
+    script(type="text/javascript", src="/systems/profile/profile_services.js")
+    script(type="text/javascript", src="/systems/session/session_services.js")
+    script(type="text/javascript", src="/systems/auth/auth_services.js")
     script(type="text/javascript", src="/systems/auth/auth_controllers.js")
     script(type="text/javascript", src="/systems/accounts/account_services.js")
     script(type="text/javascript", src="/systems/accounts/account_controllers.js")

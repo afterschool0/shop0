@@ -8,8 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PublicKeyModule;
 (function (PublicKeyModule) {
     var path = require('path');
-    var _config = require('config');
-    var Config = _config.get("systems");
+    var config = require('config').get("systems");
     var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     var Wrapper = new PromisedModule.Wrapper();
     var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
@@ -18,7 +17,7 @@ var PublicKeyModule;
         function PublicKey() {
         }
         PublicKey.prototype.get_fixed_public_key = function (request, response) {
-            if (Config.use_publickey) {
+            if (config.use_publickey) {
                 var systempassphrase = request.session.id;
                 Wrapper.SendSuccess(response, Cipher.PublicKey(systempassphrase));
             }
@@ -27,7 +26,7 @@ var PublicKeyModule;
             }
         };
         PublicKey.prototype.get_public_key = function (request, response) {
-            if (Config.use_publickey) {
+            if (config.use_publickey) {
                 Wrapper.SendSuccess(response, Cipher.PublicKey(request.user.passphrase));
             }
             else {
@@ -35,7 +34,7 @@ var PublicKeyModule;
             }
         };
         PublicKey.prototype.get_access_token = function (request, response) {
-            if (Config.use_publickey) {
+            if (config.use_publickey) {
                 Wrapper.SendSuccess(response, Cipher.FixedCrypt(request.session.id, request.user.passphrase));
             }
             else {

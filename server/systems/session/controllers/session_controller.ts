@@ -9,11 +9,14 @@
 export namespace SessionModule {
 
     const _: any = require('lodash');
-
     const path: any = require('path');
+
+    const config: any = require('config').get("systems");
 
     const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     const Wrapper: any = new PromisedModule.Wrapper();
+
+    const LocalAccount: any = require(path.join(process.cwd(), "models/systems/accounts/account"));
 
     export class Session {
 
@@ -22,24 +25,38 @@ export namespace SessionModule {
          * @param response
          * @returns none
          */
-        public get(request: any, response: any): void {
-            let user: any = request.session.req.user;
-            if (user) {
+        public get_session(request: any, response: any): void {
+            let self: any = request.session.req.user;
+            if (self) {
+
+                let entry_point = "";
+                if (config.entry_point) {
+                    entry_point = config.entry_point;
+                }
+
+                let exit_point = "";
+                if (config.exit_point) {
+                    exit_point = config.exit_point;
+                }
+
                 let result: any = {
-                    create: user.create,
-                    modify: user.modify,
-                    provider: user.provider,
-                    type: user.type,
-                    auth: user.auth,
-                    userid: user.userid,
-                    username: user.username,
-                    enabled: user.enabled,
-                    local: user.local,
-                    data: user.data
+                    create: self.create,
+                    modify: self.modify,
+                    provider: self.provider,
+                    //auth: self.auth,
+                    username: self.username,
+                    groupid: self.groupid,
+                    userid: self.userid,
+                    local: self.local,
+                    enabled: self.enabled,
+                    role: LocalAccount.Role(self.auth),
+                    entry:entry_point,
+                    exit:exit_point,
+                    data: self.data
                 };
                 Wrapper.SendSuccess(response, result);
             } else {
-                Wrapper.SendError(response, 2, "not found", {code: 2, message: "not found"});
+                Wrapper.SendSuccess(response, {});
             }
         }
 
@@ -48,7 +65,7 @@ export namespace SessionModule {
          * @param response
          * @returns none
          */
-        public put(request: any, response: any): void {
+        public put_session(request: any, response: any): void {
             let user: any = request.session.req.user;
             if (user) {
                 if (!user.data) {

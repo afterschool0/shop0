@@ -7,19 +7,19 @@
 var AuthControllersModule;
 (function (AuthControllersModule) {
     var AuthControllers = angular.module('AuthControllers', ["ngResource", 'ngMessages']);
-    AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService',
-        function ($scope, $rootScope, $window, $uibModal, $log, AuthService, ProfileService) {
+    AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService', 'SessionService',
+        function ($scope, $rootScope, $window, $uibModal, $log, AuthService, ProfileService, SessionService) {
             var progress = function (value) {
                 $scope.$emit('progress', value);
             };
             $scope.$on('progress', function (event, value) {
                 $scope.progress = value;
             });
-            var error_handler = function (code, message) {
+            var error_handler = function (error) {
                 progress(false);
-                $scope.message = message;
-                $log.error(message);
-                alert(message);
+                $scope.message = error.message;
+                $log.error(error.message);
+                alert(error.message);
             };
             var alert = function (message) {
                 var modalInstance = $uibModal.open({
@@ -35,6 +35,11 @@ var AuthControllersModule;
                 }, function () {
                 });
             };
+            //$('#password').password({
+            //    eyeClass: 'fa',
+            //    eyeOpenClass: 'fa-eye',
+            //    eyeCloseClass: 'fa-eye-slash'
+            //});
             $scope.about = true;
             var confirmAccount = function () {
                 var modalRegistConfirm = $uibModal.open({
@@ -51,11 +56,13 @@ var AuthControllersModule;
                 var items = { nickname: $scope.items.displayName, group: "" };
                 $scope.message = "";
                 progress(true);
-                AuthService.Regist($scope.items.username, $scope.items.password, "000000000000000000000001", items, function (account) {
-                    confirmAccount();
-                    progress(false);
-                }, function (error, message) {
-                    $scope.message = message;
+                AuthService.Regist($scope.items.username, $scope.items.password, items, function (error, account) {
+                    if (!error) {
+                        confirmAccount();
+                    }
+                    else {
+                        $scope.message = error.message;
+                    }
                     progress(false);
                 });
             };
@@ -77,73 +84,91 @@ var AuthControllersModule;
                 });
             };
             var user = {};
-            ProfileService.Get(function (profile) {
-                if (profile) {
-                    user = profile;
-                    $scope.role = user.role;
-                    $scope.showLoginDialog = function () {
-                        var modalInstance = $uibModal.open({
-                            controller: 'LoginDialogController',
-                            templateUrl: '/auth/dialogs/logindialog',
-                            backdrop: "static",
-                            targetEvent: null
-                        });
-                        modalInstance.result.then(function (member) {
-                            ProfileService.Get(function (profile) {
-                                if (profile) {
-                                    user = profile;
-                                    $rootScope.$broadcast('Login');
-                                }
-                            }, error_handler);
-                        }, function () {
-                        });
-                    };
-                    $scope.showPasswordDialog = function () {
-                        var modalInstance = $uibModal.open({
-                            controller: 'PasswordDialogController',
-                            templateUrl: '/auth/dialogs/passworddialog',
-                            backdrop: false,
-                            targetEvent: null
-                        });
-                        modalInstance.result.then(function () {
-                            var modalRegistConfirm = $uibModal.open({
-                                controller: 'PasswordConfirmDialogController',
-                                templateUrl: '/auth/dialogs/passwordconfirmdialog',
+            // ProfileService
+            SessionService.Get(function (error, profile) {
+                if (!error) {
+                    if (profile) {
+                        user = profile;
+                        $scope.role = user.role;
+                        $scope.showLoginDialog = function () {
+                            var modalInstance = $uibModal.open({
+                                controller: 'LoginDialogController',
+                                templateUrl: '/auth/dialogs/logindialog',
                                 backdrop: "static",
                                 targetEvent: null
                             });
-                            modalRegistConfirm.result.then(function () {
+                            modalInstance.result.then(function (member) {
+                                // ProfileService
+                                SessionService.Get(function (error, profile) {
+                                    if (!error) {
+                                        if (profile) {
+                                            user = profile;
+                                            $rootScope.$broadcast('Login');
+                                        }
+                                    }
+                                    else {
+                                        error_handler(error);
+                                    }
+                                });
                             }, function () {
                             });
-                        }, function () {
-                        });
-                    };
-                    $scope.Logout = function () {
-                        ProfileService.Get(function (profile) {
-                            if (profile) {
-                                user = profile;
-                                AuthService.Logout(function (account) {
-                                    $rootScope.$broadcast('Logout');
+                        };
+                        $scope.showPasswordDialog = function () {
+                            var modalInstance = $uibModal.open({
+                                controller: 'PasswordDialogController',
+                                templateUrl: '/auth/dialogs/passworddialog',
+                                backdrop: false,
+                                targetEvent: null
+                            });
+                            modalInstance.result.then(function () {
+                                var modalRegistConfirm = $uibModal.open({
+                                    controller: 'PasswordConfirmDialogController',
+                                    templateUrl: '/auth/dialogs/passwordconfirmdialog',
+                                    backdrop: "static",
+                                    targetEvent: null
+                                });
+                                modalRegistConfirm.result.then(function () {
                                 }, function () {
                                 });
-                            }
-                        }, error_handler);
-                    };
-                    $scope.$on('Login', function () {
-                        $scope.userid = user.userid;
-                        $scope.role = user.role;
-                        $window.location.href = "//" + $window.location.host + "/" + user.entry;
-                    });
-                    $scope.$on('Logout', function () {
-                        $scope.userid = "";
-                        $scope.role = { guest: false, category: 0 };
-                        $window.location.href = "//" + $window.location.host + "/" + user.exit;
-                    });
-                    $scope.go = function (ref) {
-                        $window.location.href = ref;
-                    };
+                            }, function () {
+                            });
+                        };
+                        $scope.Logout = function () {
+                            // ProfileService
+                            SessionService.Get(function (error, profile) {
+                                if (!error) {
+                                    if (profile) {
+                                        user = profile;
+                                        AuthService.Logout(function (error, account) {
+                                            $rootScope.$broadcast('Logout');
+                                        }, function () {
+                                        });
+                                    }
+                                }
+                                else {
+                                    error_handler(error);
+                                }
+                            });
+                        };
+                        $scope.$on('Login', function () {
+                            $scope.userid = user.userid;
+                            $scope.role = user.role;
+                            $window.location.href = "//" + $window.location.host + "/" + user.entry;
+                        });
+                        $scope.$on('Logout', function () {
+                            $scope.userid = "";
+                            $scope.role = { guest: false, category: 0 };
+                            $window.location.href = "//" + $window.location.host + "/" + user.exit;
+                        });
+                        $scope.go = function (ref) {
+                            $window.location.href = ref;
+                        };
+                    }
                 }
-            }, error_handler);
+                else {
+                    error_handler(error);
+                }
+            });
         }]);
     //! dialogs
     /**
@@ -173,13 +198,14 @@ var AuthControllersModule;
             };
             $scope.answer = function (items) {
                 progress(true);
-                AuthService.Login($scope.items.username, $scope.items.password, "000000000000000000000001", function (account) {
-                    $uibModalInstance.close(account);
+                AuthService.Login($scope.items.username, $scope.items.password, function (error, account) {
+                    if (!error) {
+                        $uibModalInstance.close(account);
+                    }
+                    else {
+                        $scope.message = error.message;
+                    }
                     progress(false);
-                }, function (error, message) {
-                    $scope.message = message;
-                    progress(false);
-                    //                 $scope.$apply();
                 });
             };
         }]);
@@ -209,13 +235,14 @@ var AuthControllersModule;
                 $scope.message = "";
                 progress(true);
                 var items = { nickname: $scope.items.displayName, group: "" };
-                AuthService.Regist($scope.items.username, $scope.items.password, "000000000000000000000001", items, function (account) {
-                    $uibModalInstance.close(account);
+                AuthService.Regist($scope.items.username, $scope.items.password, items, function (error, account) {
+                    if (!error) {
+                        $uibModalInstance.close(account);
+                    }
+                    else {
+                        $scope.message = error.message;
+                    }
                     progress(false);
-                }, function (error, message) {
-                    $scope.message = message;
-                    progress(false);
-                    $scope.$apply();
                 });
             };
         }]);
@@ -251,13 +278,14 @@ var AuthControllersModule;
                 $scope.message = "";
             };
             $scope.answer = function (answer) {
-                AuthService.Password($scope.items.username, $scope.items.password, "000000000000000000000001", function (account) {
-                    $uibModalInstance.close(account);
+                AuthService.Password($scope.items.username, $scope.items.password, function (error, account) {
+                    if (!error) {
+                        $uibModalInstance.close(account);
+                    }
+                    else {
+                        $scope.message = error.message;
+                    }
                     progress(false);
-                }, function (error, message) {
-                    $scope.message = message;
-                    progress(false);
-                    $scope.$apply();
                 });
             };
         }]);

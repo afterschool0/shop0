@@ -8,15 +8,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var AuthModule;
 (function (AuthModule) {
     var _ = require('lodash');
-    var fs = require('graceful-fs');
     var path = require('path');
+    var fs = require('graceful-fs');
+    var config = require('config').get("systems");
     var mongoose = require('mongoose');
     mongoose.Promise = global.Promise;
     var passport = require('passport');
     var crypto = require('crypto');
     var pug = require('pug');
-    var _config = require('config');
-    var config = _config.get("systems");
     var log4js = require('log4js');
     log4js.configure("./config/systems/logs.json");
     var logger = log4js.getLogger('request');
@@ -379,7 +378,6 @@ var AuthModule;
             if (body) {
                 var username = body.username;
                 var password = body.password;
-                var groupid_2 = body.groupid;
                 var metadata_1 = body.metadata;
                 var systempassphrase = request.session.id;
                 /*
@@ -399,7 +397,7 @@ var AuthModule;
                                             auth: 1000,
                                             username: username,
                                             password: password,
-                                            groupid: groupid_2,
+                                            //      groupid: groupid,
                                             metadata: metadata_1,
                                             timestamp: Date.now()
                                         };
@@ -462,10 +460,10 @@ var AuthModule;
                     Wrapper.FindOne(LocalAccount, { username: token.username }, function (error, account) {
                         if (!error) {
                             if (!account) {
-                                var groupid = token.groupid; //config.systems.groupid;
-                                var shasum = crypto.createHash('sha1');
-                                shasum.update(token.username);
-                                var userid = shasum.digest('hex');
+                                var groupid = config.systems.groupid;
+                                var shasum = crypto.createHash('sha1'); //
+                                shasum.update(token.username); // create userid from username.
+                                var userid = shasum.digest('hex'); //
                                 var passphrase = Cipher.FixedCrypt(userid, config.key2);
                                 var content = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
                                 if (token.metadata) {

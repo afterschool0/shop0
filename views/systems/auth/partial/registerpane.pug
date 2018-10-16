@@ -1,0 +1,49 @@
+.container
+    .row(style={"margin-top": "8rem"})
+        .col-12.text-center
+            .card
+                .card-header.with-border
+                    .h3.box-title Register...
+                .card-body(style={"font-weight:": 500, "background-color": "#ECEFF1"})
+                    .col-10.offset-1
+                        ng-form(name="validate", ng-submit="Regist()" style="height:100%;")
+                            .row(style="text-align:left;")
+                                .col-12.form-group
+                                    label.control-label(style={"font-weight":700}) #{message.nickname}
+                                    span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.displayName.$error")
+                                        span.error-message(ng-message="required") Required fields.
+                                        span.error-message(ng-message="maxlength") Please within 30 characters.
+                                    input.center-block.form-control.no-zoom(ng-model='items.displayName', type='text', name='displayName', placeholder='xxxxxxx', required, ng-maxlength="30")
+
+                                .col-12.form-group
+                                    label.control-label(style={"font-weight":700}) #{message.mail}
+                                    span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.username.$error")
+                                        span.error-message(ng-message="required") Required fields.
+                                        span.error-message(ng-message="pattern") Not a mail address format.
+                                        span.error-message(ng-message="maxlength") Please within 256 characters.
+                                    input.center-block.form-control.no-zoom(ng-model='items.username', type='email', name='username', placeholder='xxxxxxx@domain.net', required, ng-maxlength="256", ng-pattern="/^[a-z0-9-._.+]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i")
+
+                                .col-12.form-group
+                                    label.control-label(style={"font-weight":700}) #{message.password}
+                                    span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.password.$error")
+                                        span.error-message(ng-message="required") Required fields.
+                                        span.error-message(ng-message="minlength") Please 4 or more characters.
+                                        span.error-message(ng-message="maxlength") Please within 30 characters.
+                                    input.center-block.form-control.no-zoom(ng-model="items.password", type="password", name="password", placeholder=message.over4under30, required, ng-minlength="4", ng-maxlength="30")
+
+                                .col-12.form-group
+                                    label.control-label(style={"font-weight":700}) #{message.retypepassword}
+                                    span.float-right(style="color:#FF7043;font-size:0.8rem;font-weight:700;" ng-messages="validate.retypepassword.$error")
+                                        span.error-message(ng-message="required") Required fields.
+                                        span.error-message(ng-message="compareTo") Passwords do not match.
+                                        span.error-message(ng-message="minlength") Please 4 or more characters.
+                                        span.error-message(ng-message="maxlength") Please within 30 characters.
+                                    input.center-block.form-control.no-zoom(ng-model="items.retypepassword", compare-to="items.password", type="password", name="retypepassword", placeholder=message.retypepassword, required, ng-minlength="4", ng-maxlength="30")
+                            .row
+                                .col-12
+                                    .error-message(style="text-align:center;font-weight:bold;", ng-bind="message")
+                            .row
+                                .col-6.offset-3
+                                    button.btn.btn-success(type="button", ng-click="Regist();validate.$dirty = false;", ng-disabled="progress || validate.$invalid || !validate.$dirty", aria-label="")
+                                        i.fas.fa-check
+                                        span(style={"font-weight":700}) #{message.regist}

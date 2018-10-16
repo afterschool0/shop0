@@ -10,14 +10,11 @@ var AccountModule;
     var Schema = mongoose.Schema;
     var passport = require('passport-local-mongoose');
     var timestamp = require('../plugins/timestamp/timestamp');
-    // Legacy of v1
     var Account = new Schema({
         provider: { type: String, default: "local" },
-        //             type: {type: String, default: "Guest"},
         auth: { type: Number, default: 10001 },
         groupid: { type: String, required: true, sparse: true },
         userid: { type: String, required: true, sparse: true },
-        //              role: {type: String, default: ""},
         username: { type: String, required: true, index: { unique: true } },
         password: { type: String },
         passphrase: { type: String, default: "" },

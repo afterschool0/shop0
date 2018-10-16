@@ -78,24 +78,23 @@ namespace AuthServicesModule {
                 }
             };
 
-            this.Regist = (username: string, password: string, groupid: string, metadata: any, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
+            this.Regist = (username: string, password: string, metadata: any, callback: (error: any, result: any) => void): void => {
+                PublicKeyService.Fixed((error, key) => {
                     let regist: any = new Register();
                     username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
                         if (!error) {
                             regist.username = username;
                             regist.password = password;
-                            regist.groupid = groupid;
                             regist.metadata = metadata;
                             regist.$regist((account: any): void => {
                                 if (account) {
                                     if (account.code === 0) {
-                                        callback(account.value);
+                                        callback(null, account.value);
                                     } else {
-                                        error_callback(account.code, account.message);
+                                        callback(account, null);
                                     }
                                 } else {
-                                    error_callback(10000, "network error");
+                                    callback({code: 10000, message: "network error"}, null);
                                 }
                             });
                         }
@@ -103,23 +102,22 @@ namespace AuthServicesModule {
                 });
             };
 
-            this.Login = (username: string, password: string, groupid: string, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
+            this.Login = (username: string, password: string, callback: (error: any, result: any) => void): void => {
+                PublicKeyService.Fixed((error, key) => {
                     let login = new Login();
                     username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
                         if (!error) {
                             login.username = username;
                             login.password = password;
-                            login.groupid = groupid;
-                            login.$login((account: any): void => {  //ログイン
-                                if (account) {
-                                    if (account.code === 0) {
-                                        callback(account.value);
+                            login.$login((result: any): void => {  //ログイン
+                                if (result) {
+                                    if (result.code === 0) {
+                                        callback(null, result.value);
                                     } else {
-                                        error_callback(account.code, account.message);
+                                        callback(result, null);
                                     }
                                 } else {
-                                    error_callback(10000, "network error");
+                                    callback({code: 10000, message: "network error"}, null);
                                 }
                             });
                         }
@@ -127,23 +125,22 @@ namespace AuthServicesModule {
                 });
             };
 
-            this.Password = (username: string, password: string, groupid: string, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
+            this.Password = (username: string, password: string, callback: (error: any, result: any) => void): void => {
+                PublicKeyService.Fixed((error, key) => {
                     let pass: any = new Password();
                     username_and_password_encrypt(key, username, password, (error: any, username: string, password: string): void => {
                         if (!error) {
                             pass.username = username;
                             pass.password = password;
-                            pass.groupid = groupid;
-                            pass.$change((account: any): void => {
-                                if (account) {
-                                    if (account.code === 0) {
-                                        callback(account.value);
+                            pass.$change((result: any): void => {
+                                if (result) {
+                                    if (result.code === 0) {
+                                        callback(null, result.value);
                                     } else {
-                                        error_callback(account.code, account.message);
+                                        callback(result, null);
                                     }
                                 } else {
-                                    error_callback(10000, "network error");
+                                    callback({code: 10000, message: "network error"}, null);
                                 }
                             });
                         }
@@ -151,53 +148,15 @@ namespace AuthServicesModule {
                 });
             };
 
-            this.Logout = (callback: (result: any) => void): void => {
+            this.Logout = (callback: (error: any, result: any) => void): void => {
                 let logout: any = new Logout();
                 logout.$logout((account: any): void => {
                     if (account) {
                         if (account.code === 0) {
-                            callback(account.value);
-                        }
-                    }
-                });
-            };
-
-        }]);
-
-    AuthServices.service('ProfileService', ["Profile",
-        function (Profile: any): void {
-
-            this.Get = (callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
-                Profile.get({}, (result: any): void => {
-                    if (result) {
-                        switch (result.code) {
-                            case 0:
-                                callback(result.value);
-                                break;
-                            case 1:
-                                callback(null);
-                                break;
-                            default:
-                                error_callback(result.code, result.message);
+                            callback(null, account.value);
                         }
                     } else {
-                        error_callback(10000, "network error");
-                    }
-                });
-            };
-
-            this.Put = (content: any, callback: (result: any) => void, error_callback: (code: number, message: string) => void): void => {
-                let self = new Profile();
-                self.local = content;
-                self.$put({}, (result: any): void => {
-                    if (result) {
-                        if (result.code === 0) {
-                            callback(result.value);
-                        } else {
-                            error_callback(result.code, result.message);
-                        }
-                    } else {
-                        error_callback(10000, "network error");
+                        callback({code: 10000, message: "network error"}, null);
                     }
                 });
             };

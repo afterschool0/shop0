@@ -8,9 +8,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var CipherModule;
 (function (CipherModule) {
     var path = require('path');
+    var config = require('config').get("systems");
     var LocalAccount = require(path.join(process.cwd(), "models/systems/accounts/account"));
-    var _config = require('config');
-    var config = _config.get("systems");
     var cipher_crypto = require('crypto');
     var cipher_cryptico = require('cryptico');
     var cipher_mode = 'aes-256-cbc';

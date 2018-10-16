@@ -10,10 +10,9 @@ export namespace CipherModule {
 
     const path: any = require('path');
 
-    const LocalAccount: any = require(path.join(process.cwd(), "models/systems/accounts/account"));
+    const config: any = require('config').get("systems");
 
-    const _config: any = require('config');
-    const config: any = _config.get("systems");
+    const LocalAccount: any = require(path.join(process.cwd(), "models/systems/accounts/account"));
 
     const cipher_crypto: any = require('crypto');
     const cipher_cryptico: any = require('cryptico');

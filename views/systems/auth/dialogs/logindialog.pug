@@ -1,7 +1,7 @@
-div(style={"box-shadow":"0 2px 5px 0 rgba(0,0,0,.16)"})
-    .modal-header(style={"background-color":"#CFD8DC"})
+div(style={"box-shadow": "0 2px 5px 0 rgba(0,0,0,.16)"})
+    .modal-header(style={"background-color": "#CFD8DC"})
         span.h5.modal-title #{message.logindialogtitle}
-    .modal-body(style={"background-color":"#ECEFF1"})
+    .modal-body(style={"background-color": "#ECEFF1"})
         ng-form(name="validate")
             .row
                 .col-10.offset-1
@@ -19,7 +19,7 @@ div(style={"box-shadow":"0 2px 5px 0 rgba(0,0,0,.16)"})
                             //span.error-message(ng-message="required") #{message.required}
                             span.error-message(ng-message="minlength") #{message.short}
                             span.error-message(ng-message="maxlength") #{message.long}
-                        input.form-control.no-zoom#password(tabindex="2", style="font-weight:500;", ng-model="items.password", ng-change="change()", type='password', name="password", placeholder='*******', required, ng-minlength="4", ng-maxlength="255", data-ng-required="true")
+                        input.form-control.no-zoom#password(tabindex="2", style="font-weight:500;", ng-model="items.password", ng-change="change()", type='password', name="password", placeholder='*******', required, ng-minlength="4", ng-maxlength="255", data-ng-required="true",data-toggle="password")
 
             .row
                 .col-10.offset-1
@@ -28,7 +28,7 @@ div(style={"box-shadow":"0 2px 5px 0 rgba(0,0,0,.16)"})
             .row
                 .col-10.offset-1
                     include ../../../systems/common/error_message
-    .modal-footer(style={"background-color":"#ECEFF1"})
+    .modal-footer(style={"background-color": "#ECEFF1"})
         .row
             .col-12
                 .text-center(style="padding:1rem;")

@@ -71,76 +71,73 @@ var AuthServicesModule;
                     callback(null, username, password);
                 }
             };
-            this.Regist = function (username, password, groupid, metadata, callback, error_callback) {
-                PublicKeyService.Fixed(function (key) {
+            this.Regist = function (username, password, metadata, callback) {
+                PublicKeyService.Fixed(function (error, key) {
                     var regist = new Register();
                     username_and_password_encrypt(key, username, password, function (error, username, password) {
                         if (!error) {
                             regist.username = username;
                             regist.password = password;
-                            regist.groupid = groupid;
                             regist.metadata = metadata;
                             regist.$regist(function (account) {
                                 if (account) {
                                     if (account.code === 0) {
-                                        callback(account.value);
+                                        callback(null, account.value);
                                     }
                                     else {
-                                        error_callback(account.code, account.message);
+                                        callback(account, null);
                                     }
                                 }
                                 else {
-                                    error_callback(10000, "network error");
+                                    callback({ code: 10000, message: "network error" }, null);
                                 }
                             });
                         }
                     });
                 });
             };
-            this.Login = function (username, password, groupid, callback, error_callback) {
-                PublicKeyService.Fixed(function (key) {
+            this.Login = function (username, password, callback) {
+                PublicKeyService.Fixed(function (error, key) {
                     var login = new Login();
                     username_and_password_encrypt(key, username, password, function (error, username, password) {
                         if (!error) {
                             login.username = username;
                             login.password = password;
-                            login.groupid = groupid;
-                            login.$login(function (account) {
-                                if (account) {
-                                    if (account.code === 0) {
-                                        callback(account.value);
+                            login.$login(function (result) {
+                                if (result) {
+                                    if (result.code === 0) {
+                                        callback(null, result.value);
                                     }
                                     else {
-                                        error_callback(account.code, account.message);
+                                        callback(result, null);
                                     }
                                 }
                                 else {
-                                    error_callback(10000, "network error");
+                                    callback({ code: 10000, message: "network error" }, null);
                                 }
                             });
                         }
                     });
                 });
             };
-            this.Password = function (username, password, groupid, callback, error_callback) {
-                PublicKeyService.Fixed(function (key) {
+            this.Password = function (username, password, callback) {
+                PublicKeyService.Fixed(function (error, key) {
                     var pass = new Password();
                     username_and_password_encrypt(key, username, password, function (error, username, password) {
                         if (!error) {
                             pass.username = username;
                             pass.password = password;
-                            pass.groupid = groupid;
-                            pass.$change(function (account) {
-                                if (account) {
-                                    if (account.code === 0) {
-                                        callback(account.value);
+                            pass.$change(function (result) {
+                                if (result) {
+                                    if (result.code === 0) {
+                                        callback(null, result.value);
                                     }
                                     else {
-                                        error_callback(account.code, account.message);
+                                        callback(result, null);
                                     }
                                 }
                                 else {
-                                    error_callback(10000, "network error");
+                                    callback({ code: 10000, message: "network error" }, null);
                                 }
                             });
                         }
@@ -152,47 +149,11 @@ var AuthServicesModule;
                 logout.$logout(function (account) {
                     if (account) {
                         if (account.code === 0) {
-                            callback(account.value);
-                        }
-                    }
-                });
-            };
-        }]);
-    AuthServices.service('ProfileService', ["Profile",
-        function (Profile) {
-            this.Get = function (callback, error_callback) {
-                Profile.get({}, function (result) {
-                    if (result) {
-                        switch (result.code) {
-                            case 0:
-                                callback(result.value);
-                                break;
-                            case 1:
-                                callback(null);
-                                break;
-                            default:
-                                error_callback(result.code, result.message);
+                            callback(null, account.value);
                         }
                     }
                     else {
-                        error_callback(10000, "network error");
-                    }
-                });
-            };
-            this.Put = function (content, callback, error_callback) {
-                var self = new Profile();
-                self.local = content;
-                self.$put({}, function (result) {
-                    if (result) {
-                        if (result.code === 0) {
-                            callback(result.value);
-                        }
-                        else {
-                            error_callback(result.code, result.message);
-                        }
-                    }
-                    else {
-                        error_callback(10000, "network error");
+                        callback({ code: 10000, message: "network error" }, null);
                     }
                 });
             };

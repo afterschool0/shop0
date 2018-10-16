@@ -13,12 +13,11 @@ export namespace AuthPageRouter {
     const express: any = require('express');
     export const router: IRouter = express.Router();
 
-    const _config: any = require('config');
-    const config: any = _config.get("systems");
+    const path: any = require('path');
+
+    const config: any = require('config').get("systems");
 
     const message: any = config.message;
-
-    const path: any = require('path');
 
     const ExceptionController: any = require(path.join(process.cwd(), "server/systems/common/exception"));
     const exception: any = new ExceptionController.Exception;

@@ -14,8 +14,8 @@ export namespace ProfileModule {
     const mongoose: any = require('mongoose');
     mongoose.Promise = global.Promise;
 
-    const _config: any = require('config');
-    const config: any = _config.get("systems");
+    //const _config: any = require('config');
+    const config: any = require('config').get("systems");
 
     const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     const Wrapper: any = new PromisedModule.Wrapper();
@@ -30,6 +30,56 @@ export namespace ProfileModule {
          */
         static userid(request): string {
             return request.user.userid;
+        }
+
+        /**
+         * @param request
+         * @param response
+         * @returns none
+         */
+        public get_profile(request: any, response: any): void {
+            let user = request.user;
+            if (user) {
+                Wrapper.FindOne(LocalAccount, {username: user.username}, (error: any, self: any): void => {
+                    if (!error) {
+                        if (self) {
+
+                            let entry_point = "";
+                            if (config.entry_point) {
+                                entry_point = config.entry_point;
+                            }
+
+                            let exit_point = "";
+                            if (config.exit_point) {
+                                exit_point = config.exit_point;
+                            }
+
+                            let result:any = {
+                                create: self.create,
+                                modify: self.modify,
+                                provider: self.provider,
+                                //auth: self.auth,
+                                username: self.username,
+                                groupid: self.groupid,
+                                userid: self.userid,
+                                local: self.local,
+                                enabled: self.enabled,
+                                role: self.Role(),
+                                entry:entry_point,
+                                exit:exit_point
+                            };
+                            Wrapper.SendSuccess(response, result);
+                        } else {
+                            Wrapper.SendWarn(response, 2, "profile not found", {code: 2, message: "profile not found"});
+                        }
+                    } else {
+                        Wrapper.SendError(response, error.code,error.message, error);
+                    }
+                });
+            } else {
+                Wrapper.SendSuccess(response, {});
+            }
+
         }
 
         /**
@@ -59,51 +109,6 @@ export namespace ProfileModule {
             });
         }
 
-        /**
-         * @param request
-         * @param response
-         * @returns none
-         */
-        public get_profile(request: any, response: any): void {
-            let user = request.user;
-            if (user) {
-                Wrapper.FindOne(LocalAccount, {username: user.username}, (error: any, self: any): void => {
-                    if (!error) {
-                        if (self) {
-
-                            let entry_point = "";
-                            if (config.entry_point) {
-                                entry_point = config.entry_point;
-                            }
-
-                            let exit_point = "";
-                            if (config.exit_point) {
-                                exit_point = config.exit_point;
-                            }
-
-                            Wrapper.SendSuccess(response, {
-                                provider: self.provider,
-                                auth: self.auth,
-                                username: self.username,
-                                groupid: self.groupid,
-                                userid: self.userid,
-                                local: self.local,
-                                role: self.Role(),
-                                entry:entry_point,
-                                exit:exit_point
-                            });
-                        } else {
-                            Wrapper.SendWarn(response, 2, "profile not found", {code: 2, message: "profile not found"});
-                        }
-                    } else {
-                        Wrapper.SendError(response, error.code,error.message, error);
-                    }
-                });
-            } else {
-                Wrapper.SendSuccess(response, {});
-            }
-
-        }
     }
 }
 

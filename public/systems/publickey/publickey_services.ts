@@ -34,59 +34,59 @@ namespace PublicKeyServicesModule {
     PublicKeyServices.service('PublicKeyService', ["FixedPublicKey", "DynamicPublicKey", "Token",
         function (FixedPublicKey: any, DynamicPublicKey, Token): void {
 
-            this.Fixed = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+            this.Fixed = (callback: (error, result: any) => void): void => {
                 FixedPublicKey.get({}, (result: any): void => {
                     if (result) {
                         switch (result.code) {
                             case 0:
-                                callback(result.value);
+                                callback(null, result.value);
                                 break;
                             case 1:
-                                callback(null);
+                                callback(null,null);
                                 break;
                             default:
-                                error(result.code, result.message);
+                                callback(result,null);
                         }
                     } else {
-                        error(10000, "network error");
+                        callback({code:10000, message:"network error"},null);
                     }
                 });
             };
 
-            this.Dynamic = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+            this.Dynamic = (callback: (error,result: any) => void): void => {
                 DynamicPublicKey.get({}, (result: any): void => {
                     if (result) {
                         switch (result.code) {
                             case 0:
-                                callback(result.value);
+                                callback(null, result.value);
                                 break;
                             case 1:
-                                callback(null);
+                                callback(null,null);
                                 break;
                             default:
-                                error(result.code, result.message);
+                                callback(result,null);
                         }
                     } else {
-                        error(10000, "network error");
+                        callback({code:10000, message:"network error"},null);
                     }
                 });
             };
 
-            this.Token = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+            this.Token = (callback: (error, result: any) => void): void => {
                 Token.get({}, (result: any): void => {
                     if (result) {
                         switch (result.code) {
                             case 0:
-                                callback(result.value);
+                                callback(null, result.value);
                                 break;
                             case 1:
-                                callback(null);
+                                callback(null,null);
                                 break;
                             default:
-                                error(result.code, result.message);
+                                callback(result,null);
                         }
                     } else {
-                        error(10000, "network error");
+                        callback({code:10000, message:"network error"},null);
                     }
                 });
             };

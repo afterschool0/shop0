@@ -34,43 +34,43 @@ namespace AccountServicesModule {
         }]);
 
     AccountServices.service('AccountService', ['Account', 'AccountQuery', 'AccountCount',
-        function (Account: any, AccountQuery: any, AccountCount:any): void {
+        function (Account: any, AccountQuery: any, AccountCount: any): void {
 
-            this.Query = (query:any,option:any, callback: (result: any[]) => void, error: (code: number, message: string) => void): void => {
-                AccountQuery.query({query: JSON.stringify(query)},{option: JSON.stringify(option)}, (result: any[]): void => {
+            this.Query = (query: any, option: any, callback: (error, result: any[]) => void): void => {
+                AccountQuery.query({query: JSON.stringify(query)}, {option: JSON.stringify(option)}, (result: any[]): void => {
                     if (result) {
-                        callback(result);
+                        callback(null, result);
                     } else {
-                        error(10000, "network error");
+                        callback({code: 10000, message: "network error"}, []);
                     }
                 });
             };
 
-            this.Count = (query: any, callback: (result: any[]) => void, error: (code: number, message: string) => void): void => {
+            this.Count = (query: any, callback: (error:any, result: number) => void): void => {
                 AccountCount.count({query: JSON.stringify(query)}, (result: any): void => {
                     if (result) {
-                        callback(result);
+                        callback(null, result);
                     } else {
-                        error(10000, "network error");
+                        callback({code: 10000, message: "network error"}, 0);
                     }
                 });
             };
 
-            this.Get = (username: string, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+            this.Get = (username: string, callback: (error:any, result: any) => void): void => {
                 Account.get({username: username}, (result: any): void => {
                     if (result) {
                         if (result.code === 0) {
-                            callback(result.value);
+                            callback(null, result.value);
                         } else {
-                            error(result.code, result.message);
+                            callback(result, null);
                         }
                     } else {
-                        error(10000, "network error");
+                        callback({code: 10000, message: "network error"}, null);
                     }
                 });
             };
 
-            this.Put = (username: any, content: any, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+            this.Put = (username: any, content: any, callback: (error:any, result: any) => void): void => {
                 let account = new Account();
                 account.content = content;
                 account.$put({
@@ -78,23 +78,23 @@ namespace AccountServicesModule {
                 }, (result: any): void => {
                     if (result) {
                         if (result.code === 0) {
-                            callback(result.value);
+                            callback(null, result);
                             this.dirty = false;
                         } else {
-                            error(result.code, result.message);
+                            callback(result, null);
                         }
                     } else {
-                        error(10000, "network error");
+                        callback({code: 10000, message: "network error"}, null);
                     }
                 });
             };
 
-            this.Delete = (username: string, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+            this.Delete = (username: string, callback: (error:any, result: any) => void): void => {
                 Account.delete({username: username}, (result: any): void => {
                     if (result) {
-                        callback(result);
+                        callback(null, result);
                     } else {
-                        error(10000, "network error");
+                        callback({code: 10000, message: "network error"}, null);
                     }
                 });
             };

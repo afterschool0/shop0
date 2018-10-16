@@ -9,8 +9,8 @@ var AuthApiRouter;
 (function (AuthApiRouter) {
     var express = require('express');
     AuthApiRouter.router = express.Router();
-    var passport = require("passport");
     var path = require('path');
+    var passport = require("passport");
     var AuthController = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
     var auth = new AuthController.Auth;
     var ExceptionController = require(path.join(process.cwd(), "server/systems/common/exception"));

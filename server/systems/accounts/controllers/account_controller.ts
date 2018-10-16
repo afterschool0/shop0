@@ -9,8 +9,10 @@
 export namespace AccountModule {
 
     const _: any = require('lodash');
+
     const mongoose: any = require('mongoose');
     mongoose.Promise = global.Promise;
+
     const path: any = require('path');
 
     const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));

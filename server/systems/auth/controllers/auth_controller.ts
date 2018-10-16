@@ -9,8 +9,10 @@
 export namespace AuthModule {
 
     const _: any = require('lodash');
-    const fs: any = require('graceful-fs');
     const path: any = require('path');
+    const fs: any = require('graceful-fs');
+
+    const config: any = require('config').get("systems");
 
     const mongoose: any = require('mongoose');
     mongoose.Promise = global.Promise;
@@ -19,9 +21,6 @@ export namespace AuthModule {
 
     const crypto: any = require('crypto');
     const pug = require('pug');
-
-    const _config: any = require('config');
-    const config: any = _config.get("systems");
 
     const log4js: any = require('log4js');
     log4js.configure("./config/systems/logs.json");
@@ -411,7 +410,6 @@ export namespace AuthModule {
             if (body) {
                 let username: string = body.username;
                 let password: string = body.password;
-                let groupid: string = body.groupid;
                 let metadata: any = body.metadata;
                 let systempassphrase: string = request.session.id;
 
@@ -435,7 +433,7 @@ export namespace AuthModule {
                                                 auth: 1000,
                                                 username: username,
                                                 password: password,
-                                                groupid: groupid,
+                                          //      groupid: groupid,
                                                 metadata: metadata,
                                                 timestamp: Date.now()
                                             };
@@ -495,10 +493,10 @@ export namespace AuthModule {
                     Wrapper.FindOne(LocalAccount, {username: token.username}, (error: any, account: any): void => {
                         if (!error) {
                             if (!account) {
-                                let groupid = token.groupid;//config.systems.groupid;
-                                const shasum = crypto.createHash('sha1');
-                                shasum.update(token.username);
-                                let userid: string = shasum.digest('hex');
+                                let groupid = config.systems.groupid;
+                                const shasum = crypto.createHash('sha1'); //
+                                shasum.update(token.username);                      // create userid from username.
+                                let userid: string = shasum.digest('hex'); //
                                 let passphrase: string = Cipher.FixedCrypt(userid, config.key2);
                                 let content: any = JSON.parse(JSON.stringify(definition.account_content)); // deep copy...
 

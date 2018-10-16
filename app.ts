@@ -6,8 +6,6 @@
 
 "use strict";
 
-import {IRouter} from "express-serve-static-core";
-
 namespace App {
 
     const fs: any = require("graceful-fs");
@@ -51,8 +49,9 @@ namespace App {
         app.use(helmet());
         app.use(helmet.hidePoweredBy({setTo: "JSF/1.2"}));  // impersonation
 
-        const _config: any = require('config');
-        const config: any = _config.get("systems");
+       // const _config: any = require('config');
+       // const config: any = _config.get("systems");
+        const config: any = require('config').get("systems");
 
         const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));
         const Cipher: any = CipherModule.Cipher;

@@ -20,32 +20,32 @@ namespace SessionServicesModule {
 
     SessionServices.service("SessionService", ['Session', function (Session: any): void {
 
-        this.Get = (callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+        this.Get = (callback: (error: any, result: any) => void): void => {
             Session.get({}, (result: any): void => {
                 if (result) {
                     if (result.code === 0) {
-                        callback(result.value);
+                        callback(null, result.value);
                     } else {
-                        error(result.code, result.message);
+                        callback(result, null);
                     }
                 } else {
-                    error(10000, "network error");
+                    callback({code: 10000, message: "network error"}, null);
                 }
             });
         };
 
-        this.Put = (content: any, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+        this.Put = (content: any, callback: (error: any, result: any) => void): void => {
             let self = new Session();
             self.data = content;
             self.$put({}, (result: any): void => {
                 if (result) {
                     if (result.code === 0) {
-                        callback(result.value);
+                        callback(null, result.value);
                     } else {
-                        error(result.code, result.message);
+                        callback(result, null);
                     }
                 } else {
-                    error(10000, "network error");
+                    callback({code: 10000, message: "network error"}, null);
                 }
             });
         };

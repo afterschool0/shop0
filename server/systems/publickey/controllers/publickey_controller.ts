@@ -10,8 +10,7 @@ export module PublicKeyModule {
 
     const path: any = require('path');
 
-    const _config: any = require('config');
-    const Config: any = _config.get("systems");
+    const config: any = require('config').get("systems");
 
     const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     const Wrapper: any = new PromisedModule.Wrapper();
@@ -22,7 +21,7 @@ export module PublicKeyModule {
     export class PublicKey {
 
         public get_fixed_public_key(request: any, response: Express.Response): void {
-            if (Config.use_publickey) {
+            if (config.use_publickey) {
                 let systempassphrase: string = request.session.id;
                 Wrapper.SendSuccess(response, Cipher.PublicKey(systempassphrase));
             } else {
@@ -31,7 +30,7 @@ export module PublicKeyModule {
         }
 
         public get_public_key(request: Express.Request, response: Express.Response): void {
-            if (Config.use_publickey) {
+            if (config.use_publickey) {
                 Wrapper.SendSuccess(response, Cipher.PublicKey(request.user.passphrase));
             } else {
                 Wrapper.SendError(response, 1, "get_public_key", null);
@@ -39,7 +38,7 @@ export module PublicKeyModule {
         }
 
         public get_access_token(request: any, response: Express.Response): void {
-            if (Config.use_publickey) {
+            if (config.use_publickey) {
                 Wrapper.SendSuccess(response, Cipher.FixedCrypt(request.session.id, request.user.passphrase));
             } else {
                 Wrapper.SendError(response, 1, "get_access_token", null);

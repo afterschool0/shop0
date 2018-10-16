@@ -10,10 +10,10 @@ import {IRouter} from "express-serve-static-core";
 
 export namespace SessionApiRouter {
 
+    const path: any = require('path');
+
     const express: any = require('express');
     export const router: IRouter = express.Router();
-
-    const path: any = require('path');
 
     const ExceptionController: any = require(path.join(process.cwd() , "server/systems/common/exception"));
     const exception: any = new ExceptionController.Exception();
@@ -21,8 +21,8 @@ export namespace SessionApiRouter {
     const SessionModule: any = require(path.join(process.cwd() , "server/systems/session/controllers/session_controller"));
     const session: any = new SessionModule.Session;
 
-    router.get("/api", [exception.exception, exception.guard, exception.authenticate, session.get]);
-    router.put("/api", [exception.exception, exception.guard, exception.authenticate, session.put]);
+    router.get("/api", [exception.exception, exception.guard, exception.authenticate, session.get_session]);
+    router.put("/api", [exception.exception, exception.guard, exception.authenticate, session.put_session]);
 
 }
 

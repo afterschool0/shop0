@@ -9,8 +9,10 @@ var SessionModule;
 (function (SessionModule) {
     var _ = require('lodash');
     var path = require('path');
+    var config = require('config').get("systems");
     var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
     var Wrapper = new PromisedModule.Wrapper();
+    var LocalAccount = require(path.join(process.cwd(), "models/systems/accounts/account"));
     var Session = /** @class */ (function () {
         function Session() {
         }
@@ -19,25 +21,36 @@ var SessionModule;
          * @param response
          * @returns none
          */
-        Session.prototype.get = function (request, response) {
-            var user = request.session.req.user;
-            if (user) {
+        Session.prototype.get_session = function (request, response) {
+            var self = request.session.req.user;
+            if (self) {
+                var entry_point = "";
+                if (config.entry_point) {
+                    entry_point = config.entry_point;
+                }
+                var exit_point = "";
+                if (config.exit_point) {
+                    exit_point = config.exit_point;
+                }
                 var result = {
-                    create: user.create,
-                    modify: user.modify,
-                    provider: user.provider,
-                    type: user.type,
-                    auth: user.auth,
-                    userid: user.userid,
-                    username: user.username,
-                    enabled: user.enabled,
-                    local: user.local,
-                    data: user.data
+                    create: self.create,
+                    modify: self.modify,
+                    provider: self.provider,
+                    //auth: self.auth,
+                    username: self.username,
+                    groupid: self.groupid,
+                    userid: self.userid,
+                    local: self.local,
+                    enabled: self.enabled,
+                    role: LocalAccount.Role(self.auth),
+                    entry: entry_point,
+                    exit: exit_point,
+                    data: self.data
                 };
                 Wrapper.SendSuccess(response, result);
             }
             else {
-                Wrapper.SendError(response, 2, "not found", { code: 2, message: "not found" });
+                Wrapper.SendSuccess(response, {});
             }
         };
         /**
@@ -45,7 +58,7 @@ var SessionModule;
          * @param response
          * @returns none
          */
-        Session.prototype.put = function (request, response) {
+        Session.prototype.put_session = function (request, response) {
             var user = request.session.req.user;
             if (user) {
                 if (!user.data) {

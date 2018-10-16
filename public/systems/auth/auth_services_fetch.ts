@@ -49,28 +49,27 @@ namespace AuthServicesModule {
                 return result;
             };
 
-            let access = (url: string, option: any, callback, error): void => {
+            let access = (url: string, option: any, callback, error_callback): void => {
                 fetch(url, option).then((res) => res.json()).then(
                     (account) => {
                         if (account) {
                             if (account.code === 0) {
                                 callback(account.value);
                             } else {
-                                error(account.code, account.message);
+                                error_callback(account.code, account.message);
                             }
                         } else {
-                            error(10000, "network error");
+                            error_callback(10000, "network error");
                         }
                     }
-                ).catch(() => {
-                    error(10000, "network error")
+                ).catch((error) => {
+                    error_callback(10000, "network error")
                 });
             };
 
-            this.Regist = (username: string, password: string, displayName: string, metadata: any, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
+            this.Regist = (username: string, password: string, metadata: any, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
+                PublicKeyService.Fixed((error,key) => {
                     let regist:any = public_key(key, username, password);
-                    regist.displayName = displayName;
                     regist.metadata = metadata;
                     const body = JSON.stringify(regist);
                     access("/auth/local/register", {method:POST, headers:default_header,body: body}, callback, error);
@@ -78,7 +77,7 @@ namespace AuthServicesModule {
             };
 
             this.Login = (username: string, password: string, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
+                PublicKeyService.Fixed((error,key) => {
                     let login: { username: string, password: string } = public_key(key, username, password);
                     const body = JSON.stringify(login);
                     access("/auth/local/login", {method:POST, headers:default_header,body: body}, callback, error);
@@ -90,7 +89,7 @@ namespace AuthServicesModule {
             };
 
             this.Password = (username: string, password: string, callback: (result: any) => void, error: (code: number, message: string) => void): void => {
-                PublicKeyService.Fixed((key) => {
+                PublicKeyService.Fixed((error,key) => {
                     let pass: { username: string, password: string } = public_key(key, username, password);
                     const body = JSON.stringify(pass);
                     access("/auth/local/password", {method:POST, headers:default_header,body: body}, callback, error);

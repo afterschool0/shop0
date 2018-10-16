@@ -24,7 +24,6 @@ export namespace ProfileApiRouter {
     router.get("/api", [exception.exception, exception.guard, exception.authenticate, profile.get_profile]);
     router.put("/api", [exception.exception, exception.guard, exception.authenticate, profile.put_profile]);
 
-
     // api base
     const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));
     const Cipher: any = CipherModule.Cipher;
@@ -36,9 +35,6 @@ export namespace ProfileApiRouter {
             if (!error) {
                 if (account) {
                     // encode
-
-
-
                 }
             }
         });

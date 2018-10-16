@@ -9,10 +9,9 @@ var AuthPageRouter;
 (function (AuthPageRouter) {
     var express = require('express');
     AuthPageRouter.router = express.Router();
-    var _config = require('config');
-    var config = _config.get("systems");
-    var message = config.message;
     var path = require('path');
+    var config = require('config').get("systems");
+    var message = config.message;
     var ExceptionController = require(path.join(process.cwd(), "server/systems/common/exception"));
     var exception = new ExceptionController.Exception;
     AuthPageRouter.router.get('/dialogs/registerdialog', [exception.page_catch, function (request, response) {

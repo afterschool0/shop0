@@ -27,60 +27,60 @@ var PublicKeyServicesModule;
         }]);
     PublicKeyServices.service('PublicKeyService', ["FixedPublicKey", "DynamicPublicKey", "Token",
         function (FixedPublicKey, DynamicPublicKey, Token) {
-            this.Fixed = function (callback, error) {
+            this.Fixed = function (callback) {
                 FixedPublicKey.get({}, function (result) {
                     if (result) {
                         switch (result.code) {
                             case 0:
-                                callback(result.value);
+                                callback(null, result.value);
                                 break;
                             case 1:
-                                callback(null);
+                                callback(null, null);
                                 break;
                             default:
-                                error(result.code, result.message);
+                                callback(result, null);
                         }
                     }
                     else {
-                        error(10000, "network error");
+                        callback({ code: 10000, message: "network error" }, null);
                     }
                 });
             };
-            this.Dynamic = function (callback, error) {
+            this.Dynamic = function (callback) {
                 DynamicPublicKey.get({}, function (result) {
                     if (result) {
                         switch (result.code) {
                             case 0:
-                                callback(result.value);
+                                callback(null, result.value);
                                 break;
                             case 1:
-                                callback(null);
+                                callback(null, null);
                                 break;
                             default:
-                                error(result.code, result.message);
+                                callback(result, null);
                         }
                     }
                     else {
-                        error(10000, "network error");
+                        callback({ code: 10000, message: "network error" }, null);
                     }
                 });
             };
-            this.Token = function (callback, error) {
+            this.Token = function (callback) {
                 Token.get({}, function (result) {
                     if (result) {
                         switch (result.code) {
                             case 0:
-                                callback(result.value);
+                                callback(null, result.value);
                                 break;
                             case 1:
-                                callback(null);
+                                callback(null, null);
                                 break;
                             default:
-                                error(result.code, result.message);
+                                callback(result, null);
                         }
                     }
                     else {
-                        error(10000, "network error");
+                        callback({ code: 10000, message: "network error" }, null);
                     }
                 });
             };

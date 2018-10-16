@@ -13,9 +13,9 @@ export namespace AuthApiRouter {
     const express: any = require('express');
     export const router: IRouter = express.Router();
 
-    const passport: any = require("passport");
-
     const path: any = require('path');
+
+    const passport: any = require("passport");
 
     const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
     const auth: any = new AuthController.Auth;

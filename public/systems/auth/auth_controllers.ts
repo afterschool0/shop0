@@ -10,8 +10,8 @@ namespace AuthControllersModule {
 
     let AuthControllers: angular.IModule = angular.module('AuthControllers', ["ngResource", 'ngMessages']);
 
-    AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService',
-        ($scope: any, $rootScope: any, $window: any, $uibModal: any, $log: any, AuthService: any, ProfileService: any): void => {
+    AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService','SessionService',
+        ($scope: any, $rootScope: any, $window: any, $uibModal: any, $log: any, AuthService: any, ProfileService: any, SessionService: any): void => {
 
             let progress = (value: boolean): void => {
                 $scope.$emit('progress', value);
@@ -21,11 +21,11 @@ namespace AuthControllersModule {
                 $scope.progress = value;
             });
 
-            let error_handler: (code: number, message: string) => void = (code: number, message: string): void => {
+            let error_handler = (error:any): void => {
                 progress(false);
-                $scope.message = message;
-                $log.error(message);
-                alert(message);
+                $scope.message = error.message;
+                $log.error(error.message);
+                alert(error.message);
             };
 
             let alert = (message: string): void => {
@@ -42,6 +42,12 @@ namespace AuthControllersModule {
                 }, (): void => {
                 });
             };
+
+            //$('#password').password({
+            //    eyeClass: 'fa',
+            //    eyeOpenClass: 'fa-eye',
+            //    eyeCloseClass: 'fa-eye-slash'
+            //});
 
             $scope.about = true;
 
@@ -62,11 +68,12 @@ namespace AuthControllersModule {
                 let items = {nickname: $scope.items.displayName, group: ""};
                 $scope.message = "";
                 progress(true);
-                AuthService.Regist($scope.items.username, $scope.items.password, "000000000000000000000001", items, (account) => {
-                    confirmAccount();
-                    progress(false);
-                }, (error, message) => {
-                    $scope.message = message;
+                AuthService.Regist($scope.items.username, $scope.items.password, items, (error, account) => {
+                    if (!error) {
+                        confirmAccount();
+                    } else {
+                        $scope.message = error.message;
+                    }
                     progress(false);
                 });
             };
@@ -92,85 +99,99 @@ namespace AuthControllersModule {
 
             let user: any = {};
 
-            ProfileService.Get((profile) => {
-                if (profile) {
-                    user = profile;
-                    $scope.role = user.role;
+            // ProfileService
+            SessionService.Get((error, profile) => {
+                if (!error) {
+                    if (profile) {
+                        user = profile;
+                        $scope.role = user.role;
 
-                    $scope.showLoginDialog = (): void => {
-                        let modalInstance = $uibModal.open({
-                            controller: 'LoginDialogController',
-                            templateUrl: '/auth/dialogs/logindialog',
-                            backdrop: "static",
-                            targetEvent: null
-                        });
-
-                        modalInstance.result.then((member): void => { // Answer
-                            ProfileService.Get((profile) => {
-                                if (profile) {
-                                    user = profile;
-                                    $rootScope.$broadcast('Login');
-                                }
-                            }, error_handler);
-                        }, (): void => { // Error
-                        });
-                    };
-
-                    $scope.showPasswordDialog = (): void => {
-                        let modalInstance = $uibModal.open({
-                            controller: 'PasswordDialogController',
-                            templateUrl: '/auth/dialogs/passworddialog',
-                            backdrop: false,
-                            targetEvent: null
-                        });
-
-                        modalInstance.result.then((): void => {
-                            let modalRegistConfirm = $uibModal.open({
-                                controller: 'PasswordConfirmDialogController',
-                                templateUrl: '/auth/dialogs/passwordconfirmdialog',
+                        $scope.showLoginDialog = (): void => {
+                            let modalInstance = $uibModal.open({
+                                controller: 'LoginDialogController',
+                                templateUrl: '/auth/dialogs/logindialog',
                                 backdrop: "static",
                                 targetEvent: null
                             });
 
-                            modalRegistConfirm.result.then((): void => {
-                            }, (): void => {
+                            modalInstance.result.then((member): void => { // Answer
+                                // ProfileService
+                                SessionService.Get((error:any, profile:any):void => {
+                                    if (!error) {
+                                        if (profile) {
+                                            user = profile;
+                                            $rootScope.$broadcast('Login');
+                                        }
+                                    } else {
+                                        error_handler(error);
+                                    }
+                                });
+                            }, (): void => { // Error
+                            });
+                        };
+
+                        $scope.showPasswordDialog = (): void => {
+                            let modalInstance = $uibModal.open({
+                                controller: 'PasswordDialogController',
+                                templateUrl: '/auth/dialogs/passworddialog',
+                                backdrop: false,
+                                targetEvent: null
                             });
 
-                        }, (): void => {
-                        });
-                    };
+                            modalInstance.result.then((): void => {
+                                let modalRegistConfirm = $uibModal.open({
+                                    controller: 'PasswordConfirmDialogController',
+                                    templateUrl: '/auth/dialogs/passwordconfirmdialog',
+                                    backdrop: "static",
+                                    targetEvent: null
+                                });
 
-                    $scope.Logout = (): void => {
-                        ProfileService.Get((profile) => {
-                            if (profile) {
-                                user = profile;
-                                AuthService.Logout((account) => {
-                                    $rootScope.$broadcast('Logout');
+                                modalRegistConfirm.result.then((): void => {
                                 }, (): void => {
                                 });
-                            }
-                        }, error_handler);
-                    };
 
-                    $scope.$on('Login', (): void => {
-                        $scope.userid = user.userid;
-                        $scope.role = user.role;
-                        $window.location.href = "//" + $window.location.host + "/" + user.entry;
-                    });
+                            }, (): void => {
+                            });
+                        };
 
-                    $scope.$on('Logout', (): void => {
-                        $scope.userid = "";
-                        $scope.role = {guest: false, category: 0};
-                        $window.location.href = "//" + $window.location.host + "/" + user.exit;
-                    });
+                        $scope.Logout = (): void => {
+                            // ProfileService
+                            SessionService.Get((error:any, profile:any):void => {
+                                if (!error) {
+                                    if (profile) {
+                                        user = profile;
+                                        AuthService.Logout((error:any, account:any):void => {
+                                            $rootScope.$broadcast('Logout');
+                                        }, (): void => {
+                                        });
+                                    }
+                                } else {
+                                    error_handler(error);
+                                }
+                            });
+                        };
 
-                    $scope.go = (ref: string): void => {
-                        $window.location.href = ref;
-                    };
+                        $scope.$on('Login', (): void => {
+                            $scope.userid = user.userid;
+                            $scope.role = user.role;
+                            $window.location.href = "//" + $window.location.host + "/" + user.entry;
+                        });
 
+                        $scope.$on('Logout', (): void => {
+                            $scope.userid = "";
+                            $scope.role = {guest: false, category: 0};
+                            $window.location.href = "//" + $window.location.host + "/" + user.exit;
+                        });
+
+                        $scope.go = (ref: string): void => {
+                            $window.location.href = ref;
+                        };
+
+                    }
+                } else {
+                    error_handler(error);
                 }
-            }, error_handler);
-
+            });
         }]);
 
     //! dialogs
@@ -203,20 +224,19 @@ namespace AuthControllersModule {
                 $window.location.href = ref;
             };
 
-            $scope.change = () => {
+            $scope.change = ():void => {
                 $scope.message = "";
             };
 
-
             $scope.answer = (items: any): void => {
                 progress(true);
-                AuthService.Login($scope.items.username, $scope.items.password, "000000000000000000000001", (account: any): void => {
-                    $uibModalInstance.close(account);
+                AuthService.Login($scope.items.username, $scope.items.password, (error: any, account: any): void => {
+                    if (!error) {
+                        $uibModalInstance.close(account);
+                    } else {
+                        $scope.message = error.message;
+                    }
                     progress(false);
-                }, (error: any, message: string): void => {
-                    $scope.message = message;
-                    progress(false);
-                    //                 $scope.$apply();
                 });
             };
         }]);
@@ -253,13 +273,13 @@ namespace AuthControllersModule {
                 $scope.message = "";
                 progress(true);
                 let items = {nickname: $scope.items.displayName, group: ""};
-                AuthService.Regist($scope.items.username, $scope.items.password, "000000000000000000000001", items, (account: any): void => {
-                    $uibModalInstance.close(account);
+                AuthService.Regist($scope.items.username, $scope.items.password, items, (error: any, account: any): void => {
+                    if (!error) {
+                        $uibModalInstance.close(account);
+                    } else {
+                        $scope.message = error.message;
+                    }
                     progress(false);
-                }, (error: any, message: string): void => {
-                    $scope.message = message;
-                    progress(false);
-                    $scope.$apply();
                 });
             };
         }]);
@@ -306,13 +326,13 @@ namespace AuthControllersModule {
             };
 
             $scope.answer = (answer: any): void => {
-                AuthService.Password($scope.items.username, $scope.items.password, "000000000000000000000001", (account: any): void => {
-                    $uibModalInstance.close(account);
+                AuthService.Password($scope.items.username, $scope.items.password, (error: any, account: any): void => {
+                    if (!error) {
+                        $uibModalInstance.close(account);
+                    } else {
+                        $scope.message = error.message;
+                    }
                     progress(false);
-                }, (error: any, message: string): void => {
-                    $scope.message = message;
-                    progress(false);
-                    $scope.$apply();
                 });
             };
 
