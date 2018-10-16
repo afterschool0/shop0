@@ -4,7 +4,6 @@
  * //opensource.org/licenses/mit-license.php
  */
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var App;
 (function (App) {
     var fs = require("graceful-fs");
@@ -38,8 +37,9 @@ var App;
         var helmet = require("helmet");
         app.use(helmet());
         app.use(helmet.hidePoweredBy({ setTo: "JSF/1.2" })); // impersonation
-        var _config = require('config');
-        var config = _config.get("systems");
+        // const _config: any = require('config');
+        // const config: any = _config.get("systems");
+        var config = require('config').get("systems");
         var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
         var Cipher = CipherModule.Cipher;
         var EventModule = require(path.join(process.cwd(), "server/systems/common/event"));

@@ -25,7 +25,7 @@ var AccountModule;
     Account.plugin(passport);
     Account.plugin(timestamp);
     var role = function (user) {
-        var result = { guest: false, categoly: 0 };
+        var result = { guest: false, categoly: 0, raw: user.auth };
         if (user) {
             if (user.auth < 100) {
                 result.system = true;

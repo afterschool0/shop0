@@ -30,7 +30,7 @@ namespace AccountModule {
     Account.plugin(timestamp);
 
     let role = (user: any) => {
-        let result: any = {guest: false, categoly: 0};
+        let result: any = {guest: false, categoly: 0, raw:user.auth};
         if (user) {
 
             if (user.auth < 100) {
