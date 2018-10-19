@@ -7,8 +7,8 @@
 var AuthControllersModule;
 (function (AuthControllersModule) {
     var AuthControllers = angular.module('AuthControllers', ["ngResource", 'ngMessages']);
-    AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService', 'SessionService',
-        function ($scope, $rootScope, $window, $uibModal, $log, AuthService, ProfileService, SessionService) {
+    AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService', 'SessionService', 'Socket',
+        function ($scope, $rootScope, $window, $uibModal, $log, AuthService, ProfileService, SessionService, Socket) {
             var progress = function (value) {
                 $scope.$emit('progress', value);
             };
@@ -85,11 +85,35 @@ var AuthControllersModule;
             };
             var user = {};
             // ProfileService
+            // SessionService
             SessionService.Get(function (error, profile) {
                 if (!error) {
                     if (profile) {
                         user = profile;
                         $scope.role = user.role;
+                        //Socket
+                        var SocketEnter = function () {
+                            var resp_target = { name: "response", id: "", method: "enter", from: profile.username };
+                            var payload = { message: "Hello Again" };
+                            Socket.emit("request", { response: resp_target, payload: payload });
+                        };
+                        var SocketLeave = function () {
+                            var resp_target = { name: "response", id: "", method: "leave", from: profile.username };
+                            var payload = { message: "Hello Again" };
+                            Socket.emit("request", { response: resp_target, payload: payload });
+                        };
+                        var Broadcast = function () {
+                            var resp_target = { name: "response", id: "", method: "broadcast", from: profile.username };
+                            var payload = { message: "Hello Again" };
+                            Socket.emit("request", { response: resp_target, payload: payload });
+                        };
+                        Socket.on("response", function (response) {
+                            $scope.socket_message = response.response.from;
+                        });
+                        $scope.SocketEnter = SocketEnter;
+                        $scope.SocketLeave = SocketLeave;
+                        $scope.Broadcast = Broadcast;
+                        //Socket
                         $scope.showLoginDialog = function () {
                             var modalInstance = $uibModal.open({
                                 controller: 'LoginDialogController',
@@ -99,6 +123,7 @@ var AuthControllersModule;
                             });
                             modalInstance.result.then(function (member) {
                                 // ProfileService
+                                // SessionService
                                 SessionService.Get(function (error, profile) {
                                     if (!error) {
                                         if (profile) {
@@ -135,6 +160,7 @@ var AuthControllersModule;
                         };
                         $scope.Logout = function () {
                             // ProfileService
+                            // SessionService
                             SessionService.Get(function (error, profile) {
                                 if (!error) {
                                     if (profile) {

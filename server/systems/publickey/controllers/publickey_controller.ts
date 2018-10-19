@@ -6,46 +6,50 @@
 
 "use strict";
 
-export module PublicKeyModule {
+import * as ConfigModule from 'config';
 
-    const path: any = require('path');
+import * as Wrapper from "../../../../server/systems/common/wrapper";
+import * as Cipher from "../../../../server/systems/common/cipher";
 
-    const config: any = require('config').get("systems");
+const config: any = ConfigModule.get("systems");
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
-    const Wrapper: any = new PromisedModule.Wrapper();
+const TWrapper: any = Wrapper;
+const wrapper = new TWrapper();
 
-    const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));
-    const Cipher: any = CipherModule.Cipher;
+const TCipher: any = Cipher;
+const cipher = new TCipher();
 
-    export class PublicKey {
+export class PublicKey {
 
-        public get_fixed_public_key(request: any, response: Express.Response): void {
-            if (config.use_publickey) {
-                let systempassphrase: string = request.session.id;
-                Wrapper.SendSuccess(response, Cipher.PublicKey(systempassphrase));
-            } else {
-                Wrapper.SendError(response, 1, "get_fixed_public_key", null);
-            }
-        }
-
-        public get_public_key(request: Express.Request, response: Express.Response): void {
-            if (config.use_publickey) {
-                Wrapper.SendSuccess(response, Cipher.PublicKey(request.user.passphrase));
-            } else {
-                Wrapper.SendError(response, 1, "get_public_key", null);
-            }
-        }
-
-        public get_access_token(request: any, response: Express.Response): void {
-            if (config.use_publickey) {
-                Wrapper.SendSuccess(response, Cipher.FixedCrypt(request.session.id, request.user.passphrase));
-            } else {
-                Wrapper.SendError(response, 1, "get_access_token", null);
-            }
-        }
+    constructor() {
 
     }
+
+    public get_fixed_public_key(request: any, response: Express.Response): void {
+        if (config.use_publickey) {
+            let systempassphrase: string = request.session.id;
+            wrapper.SendSuccess(response, cipher.PublicKey(systempassphrase));
+        } else {
+            wrapper.SendError(response, null);
+        }
+    }
+
+    public get_public_key(request: Express.Request, response: Express.Response): void {
+        if (config.use_publickey) {
+            wrapper.SendSuccess(response, cipher.PublicKey(request.user.passphrase));
+        } else {
+            wrapper.SendError(response, null);
+        }
+    }
+
+    public get_access_token(request: any, response: Express.Response): void {
+        if (config.use_publickey) {
+            wrapper.SendSuccess(response, cipher.FixedCrypt(request.session.id, request.user.passphrase));
+        } else {
+            wrapper.SendError(response, null);
+        }
+    }
+
 }
 
-module.exports = PublicKeyModule;
+module.exports = PublicKey;

@@ -6,65 +6,66 @@
 
 "use strict";
 
-export namespace ExceptionModule {
+import * as Wrapper from "../../../server/systems/common/wrapper";
 
-    const path: any = require('path');
+const TWrapper: any = Wrapper;
+const wrapper = new TWrapper();
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
-    const Wrapper: any = new PromisedModule.Wrapper();
+export class Exception {
 
-    export class Exception {
+    constructor() {
 
-        public exception(request: any, response: any, next: any): void {
-            Wrapper.Exception(request, response, (request: any, response: any) => {
-                next();
+    }
+
+    public exception(request: any, response: any, next: any): void {
+        wrapper.Exception(request, response, (request: any, response: any) => {
+            next();
+        });
+    }
+
+    public guard(request: any, response: any, next: any): void {
+        wrapper.Guard(request, response, (request: any, response: any) => {
+            next();
+        });
+    }
+
+    public authenticate(request: any, response: any, next: any): void {
+        wrapper.Authenticate(request, response, (request: any, response: any): void => {
+            next();
+        });
+    }
+
+    public page_catch(request: any, response: any, next: any): void {
+        try {
+            next();
+        } catch (e) {
+            response.status(500).render('error', {
+                status: 500,
+                message: "Internal Server Error...",
+                url: request.url
             });
         }
+    }
 
-        public guard(request: any, response: any, next: any): void {
-            Wrapper.Guard(request, response, (request: any, response: any) => {
-                next();
-            });
-        }
-
-        public authenticate(request: any, response: any, next: any): void {
-            Wrapper.Authenticate(request, response, (request: any, response: any): void => {
-                next();
-            });
-        }
-
-        public page_catch(request: any, response: any, next: any): void {
-            try {
-                next();
-            } catch (e) {
-                response.status(500).render('error', {
-                    status: 500,
-                    message: "Internal Server Error...",
-                    url: request.url
-                });
-            }
-        }
-
-        public page_guard(request: any, response: any, next: any): void {
-            try {
-                if (request.user) {
-                    if (request.isAuthenticated()) {
-                        next();
-                    } else {
-                        response.status(403).render('error', {status: 403, message: "Forbidden...", url: request.url});
-                    }
+    public page_guard(request: any, response: any, next: any): void {
+        try {
+            if (request.user) {
+                if (request.isAuthenticated()) {
+                    next();
                 } else {
                     response.status(403).render('error', {status: 403, message: "Forbidden...", url: request.url});
                 }
-            } catch (e) {
-                response.status(500).render('error', {
-                    status: 500,
-                    message: "Internal Server Error...",
-                    url: request.url
-                });
+            } else {
+                response.status(403).render('error', {status: 403, message: "Forbidden...", url: request.url});
             }
+        } catch (e) {
+            response.status(500).render('error', {
+                status: 500,
+                message: "Internal Server Error...",
+                url: request.url
+            });
         }
     }
 }
 
-module.exports = ExceptionModule;
+module.exports = Exception;

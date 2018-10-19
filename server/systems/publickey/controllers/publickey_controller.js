@@ -5,45 +5,44 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var PublicKeyModule;
-(function (PublicKeyModule) {
-    var path = require('path');
-    var config = require('config').get("systems");
-    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
-    var Wrapper = new PromisedModule.Wrapper();
-    var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
-    var Cipher = CipherModule.Cipher;
-    var PublicKey = /** @class */ (function () {
-        function PublicKey() {
+var ConfigModule = require("config");
+var Wrapper = require("../../../../server/systems/common/wrapper");
+var Cipher = require("../../../../server/systems/common/cipher");
+var config = ConfigModule.get("systems");
+var TWrapper = Wrapper;
+var wrapper = new TWrapper();
+var TCipher = Cipher;
+var cipher = new TCipher();
+var PublicKey = /** @class */ (function () {
+    function PublicKey() {
+    }
+    PublicKey.prototype.get_fixed_public_key = function (request, response) {
+        if (config.use_publickey) {
+            var systempassphrase = request.session.id;
+            wrapper.SendSuccess(response, cipher.PublicKey(systempassphrase));
         }
-        PublicKey.prototype.get_fixed_public_key = function (request, response) {
-            if (config.use_publickey) {
-                var systempassphrase = request.session.id;
-                Wrapper.SendSuccess(response, Cipher.PublicKey(systempassphrase));
-            }
-            else {
-                Wrapper.SendError(response, 1, "get_fixed_public_key", null);
-            }
-        };
-        PublicKey.prototype.get_public_key = function (request, response) {
-            if (config.use_publickey) {
-                Wrapper.SendSuccess(response, Cipher.PublicKey(request.user.passphrase));
-            }
-            else {
-                Wrapper.SendError(response, 1, "get_public_key", null);
-            }
-        };
-        PublicKey.prototype.get_access_token = function (request, response) {
-            if (config.use_publickey) {
-                Wrapper.SendSuccess(response, Cipher.FixedCrypt(request.session.id, request.user.passphrase));
-            }
-            else {
-                Wrapper.SendError(response, 1, "get_access_token", null);
-            }
-        };
-        return PublicKey;
-    }());
-    PublicKeyModule.PublicKey = PublicKey;
-})(PublicKeyModule = exports.PublicKeyModule || (exports.PublicKeyModule = {}));
-module.exports = PublicKeyModule;
+        else {
+            wrapper.SendError(response, null);
+        }
+    };
+    PublicKey.prototype.get_public_key = function (request, response) {
+        if (config.use_publickey) {
+            wrapper.SendSuccess(response, cipher.PublicKey(request.user.passphrase));
+        }
+        else {
+            wrapper.SendError(response, null);
+        }
+    };
+    PublicKey.prototype.get_access_token = function (request, response) {
+        if (config.use_publickey) {
+            wrapper.SendSuccess(response, cipher.FixedCrypt(request.session.id, request.user.passphrase));
+        }
+        else {
+            wrapper.SendError(response, null);
+        }
+    };
+    return PublicKey;
+}());
+exports.PublicKey = PublicKey;
+module.exports = PublicKey;
 //# sourceMappingURL=publickey_controller.js.map

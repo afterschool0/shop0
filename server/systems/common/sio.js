@@ -5,40 +5,61 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Socket;
-(function (Socket) {
-    // Socket.IO
-    var socketio = require('socket.io');
-    var _ = require("lodash");
-    var IO = /** @class */ (function () {
-        function IO(server) {
-            this.sio = null;
-            this.socket = null;
-            this.clients = [];
-            this.sio = socketio.listen(server);
-        }
-        IO.prototype.wait = function (event) {
-            var _this = this;
-            this.sio.sockets.on('connection', function (socket) {
-                _this.socket = socket;
-                _.forEach(_this.sio.sockets.connected, function (client, id) {
-                    _this.clients.push(client);
-                });
-                socket.on('server', function (data) {
-                    event.emitter.emit('socket', data);
-                    // all client except self
-                    // socket.broadcast.emit('client', {value: data.value});
-                    // callback
-                    _this.sio.sockets.connected[socket.id].emit('client', { value: socket.id });
-                });
-                socket.on("disconnect", function () {
-                    _this.socket = null;
-                });
+var socketio = require("socket.io");
+var _ = require("lodash");
+var IO = /** @class */ (function () {
+    function IO(server) {
+        this.io = null;
+        this.list = {};
+        this.io = socketio.listen(server);
+        this.list = {};
+    }
+    IO.prototype.wait = function (config, event) {
+        var _this = this;
+        this.io.sockets.on('connection', function (socket) {
+            socket.on('request', function (request) {
+                var response = request.response;
+                event.emitter.emit('socket', request);
+                var from = response.from;
+                switch (response.method) {
+                    case "enter":
+                        {
+                            if (!_this.list[socket.id]) {
+                                _this.list[socket.id] = from;
+                            }
+                            request.response.id = socket.id;
+                            _this.io.sockets.connected[socket.id].emit(request.response.name, request);
+                        }
+                        break;
+                    case "leave":
+                        {
+                            if (_this.list[socket.id]) {
+                                delete _this.list[socket.id];
+                            }
+                            request.response.id = socket.id;
+                            _this.io.sockets.connected[socket.id].emit(request.response.name, request);
+                        }
+                        break;
+                    case "broadcast": {
+                        _.forEach(_this.io.sockets.connected, function (client, id) {
+                            request.response.id = id;
+                            client.emit(request.response.name, request);
+                        });
+                    }
+                }
+                // callback
+                // this.io.sockets.connected[socket.id].emit('client', {value: socket.id});
             });
-        };
-        return IO;
-    }());
-    Socket.IO = IO;
-})(Socket = exports.Socket || (exports.Socket = {}));
-module.exports = Socket;
+            socket.on("disconnect", function () {
+                //   if (this.list[socket.id]) {
+                //       delete this.list[socket.id];
+                //   }
+                //    socket = null;
+            });
+        });
+    };
+    return IO;
+}());
+exports.IO = IO;
+module.exports = IO;
 //# sourceMappingURL=sio.js.map

@@ -6,8 +6,6 @@
 
 "use strict";
 
-export namespace BrowserModule {
-
     export class Browser {
 
         public UserAgent;
@@ -103,5 +101,5 @@ export namespace BrowserModule {
             return result;
         }
     }
-}
-module.exports = BrowserModule;
+
+module.exports = Browser;

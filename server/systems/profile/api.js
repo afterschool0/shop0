@@ -5,31 +5,29 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ProfileApiRouter;
-(function (ProfileApiRouter) {
-    var path = require('path');
-    var express = require('express');
-    ProfileApiRouter.router = express.Router();
-    var ExceptionController = require(path.join(process.cwd(), "server/systems/common/exception"));
-    var exception = new ExceptionController.Exception();
-    var ProfileModule = require(path.join(process.cwd(), "server/systems/profile/controllers/profile_controller"));
-    var profile = new ProfileModule.Profile;
-    ProfileApiRouter.router.get("/api", [exception.exception, exception.guard, exception.authenticate, profile.get_profile]);
-    ProfileApiRouter.router.put("/api", [exception.exception, exception.guard, exception.authenticate, profile.put_profile]);
-    // api base
-    var CipherModule = require(path.join(process.cwd(), "server/systems/common/cipher"));
-    var Cipher = CipherModule.Cipher;
-    ProfileApiRouter.router.get("/api/test/:token", [exception.exception, function (request, response) {
-            var token = request.params.token;
-            // by_user token to by_user passphrase
-            Cipher.Account(token, "opensesame", function (error, account) {
-                if (!error) {
-                    if (account) {
-                        // encode
-                    }
+var express = require("express");
+var Exception = require("../../../server/systems/common/exception");
+var Profile = require("../../../server/systems/profile/controllers/profile_controller");
+var Cipher = require("../../../server/systems/common/cipher");
+exports.router = express.Router();
+var TException = Exception;
+var exception = new TException();
+var TProfile = Profile;
+var profile = new TProfile();
+exports.router.get("/api", [exception.exception, exception.guard, exception.authenticate, profile.get_profile]);
+exports.router.put("/api", [exception.exception, exception.guard, exception.authenticate, profile.put_profile]);
+var TCipher = Cipher;
+var cipher = new TCipher();
+exports.router.get("/api/test/:token", [exception.exception, function (request, response) {
+        var token = request.params.token;
+        // by_user token to by_user passphrase
+        cipher.Account(token, "opensesame", function (error, account) {
+            if (!error) {
+                if (account) {
+                    // encode
                 }
-            });
-        }]);
-})(ProfileApiRouter = exports.ProfileApiRouter || (exports.ProfileApiRouter = {}));
-module.exports = ProfileApiRouter.router;
+            }
+        });
+    }]);
+module.exports = exports.router;
 //# sourceMappingURL=api.js.map

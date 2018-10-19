@@ -5,15 +5,15 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var FrontModule;
-(function (FrontModule) {
-    var _ = require('lodash');
-    var path = require('path');
-    var MongoClient = require('mongodb').MongoClient;
-    var mongoose = require('mongoose');
-    mongoose.Promise = global.Promise;
-    var PromisedModule = require(path.join(process.cwd(), "server/systems/common/wrapper"));
-    var Wrapper = new PromisedModule.Wrapper();
-})(FrontModule = exports.FrontModule || (exports.FrontModule = {}));
-module.exports = FrontModule;
+var MongoDB = require("mongodb");
+var mongoose = require("mongoose");
+var MongoClient = MongoDB.MongoClient;
+mongoose.Promise = global.Promise;
+var Front = /** @class */ (function () {
+    function Front() {
+    }
+    return Front;
+}());
+exports.Front = Front;
+module.exports = Front;
 //# sourceMappingURL=front_controller.js.map

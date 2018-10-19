@@ -6,21 +6,16 @@
 
 "use strict";
 
-export namespace FrontModule {
+import * as MongoDB from 'mongodb';
+import * as mongoose from 'mongoose';
 
-    const _: any = require('lodash');
+const MongoClient: any = MongoDB.MongoClient;
 
-    const path: any = require('path');
+mongoose.Promise = global.Promise;
 
-    const MongoClient: any = require('mongodb').MongoClient;
-
-    const mongoose: any = require('mongoose');
-    mongoose.Promise = global.Promise;
-
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
-    const Wrapper: any = new PromisedModule.Wrapper();
+export class Front {
 
 }
 
-module.exports = FrontModule;
+module.exports = Front;
 

@@ -8,25 +8,23 @@
 
 import {IRouter} from "express-serve-static-core";
 
-export namespace PublicKeyApiRouter {
+import * as express from 'express';
 
-    const express: any = require('express');
-    export const router: IRouter = express.Router();
+import * as Exception from "../../../server/systems/common/exception";
+import * as PublicKey from "../../../server/systems/publickey/controllers/publickey_controller";
 
-    const path: any = require('path');
+export const router: IRouter = express.Router();
 
-    const ExceptionController: any = require(path.join(process.cwd(), "server/systems/common/exception"));
-    const exception: any = new ExceptionController.Exception();
+const TException: any = Exception;
+const exception: any = new TException();
 
-    /*! public key */
-    const PublicKeyController: any = require(path.join(process.cwd(), "server/systems/publickey/controllers/publickey_controller"));
-    const publickey: any = new PublicKeyController.PublicKey();
+const TPublickey: any = PublicKey;
+const publickey: any = new TPublickey();
 
-    router.get("/fixed", [publickey.get_fixed_public_key]);
+router.get("/fixed", [publickey.get_fixed_public_key]);
 
-    router.get("/dynamic", [exception.exception, exception.guard, exception.authenticate, publickey.get_public_key]);
+router.get("/dynamic", [exception.exception, exception.guard, exception.authenticate, publickey.get_public_key]);
 
-    router.get("/token", [exception.exception, exception.guard, exception.authenticate, publickey.get_access_token]);
-}
+router.get("/token", [exception.exception, exception.guard, exception.authenticate, publickey.get_access_token]);
 
-module.exports = PublicKeyApiRouter.router;
+module.exports = router;

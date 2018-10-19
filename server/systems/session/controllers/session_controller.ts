@@ -6,79 +6,76 @@
 
 "use strict";
 
-export namespace SessionModule {
+import * as _ from 'lodash';
+import * as ConfigModule from 'config';
+import * as Wrapper from "../../../../server/systems/common/wrapper";
+import * as LocalAccount from "../../../../models/systems/accounts/account";
 
-    const _: any = require('lodash');
-    const path: any = require('path');
+const config: any = ConfigModule.get("systems");
 
-    const config: any = require('config').get("systems");
+const TWrapper: any = Wrapper;
+const wrapper = new TWrapper();
 
-    const PromisedModule: any = require(path.join(process.cwd(), "server/systems/common/wrapper"));
-    const Wrapper: any = new PromisedModule.Wrapper();
+export class Session {
 
-    const LocalAccount: any = require(path.join(process.cwd(), "models/systems/accounts/account"));
+    /**
+     * @param request
+     * @param response
+     * @returns none
+     */
+    public get_session(request: any, response: any): void {
+        let self: any = request.session.req.user;
+        if (self) {
 
-    export class Session {
-
-        /**
-         * @param request
-         * @param response
-         * @returns none
-         */
-        public get_session(request: any, response: any): void {
-            let self: any = request.session.req.user;
-            if (self) {
-
-                let entry_point = "";
-                if (config.entry_point) {
-                    entry_point = config.entry_point;
-                }
-
-                let exit_point = "";
-                if (config.exit_point) {
-                    exit_point = config.exit_point;
-                }
-
-                let result: any = {
-                    create: self.create,
-                    modify: self.modify,
-                    provider: self.provider,
-                    //auth: self.auth,
-                    username: self.username,
-                    groupid: self.groupid,
-                    userid: self.userid,
-                    local: self.local,
-                    enabled: self.enabled,
-                    role: LocalAccount.Role(self.auth),
-                    entry:entry_point,
-                    exit:exit_point,
-                    data: self.data
-                };
-                Wrapper.SendSuccess(response, result);
-            } else {
-                Wrapper.SendSuccess(response, {});
+            let entry_point = "";
+            if (config.entry_point) {
+                entry_point = config.entry_point;
             }
+
+            let exit_point = "";
+            if (config.exit_point) {
+                exit_point = config.exit_point;
+            }
+
+            let result: any = {
+                create: self.create,
+                modify: self.modify,
+                provider: self.provider,
+                //auth: self.auth,
+                username: self.username,
+                groupid: self.groupid,
+                userid: self.userid,
+                local: self.local,
+                enabled: self.enabled,
+                role: LocalAccount.Role(self),
+                entry: entry_point,
+                exit: exit_point,
+                data: self.data
+            };
+            wrapper.SendSuccess(response, result);
+        } else {
+            wrapper.SendSuccess(response, {});
         }
+    }
 
-        /**
-         * @param request
-         * @param response
-         * @returns none
-         */
-        public put_session(request: any, response: any): void {
-            let user: any = request.session.req.user;
-            if (user) {
-                if (!user.data) {
-                    user.data = {};
-                }
-                user.data = _.merge(user.data, request.body.data);
-                request.session.save();
-                Wrapper.SendSuccess(response, user.data);
-            } else {
-                Wrapper.SendError(response, 2, "not found", {code: 2, message: "not found"});
+    /**
+     * @param request
+     * @param response
+     * @returns none
+     */
+    public put_session(request: any, response: any): void {
+        let user: any = request.session.req.user;
+        if (user) {
+            if (!user.data) {
+                user.data = {};
             }
+            user.data = _.merge(user.data, request.body.data);
+            request.session.save();
+            wrapper.SendSuccess(response, user.data);
+        } else {
+            wrapper.SendError(response, {code: 2, message: "not found"});
         }
     }
 }
 
-module.exports = SessionModule;
+module.exports = Session;

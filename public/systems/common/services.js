@@ -5,31 +5,6 @@
  */
 "use strict";
 var Services = angular.module('Services', []);
-Services.factory('Socket', ["$rootScope", function ($rootScope) {
-        var socket = io.connect();
-        return {
-            on: function (eventName, callback) {
-                socket.on(eventName, function (data) {
-                    var args = [data];
-                    $rootScope.$apply(function () {
-                        if (callback) {
-                            callback.apply(socket, args);
-                        }
-                    });
-                });
-            },
-            emit: function (eventName, data, callback) {
-                socket.emit(eventName, data, function (ee) {
-                    var args = [data];
-                    $rootScope.$apply(function () {
-                        if (callback) {
-                            callback.apply(socket, args);
-                        }
-                    });
-                });
-            }
-        };
-    }]);
 Services.service("BrowserService", [function () {
         var _this = this;
         this.UserAgent = "";

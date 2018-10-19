@@ -8,23 +8,19 @@
 
 import {IRouter} from "express-serve-static-core";
 
-export namespace SessionApiRouter {
+import * as express from 'express';
+import * as Exception from "../../../server/systems/common/exception";
+import * as Session from "../../../server/systems/session/controllers/session_controller";
 
-    const path: any = require('path');
+export const router: IRouter = express.Router();
 
-    const express: any = require('express');
-    export const router: IRouter = express.Router();
+const TException: any = Exception;
+const exception = new TException();
 
-    const ExceptionController: any = require(path.join(process.cwd() , "server/systems/common/exception"));
-    const exception: any = new ExceptionController.Exception();
+const TSession: any = Session;
+const session: any = new TSession();
 
-    const SessionModule: any = require(path.join(process.cwd() , "server/systems/session/controllers/session_controller"));
-    const session: any = new SessionModule.Session;
+router.get("/api", [exception.exception, exception.guard, exception.authenticate, session.get_session]);
+router.put("/api", [exception.exception, exception.guard, exception.authenticate, session.put_session]);
 
-    router.get("/api", [exception.exception, exception.guard, exception.authenticate, session.get_session]);
-    router.put("/api", [exception.exception, exception.guard, exception.authenticate, session.put_session]);
-
-}
-
-module.exports = SessionApiRouter.router;
-
+module.exports = router;

@@ -8,39 +8,35 @@
 
 import {IRouter} from "express-serve-static-core";
 
-export namespace ProfileApiRouter {
+import * as express from 'express';
+import * as Exception from "../../../server/systems/common/exception";
+import * as Profile from "../../../server/systems/profile/controllers/profile_controller";
+import * as Cipher from "../../../server/systems/common/cipher";
 
-    const path: any = require('path');
+export const router: IRouter = express.Router();
 
-    const express: any = require('express');
-    export const router: IRouter = express.Router();
+const TException: any = Exception;
+const exception: any = new TException();
 
-    const ExceptionController: any = require(path.join(process.cwd(), "server/systems/common/exception"));
-    const exception: any = new ExceptionController.Exception();
+const TProfile: any = Profile;
+const profile: any = new TProfile();
 
-    const ProfileModule: any = require(path.join(process.cwd(), "server/systems/profile/controllers/profile_controller"));
-    const profile: any = new ProfileModule.Profile;
+router.get("/api", [exception.exception, exception.guard, exception.authenticate, profile.get_profile]);
+router.put("/api", [exception.exception, exception.guard, exception.authenticate, profile.put_profile]);
 
-    router.get("/api", [exception.exception, exception.guard, exception.authenticate, profile.get_profile]);
-    router.put("/api", [exception.exception, exception.guard, exception.authenticate, profile.put_profile]);
+const TCipher: any = Cipher;
+const cipher = new TCipher();
 
-    // api base
-    const CipherModule: any = require(path.join(process.cwd(), "server/systems/common/cipher"));
-    const Cipher: any = CipherModule.Cipher;
-
-    router.get("/api/test/:token", [exception.exception, (request: any, response: any) => {
-        let token = request.params.token;
-        // by_user token to by_user passphrase
-        Cipher.Account(token, "opensesame", (error: any, account: any) => {
-            if (!error) {
-                if (account) {
-                    // encode
-                }
+router.get("/api/test/:token", [exception.exception, (request: any, response: any) => {
+    let token = request.params.token;
+    // by_user token to by_user passphrase
+    cipher.Account(token, "opensesame", (error: any, account: any) => {
+        if (!error) {
+            if (account) {
+                // encode
             }
-        });
-    }]);
+        }
+    });
+}]);
 
-}
-
-module.exports = ProfileApiRouter.router;
-
+module.exports = router;

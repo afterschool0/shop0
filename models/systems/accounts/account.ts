@@ -6,68 +6,67 @@
 
 "use strict";
 
-namespace AccountModule {
+import * as mongoose from 'mongoose';
+import * as passport from 'passport-local-mongoose';
 
-    const mongoose: any = require('mongoose');
-    const Schema = mongoose.Schema;
-    const passport: any = require('passport-local-mongoose');
-    const timestamp: any = require('../plugins/timestamp/timestamp');
+const timestamp: any = require('../plugins/timestamp/timestamp');
 
-    const Account = new Schema({
-        provider: {type: String, default: "local"},
-        auth: {type: Number, default: 10001},
-        groupid: {type: String, required: true, sparse: true},
-        userid: {type: String, required: true, sparse: true},
-        username: {type: String, required: true, index: {unique: true}},
-        password: {type: String},
-        passphrase: {type: String, default: ""},
-        publickey: {type: String, default: ""},
-        enabled: {type: Boolean, default: true},
-        local: {}
-    });
+const Schema = mongoose.Schema;
 
-    Account.plugin(passport);
-    Account.plugin(timestamp);
+const Account = new Schema({
+    provider: {type: String, default: "local"},
+    auth: {type: Number, default: 10001},
+    groupid: {type: String, required: true, sparse: true},
+    userid: {type: String, required: true, sparse: true},
+    username: {type: String, required: true, index: {unique: true}},
+    password: {type: String},
+    passphrase: {type: String, default: ""},
+    publickey: {type: String, default: ""},
+    enabled: {type: Boolean, default: true},
+    local: {}
+});
 
-    let role = (user: any) => {
-        let result: any = {guest: false, categoly: 0, raw:user.auth};
-        if (user) {
+Account.plugin(passport);
+Account.plugin(timestamp);
 
-            if (user.auth < 100) {
-                result.system = true;
-            }
-            if (user.auth < 500) {
-                result.user = true;
-            }
-
-            if (user.auth < 1000) {
-                result.member = true;
-            }
-
-            if (user.auth < 10000) {
-                result.temp = true;
-            }
-
-            result.guest = true;
-
-            switch (user.provider) {
-                case "local":
-                    result.categoly = 0;
-                    break;
-                default:
-                    result.categoly = 1;
-            }
-        }
-        return result;
-    };
-
-    Account.statics.Role = function (user): any {
-        return role(user);
-    };
-
-    Account.method("Role", function (): any {
-        return role(this);
-    });
-
-    module.exports = mongoose.model('Account', Account);
+interface AuthIntf {
+    system: boolean,
+    user: boolean,
+    member: boolean,
+    temp: boolean,
+    guest: boolean,
+    categoly: number,
+    raw: number
 }
+
+let role = (user: { auth: number, provider: string }): AuthIntf => {
+    let result: AuthIntf = {system: false, user: false, member: false, temp: false, guest: false, categoly: 0, raw: 100000};
+    if (user) {
+        let auth = user.auth;
+        let categoly:number = 0;
+        switch (user.provider) {
+            case "local":
+                categoly = 0;
+                break;
+            default:
+                categoly = 1;
+        }
+
+        result = {
+            system: (auth < 100),
+            user: (auth < 500),
+            member: (auth < 1000),
+            temp: (auth < 10000),
+            guest: true,
+            categoly: categoly,
+            raw: auth
+        };
+    }
+    return result;
+};
+
+Account.statics.Role = function (user:{ auth: number, provider: string }): AuthIntf {
+    return role(user);
+};
+
+module.exports = mongoose.model('Account', Account);

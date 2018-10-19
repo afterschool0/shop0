@@ -10,8 +10,8 @@ namespace AuthControllersModule {
 
     let AuthControllers: angular.IModule = angular.module('AuthControllers', ["ngResource", 'ngMessages']);
 
-    AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService','SessionService',
-        ($scope: any, $rootScope: any, $window: any, $uibModal: any, $log: any, AuthService: any, ProfileService: any, SessionService: any): void => {
+    AuthControllers.controller('LoginController', ["$scope", "$rootScope", "$window", "$uibModal", '$log', 'AuthService', 'ProfileService', 'SessionService', 'Socket',
+        ($scope: any, $rootScope: any, $window: any, $uibModal: any, $log: any, AuthService: any, ProfileService: any, SessionService: any, Socket): void => {
 
             let progress = (value: boolean): void => {
                 $scope.$emit('progress', value);
@@ -21,7 +21,7 @@ namespace AuthControllersModule {
                 $scope.progress = value;
             });
 
-            let error_handler = (error:any): void => {
+            let error_handler = (error: any): void => {
                 progress(false);
                 $scope.message = error.message;
                 $log.error(error.message);
@@ -42,6 +42,7 @@ namespace AuthControllersModule {
                 }, (): void => {
                 });
             };
+
 
             //$('#password').password({
             //    eyeClass: 'fa',
@@ -100,11 +101,52 @@ namespace AuthControllersModule {
             let user: any = {};
 
             // ProfileService
+            // SessionService
             SessionService.Get((error, profile) => {
                 if (!error) {
                     if (profile) {
                         user = profile;
                         $scope.role = user.role;
+
+
+
+
+
+
+                        //Socket
+                        let SocketEnter = (): void => {
+                            let resp_target = {name: "response", id: "", method:"enter", from: profile.username};
+                            let payload = {message: "Hello Again"};
+                            Socket.emit("request", {response: resp_target, payload: payload});
+                        };
+
+                        let SocketLeave = (): void => {
+                            let resp_target = {name: "response", id: "", method:"leave", from: profile.username};
+                            let payload = {message: "Hello Again"};
+                            Socket.emit("request", {response: resp_target, payload: payload});
+                        };
+
+                        let Broadcast = (): void => {
+                            let resp_target = {name: "response", id: "", method:"broadcast", from: profile.username};
+                            let payload = {message: "Hello Again"};
+                            Socket.emit("request", {response: resp_target, payload: payload});
+                        };
+
+                        Socket.on("response", (response: any): void => {
+                            $scope.socket_message = response.response.from;
+                        });
+
+                        $scope.SocketEnter = SocketEnter;
+                        $scope.SocketLeave = SocketLeave;
+                        $scope.Broadcast = Broadcast;
+                        //Socket
+
+
+
+
+
+
+
 
                         $scope.showLoginDialog = (): void => {
                             let modalInstance = $uibModal.open({
@@ -116,7 +158,8 @@ namespace AuthControllersModule {
 
                             modalInstance.result.then((member): void => { // Answer
                                 // ProfileService
-                                SessionService.Get((error:any, profile:any):void => {
+                                // SessionService
+                                SessionService.Get((error: any, profile: any): void => {
                                     if (!error) {
                                         if (profile) {
                                             user = profile;
@@ -156,11 +199,12 @@ namespace AuthControllersModule {
 
                         $scope.Logout = (): void => {
                             // ProfileService
-                            SessionService.Get((error:any, profile:any):void => {
+                            // SessionService
+                            SessionService.Get((error: any, profile: any): void => {
                                 if (!error) {
                                     if (profile) {
                                         user = profile;
-                                        AuthService.Logout((error:any, account:any):void => {
+                                        AuthService.Logout((error: any, account: any): void => {
                                             $rootScope.$broadcast('Logout');
                                         }, (): void => {
                                         });
@@ -224,7 +268,7 @@ namespace AuthControllersModule {
                 $window.location.href = ref;
             };
 
-            $scope.change = ():void => {
+            $scope.change = (): void => {
                 $scope.message = "";
             };
 

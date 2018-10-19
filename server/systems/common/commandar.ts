@@ -6,32 +6,31 @@
 
 "use strict";
 
-export namespace Commandar {
+import * as child_process from 'child_process';
 
-    const execSync: any = require('child_process').execSync;
+const execSync: any = child_process.execSync;
 
-    export class Unix {
+export class Unix {
 
-        private backupdir: string;
+    private backupdir: string;
 
-        constructor() {
-            this.backupdir = process.cwd() + "/backup";
-        }
-
-        public Backup(config): string {
-            let backup = "mongodump --authenticationDatabase " + config.name + " -u " + config.user + " -p " + config.password + " -d " + config.name + " -o " + '"' + this.backupdir + '"';
-            console.log(backup);
-            return "" + execSync(backup);
-        }
-
-        public Restore(config): string {
-            let restore = "mongorestore --authenticationDatabase " + config.name + " -u " + config.user + " -p " + config.password + " -d " + config.name + " " + '"' + this.backupdir + "/" + config.name + '"';
-            console.log(restore);
-            return "" + execSync(restore);
-        }
-
+    constructor() {
+        this.backupdir = process.cwd() + "/backup";
     }
+
+    public Backup(config): string {
+        let backup = "mongodump --authenticationDatabase " + config.name + " -u " + config.user + " -p " + config.password + " -d " + config.name + " -o " + '"' + this.backupdir + '"';
+        console.log(backup);
+        return "" + execSync(backup);
+    }
+
+    public Restore(config): string {
+        let restore = "mongorestore --authenticationDatabase " + config.name + " -u " + config.user + " -p " + config.password + " -d " + config.name + " " + '"' + this.backupdir + "/" + config.name + '"';
+        console.log(restore);
+        return "" + execSync(restore);
+    }
+
 
 }
 
-module.exports = Commandar;
+module.exports = Unix;

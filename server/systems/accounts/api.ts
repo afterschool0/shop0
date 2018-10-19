@@ -8,29 +8,27 @@
 
 import {IRouter} from "express-serve-static-core";
 
-export namespace AccountApiRouter {
+import * as express from 'express';
 
-    const path: any = require('path');
+import * as Auth from "../../../server/systems/auth/controllers/auth_controller";
+import * as Account from "../../../server/systems/accounts/controllers/account_controller";
+import * as Exception from "../../../server/systems/common/exception";
 
-    const express: any = require('express');
-    export const router: IRouter = express.Router();
+export const router: IRouter = express.Router();
 
-    const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
-    const auth: any = new AuthController.Auth;
+const TAuth: any = Auth;
+const auth = new TAuth();
 
-    const AccountModule: any = require(path.join(process.cwd(), "server/systems/accounts/controllers/account_controller"));
-    const accounts: any = new AccountModule.Accounts;
+const accounts: any = new Account();
 
-    const ExceptionController: any = require(path.join(process.cwd(), "server/systems/common/exception"));
-    const exception: any = new ExceptionController.Exception();
+const TException: any = Exception;
+const exception: any = new TException();
 
-    router.get('/api/query/:query/:option', [exception.exception, exception.guard, exception.authenticate, accounts.account_query]);
-    router.get('/api/count/:query', [exception.exception, exception.guard, exception.authenticate, accounts.account_count]);
+router.get('/api/query/:query/:option', [exception.exception, exception.guard, exception.authenticate, accounts.account_query]);
+router.get('/api/count/:query', [exception.exception, exception.guard, exception.authenticate, accounts.account_count]);
 
-    router.get("/api/:username", [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.get_account]);
-    router.put("/api/:username", [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.put_account]);
-    router.delete('/api/:username', [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.delete_account]);
+router.get("/api/:username", [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.get_account]);
+router.put("/api/:username", [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.put_account]);
+router.delete('/api/:username', [exception.exception, exception.guard, exception.authenticate, auth.is_system, accounts.delete_account]);
 
-}
-
-module.exports = AccountApiRouter.router;
+module.exports = router;

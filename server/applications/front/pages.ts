@@ -8,54 +8,52 @@
 
 import {IRouter} from "express-serve-static-core";
 
-export namespace PageRouter {
+import * as express from "express";
+import * as configModule from 'config';
 
-    const express = require('express');
-    export const router: IRouter = express.Router();
-    const path: any = require('path');
-    const _ = require('lodash');
+import * as Exception from "../../../server/systems/common/exception";
+import * as Auth from "../../../server/systems/auth/controllers/auth_controller";
+import * as LocalAccount from "../../../models/systems/accounts/account";
 
-    //const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
-    //  const auth: any = new AuthController.Auth();
+export const router: IRouter = express.Router();
 
-    const LocalAccount: any = require(path.join(process.cwd(), "models/systems/accounts/account"));
+const config: any = configModule.get("systems");
 
-    const ExceptionController: any = require( path.join(process.cwd(), "server/systems/common/exception"));
-    const exception: any = new ExceptionController.Exception;
+const TException: any = Exception;
+const exception = new TException();
 
-    const _config: any = require('config');
-    const config: any = _config.get("systems");
-    const message: any = config.message;
+const TAuth: any = Auth;
+const auth = new TAuth();
 
-    let exit_point = "";
-    if (config.exit_point) {
-        exit_point = config.exit_point;
-    }
+const message: any = config.message;
 
-    router.get("/" + exit_point, [ (request: any, response: any): void => {
-        let local = {mails:[""],nickname:""};
-        if (request.user) {
-            local = request.user.local;
-        }
-        response.render("applications/front/index", {
-            role: LocalAccount.Role(request.user),
-            local:local,
-            message: message
-        });
-    }]);
-
-    router.get("/" + exit_point + "/users", [ (request: any, response: any): void => {
-        let local = {mails:[""],nickname:""};
-        if (request.user) {
-            local = request.user.local;
-        }
-        response.render("applications/front/users", {
-            role: LocalAccount.Role(request.user),
-            local:local,
-            message: message
-        });
-    }]);
-
+let exit_point = "";
+if (config.exit_point) {
+    exit_point = config.exit_point;
 }
 
-module.exports = PageRouter.router;
+router.get("/" + exit_point, [(request: any, response: any): void => {
+    let local = {mails: [""], nickname: ""};
+    if (request.user) {
+        local = request.user.local;
+    }
+    response.render("applications/front/index", {
+        role: LocalAccount.Role(request.user),
+        local: local,
+        message: message
+    });
+}]);
+
+router.get("/users", [exception.page_catch, exception.page_guard, auth.page_is_system, (request: any, response: any): void => {
+    let local = {mails: [""], nickname: ""};
+    if (request.user) {
+        local = request.user.local;
+    }
+    response.render("applications/front/users", {
+        role: LocalAccount.Role(request.user),
+        local: local,
+        message: message
+    });
+}]);
+
+module.exports = router;

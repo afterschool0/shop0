@@ -7,12 +7,8 @@
 "use strict";
 
 import {IRouter} from "express-serve-static-core";
+import * as express from 'express';
 
-export namespace ProfilePageRouter {
+export const router: IRouter = express.Router();
 
-    const express: any = require('express');
-    export const router: IRouter = express.Router();
-
-}
-
-module.exports = ProfilePageRouter.router;
+module.exports = router;

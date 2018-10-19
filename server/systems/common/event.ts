@@ -6,18 +6,14 @@
 
 "use strict";
 
-export namespace EventModule {
+import * as Emitter from 'events';
 
-    const Emitter: any = require('events');
+export class Event {
+    public emitter: any = null;
 
-    export class Event {
-        public emitter: any = null;
-
-        constructor() {
-            this.emitter = new Emitter();
-        }
+    constructor() {
+        this.emitter = new Emitter();
     }
-
 }
 
-module.exports = EventModule;
+module.exports = Event;

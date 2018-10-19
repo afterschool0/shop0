@@ -6,52 +6,73 @@
 
 "use strict";
 
-export namespace Socket {
+import * as socketio from 'socket.io';
+import * as _ from "lodash";
 
-    // Socket.IO
-    const socketio: any = require('socket.io');
-    const _: any = require("lodash");
+export class IO {
 
-    export class IO {
+    public io: any = null;
 
-        public sio: any = null;
-        public socket: any = null;
-        public clients:any[] = [];
+    public list: {} = {};
 
-        constructor(server:any) {
-            this.sio = socketio.listen(server);
-        }
-
-        public wait(event:any): void {
-
-            this.sio.sockets.on('connection', (socket) => {
-
-                this.socket = socket;
-
-                _.forEach(this.sio.sockets.connected, (client: any, id: string): void => {
-                    this.clients.push(client);
-                });
-
-                socket.on('server', (data) => {
-
-                    event.emitter.emit('socket', data);
-
-                    // all client except self
-                    // socket.broadcast.emit('client', {value: data.value});
-
-                    // callback
-                    this.sio.sockets.connected[socket.id].emit('client', {value: socket.id});
-                });
-
-                socket.on("disconnect", () => {
-                    this.socket = null;
-                });
-            });
-
-        }
+    constructor(server: any) {
+        this.io = socketio.listen(server);
+        this.list = {};
     }
 
+    public wait(config, event: any): void {
 
+        this.io.sockets.on('connection', (socket) => {
+
+            socket.on('request', (request: { response: { name: string, id: string, method: string, from: string }, payload: { message: string } }) => {
+
+                let response = request.response;
+
+                event.emitter.emit('socket', request);
+
+                let from = response.from;
+                switch (response.method) {
+                    case "enter": {
+                        if (!this.list[socket.id]) {
+                            this.list[socket.id] = from;
+                        }
+
+                        request.response.id = socket.id;
+                        this.io.sockets.connected[socket.id].emit(request.response.name, request);
+                    }
+                        break;
+                    case "leave": {
+                        if (this.list[socket.id]) {
+                            delete this.list[socket.id];
+                        }
+
+                        request.response.id = socket.id;
+                        this.io.sockets.connected[socket.id].emit(request.response.name, request);
+                    }
+                        break;
+                    case "broadcast": {
+                        _.forEach(this.io.sockets.connected, (client: any, id: string): void => {
+                            request.response.id = id;
+                            client.emit(request.response.name, request);
+                        });
+                    }
+                }
+
+                // callback
+                // this.io.sockets.connected[socket.id].emit('client', {value: socket.id});
+            });
+
+            socket.on("disconnect", () => {
+
+                //   if (this.list[socket.id]) {
+                //       delete this.list[socket.id];
+                //   }
+
+                //    socket = null;
+            });
+        });
+
+    }
 }
 
-module.exports = Socket;
+module.exports = IO;

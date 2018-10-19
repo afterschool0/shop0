@@ -8,11 +8,8 @@
 
 import {IRouter} from "express-serve-static-core";
 
-export namespace AccountPageRouter {
+import * as express from 'express';
 
-    const express: any = require('express');
-    export const router: IRouter = express.Router();
+export const router: IRouter = express.Router();
 
-}
-
-module.exports = AccountPageRouter.router;
+module.exports = router;

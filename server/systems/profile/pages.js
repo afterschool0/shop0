@@ -5,10 +5,7 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ProfilePageRouter;
-(function (ProfilePageRouter) {
-    var express = require('express');
-    ProfilePageRouter.router = express.Router();
-})(ProfilePageRouter = exports.ProfilePageRouter || (exports.ProfilePageRouter = {}));
-module.exports = ProfilePageRouter.router;
+var express = require("express");
+exports.router = express.Router();
+module.exports = exports.router;
 //# sourceMappingURL=pages.js.map

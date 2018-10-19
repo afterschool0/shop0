@@ -5,46 +5,43 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var PageRouter;
-(function (PageRouter) {
-    var express = require('express');
-    PageRouter.router = express.Router();
-    var path = require('path');
-    var _ = require('lodash');
-    //const AuthController: any = require(path.join(process.cwd(), "server/systems/auth/controllers/auth_controller"));
-    //  const auth: any = new AuthController.Auth();
-    var LocalAccount = require(path.join(process.cwd(), "models/systems/accounts/account"));
-    var ExceptionController = require(path.join(process.cwd(), "server/systems/common/exception"));
-    var exception = new ExceptionController.Exception;
-    var _config = require('config');
-    var config = _config.get("systems");
-    var message = config.message;
-    var exit_point = "";
-    if (config.exit_point) {
-        exit_point = config.exit_point;
-    }
-    PageRouter.router.get("/" + exit_point, [function (request, response) {
-            var local = { mails: [""], nickname: "" };
-            if (request.user) {
-                local = request.user.local;
-            }
-            response.render("applications/front/index", {
-                role: LocalAccount.Role(request.user),
-                local: local,
-                message: message
-            });
-        }]);
-    PageRouter.router.get("/" + exit_point + "/users", [function (request, response) {
-            var local = { mails: [""], nickname: "" };
-            if (request.user) {
-                local = request.user.local;
-            }
-            response.render("applications/front/users", {
-                role: LocalAccount.Role(request.user),
-                local: local,
-                message: message
-            });
-        }]);
-})(PageRouter = exports.PageRouter || (exports.PageRouter = {}));
-module.exports = PageRouter.router;
+var express = require("express");
+var configModule = require("config");
+var Exception = require("../../../server/systems/common/exception");
+var Auth = require("../../../server/systems/auth/controllers/auth_controller");
+var LocalAccount = require("../../../models/systems/accounts/account");
+exports.router = express.Router();
+var config = configModule.get("systems");
+var TException = Exception;
+var exception = new TException();
+var TAuth = Auth;
+var auth = new TAuth();
+var message = config.message;
+var exit_point = "";
+if (config.exit_point) {
+    exit_point = config.exit_point;
+}
+exports.router.get("/" + exit_point, [function (request, response) {
+        var local = { mails: [""], nickname: "" };
+        if (request.user) {
+            local = request.user.local;
+        }
+        response.render("applications/front/index", {
+            role: LocalAccount.Role(request.user),
+            local: local,
+            message: message
+        });
+    }]);
+exports.router.get("/users", [exception.page_catch, exception.page_guard, auth.page_is_system, function (request, response) {
+        var local = { mails: [""], nickname: "" };
+        if (request.user) {
+            local = request.user.local;
+        }
+        response.render("applications/front/users", {
+            role: LocalAccount.Role(request.user),
+            local: local,
+            message: message
+        });
+    }]);
+module.exports = exports.router;
 //# sourceMappingURL=pages.js.map

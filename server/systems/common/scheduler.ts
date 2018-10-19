@@ -6,24 +6,21 @@
 
 "use strict";
 
-export namespace SchedulerModule {
+import * as schedule from "node-schedule";
 
-    let schedule: any = require("node-schedule");
+export class Scheduler {
 
-    export class Scheduler {
+    public Scheduled_jobs: any;
 
-        public Scheduled_jobs: any;
-
-        constructor() {
-            this.Scheduled_jobs = [];
-        }
-
-        public Add(item: any) {
-            let job = schedule.scheduleJob(item.timing, item.job);
-            this.Scheduled_jobs.push(job);
-        }
-
+    constructor() {
+        this.Scheduled_jobs = [];
     }
+
+    public Add(item: any) {
+        let job = schedule.scheduleJob(item.timing, item.job);
+        this.Scheduled_jobs.push(job);
+    }
+
 }
 
-module.exports = SchedulerModule;
+module.exports = Scheduler;

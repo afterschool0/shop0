@@ -8,11 +8,8 @@
 
 import {IRouter} from "express-serve-static-core";
 
-export namespace SessionPageRouter {
+import * as express from 'express';
 
-    const express: any = require('express');
-    export const router: IRouter = express.Router();
+export const router: IRouter = express.Router();
 
-}
-
-module.exports = SessionPageRouter.router;
+module.exports = router;

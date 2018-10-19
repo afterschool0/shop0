@@ -5,19 +5,16 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var PublicKeyApiRouter;
-(function (PublicKeyApiRouter) {
-    var express = require('express');
-    PublicKeyApiRouter.router = express.Router();
-    var path = require('path');
-    var ExceptionController = require(path.join(process.cwd(), "server/systems/common/exception"));
-    var exception = new ExceptionController.Exception();
-    /*! public key */
-    var PublicKeyController = require(path.join(process.cwd(), "server/systems/publickey/controllers/publickey_controller"));
-    var publickey = new PublicKeyController.PublicKey();
-    PublicKeyApiRouter.router.get("/fixed", [publickey.get_fixed_public_key]);
-    PublicKeyApiRouter.router.get("/dynamic", [exception.exception, exception.guard, exception.authenticate, publickey.get_public_key]);
-    PublicKeyApiRouter.router.get("/token", [exception.exception, exception.guard, exception.authenticate, publickey.get_access_token]);
-})(PublicKeyApiRouter = exports.PublicKeyApiRouter || (exports.PublicKeyApiRouter = {}));
-module.exports = PublicKeyApiRouter.router;
+var express = require("express");
+var Exception = require("../../../server/systems/common/exception");
+var PublicKey = require("../../../server/systems/publickey/controllers/publickey_controller");
+exports.router = express.Router();
+var TException = Exception;
+var exception = new TException();
+var TPublickey = PublicKey;
+var publickey = new TPublickey();
+exports.router.get("/fixed", [publickey.get_fixed_public_key]);
+exports.router.get("/dynamic", [exception.exception, exception.guard, exception.authenticate, publickey.get_public_key]);
+exports.router.get("/token", [exception.exception, exception.guard, exception.authenticate, publickey.get_access_token]);
+module.exports = exports.router;
 //# sourceMappingURL=api.js.map

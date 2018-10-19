@@ -5,10 +5,7 @@
  */
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var PublicKeyPageRouter;
-(function (PublicKeyPageRouter) {
-    var express = require('express');
-    PublicKeyPageRouter.router = express.Router();
-})(PublicKeyPageRouter = exports.PublicKeyPageRouter || (exports.PublicKeyPageRouter = {}));
-module.exports = PublicKeyPageRouter.router;
+var express = require("express");
+exports.router = express.Router();
+module.exports = exports.router;
 //# sourceMappingURL=pages.js.map

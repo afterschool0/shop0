@@ -8,32 +8,6 @@
 
 let Services = angular.module('Services', []);
 
-Services.factory('Socket', ["$rootScope", ($rootScope: any): any => {
-    let socket: any = io.connect();
-    return {
-        on: (eventName: any, callback: any): void => {
-            socket.on(eventName, (data): void => {
-                let args: any = [data];
-                $rootScope.$apply((): void => {
-                    if (callback) {
-                        callback.apply(socket, args);
-                    }
-                });
-            });
-        },
-        emit: (eventName, data, callback): void => {
-            socket.emit(eventName, data, (ee): void => {
-                let args: any = [data];
-                $rootScope.$apply((): void => {
-                    if (callback) {
-                        callback.apply(socket, args);
-                    }
-                });
-            })
-        }
-    };
-}]);
-
 Services.service("BrowserService", [function () {
 
     this.UserAgent = "";
